@@ -1,6 +1,9 @@
 import { html, LitElement } from 'lit-element';
+import { connectmixin } from '../mixins/connectmixin.js';
 
-class XUsers extends LitElement {
+let props = () => ([]);
+
+    export class XUsers extends connectmixin(props, LitElement) {
     constructor() {
         super();
     }
@@ -9,19 +12,19 @@ class XUsers extends LitElement {
         if (!firebase.auth().currentUser) {
             return commands.redirect('/')
         }
-        firebase.auth().signOut().then(function() {
-            console.log('Signed Out');
-          }, function(error) {
-            console.error('Sign Out Error', error);
-          });
         console.log('GOING INTO USERS')
+    }
+
+    stateChanged(state) {
+        console.log(state)
     }
 
     render() {
         return html`
             <style>
-                :root {
-                    background-color: red;
+                div {
+                    font-family: var(--font);
+                    color: red;
                 }
             </style>
             <div>ÅÄÖ</div>
