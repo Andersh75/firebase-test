@@ -16,8 +16,10 @@ export const reduxmixin = (props, superClass) => {
         }
 
         stateChanged(state) {
-        
+            console.log('state', state)
+            this.scenario = chosenScenario;
             props().forEach(prop => {
+                console.log('prop', prop)
                 if (prop.path) {
                    
                     if(R.is(Array, prop.path.reduce((acc, item) => {
@@ -37,6 +39,7 @@ export const reduxmixin = (props, superClass) => {
                             return acc[item]
                         }, state))) 
                     {
+                        console.log('KEY', prop.propKey)
                         this[prop.propKey] = {...prop.path.reduce((acc, item) => {
                         
                             return acc[item]
@@ -45,6 +48,7 @@ export const reduxmixin = (props, superClass) => {
                         if (!R.equals(this[prop.propKey], prop.path.reduce((acc, item) => {
                             return acc[item]
                         }, state))) {
+                            console.log('KEY', prop.propKey)
                             this[prop.propKey] = prop.path.reduce((acc, item) => {
                                
                                 return acc[item]

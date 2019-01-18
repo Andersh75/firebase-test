@@ -5130,6 +5130,7 @@
             updated(changedProps) {
                 super.updated(changedProps);
                 changedProps.forEach((value, key) => {
+                    console.log(key);
                     if (this[`${key}$`] !== undefined && this[`${key}$`] !== null) {
                         this[`${key}$`].next(this[key]);
                     }
@@ -8432,6 +8433,13 @@
       };
     }
 
+    function _reduced(x) {
+      return x && x['@@transducer/reduced'] ? x : {
+        '@@transducer/value': x,
+        '@@transducer/reduced': true
+      };
+    }
+
     var _xfBase = {
       init: function () {
         return this.xf['@@transducer/init']();
@@ -10000,6 +10008,31 @@
     });
 
     /**
+     * Returns `true` if the specified value is equal, in [`R.equals`](#equals)
+     * terms, to at least one element of the given list; `false` otherwise.
+     * Works also with strings.
+     *
+     * @func
+     * @memberOf R
+     * @since v0.1.0
+     * @category List
+     * @sig a -> [a] -> Boolean
+     * @param {Object} a The item to compare against.
+     * @param {Array} list The array to consider.
+     * @return {Boolean} `true` if an equivalent item is in the list, `false` otherwise.
+     * @see R.includes
+     * @deprecated since v0.26.0
+     * @example
+     *
+     *      R.contains(3, [1, 2, 3]); //=> true
+     *      R.contains(4, [1, 2, 3]); //=> false
+     *      R.contains({ name: 'Fred' }, [{ name: 'Fred' }]); //=> true
+     *      R.contains([42], [[42]]); //=> true
+     *      R.contains('ba', 'banana'); //=>true
+     */
+    var contains$1 = /*#__PURE__*/_curry2(_includes);
+
+    /**
      * Accepts a converging function and a list of branching functions and returns
      * a new function. The arity of the new function is the same as the arity of
      * the longest branching function. When invoked, this new function is applied
@@ -10337,6 +10370,100 @@
       }
     }
 
+    /**
+     * Removes the sub-list of `list` starting at index `start` and containing
+     * `count` elements. _Note that this is not destructive_: it returns a copy of
+     * the list with the changes.
+     * <small>No lists have been harmed in the application of this function.</small>
+     *
+     * @func
+     * @memberOf R
+     * @since v0.2.2
+     * @category List
+     * @sig Number -> Number -> [a] -> [a]
+     * @param {Number} start The position to start removing elements
+     * @param {Number} count The number of elements to remove
+     * @param {Array} list The list to remove from
+     * @return {Array} A new Array with `count` elements from `start` removed.
+     * @see R.without
+     * @example
+     *
+     *      R.remove(2, 3, [1,2,3,4,5,6,7,8]); //=> [1,2,6,7,8]
+     */
+    var remove = /*#__PURE__*/_curry3(function remove(start, count, list) {
+      var result = Array.prototype.slice.call(list, 0);
+      result.splice(start, count);
+      return result;
+    });
+
+    var XTake = /*#__PURE__*/function () {
+      function XTake(n, xf) {
+        this.xf = xf;
+        this.n = n;
+        this.i = 0;
+      }
+      XTake.prototype['@@transducer/init'] = _xfBase.init;
+      XTake.prototype['@@transducer/result'] = _xfBase.result;
+      XTake.prototype['@@transducer/step'] = function (result, input) {
+        this.i += 1;
+        var ret = this.n === 0 ? result : this.xf['@@transducer/step'](result, input);
+        return this.n >= 0 && this.i >= this.n ? _reduced(ret) : ret;
+      };
+
+      return XTake;
+    }();
+
+    var _xtake = /*#__PURE__*/_curry2(function _xtake(n, xf) {
+      return new XTake(n, xf);
+    });
+
+    /**
+     * Returns the first `n` elements of the given list, string, or
+     * transducer/transformer (or object with a `take` method).
+     *
+     * Dispatches to the `take` method of the second argument, if present.
+     *
+     * @func
+     * @memberOf R
+     * @since v0.1.0
+     * @category List
+     * @sig Number -> [a] -> [a]
+     * @sig Number -> String -> String
+     * @param {Number} n
+     * @param {*} list
+     * @return {*}
+     * @see R.drop
+     * @example
+     *
+     *      R.take(1, ['foo', 'bar', 'baz']); //=> ['foo']
+     *      R.take(2, ['foo', 'bar', 'baz']); //=> ['foo', 'bar']
+     *      R.take(3, ['foo', 'bar', 'baz']); //=> ['foo', 'bar', 'baz']
+     *      R.take(4, ['foo', 'bar', 'baz']); //=> ['foo', 'bar', 'baz']
+     *      R.take(3, 'ramda');               //=> 'ram'
+     *
+     *      const personnel = [
+     *        'Dave Brubeck',
+     *        'Paul Desmond',
+     *        'Eugene Wright',
+     *        'Joe Morello',
+     *        'Gerry Mulligan',
+     *        'Bob Bates',
+     *        'Joe Dodge',
+     *        'Ron Crotty'
+     *      ];
+     *
+     *      const takeFive = R.take(5);
+     *      takeFive(personnel);
+     *      //=> ['Dave Brubeck', 'Paul Desmond', 'Eugene Wright', 'Joe Morello', 'Gerry Mulligan']
+     * @symb R.take(-1, [a, b]) = [a, b]
+     * @symb R.take(0, [a, b]) = []
+     * @symb R.take(1, [a, b]) = [a]
+     * @symb R.take(2, [a, b]) = [a, b]
+     */
+    var take$1 = /*#__PURE__*/_curry2( /*#__PURE__*/_dispatchable(['take'], _xtake, function take(n, xs) {
+      return slice(0, n < 0 ? Infinity : n, xs);
+    }));
+
     var XDropRepeatsWith = /*#__PURE__*/function () {
       function XDropRepeatsWith(pred, xf) {
         this.xf = xf;
@@ -10473,6 +10600,25 @@
       }() : void 0 // else
       ;
     });
+
+    /**
+     * Returns a new list by pulling every item out of it (and all its sub-arrays)
+     * and putting them in a new array, depth-first.
+     *
+     * @func
+     * @memberOf R
+     * @since v0.1.0
+     * @category List
+     * @sig [a] -> [b]
+     * @param {Array} list The array to consider.
+     * @return {Array} The flattened list.
+     * @see R.unnest
+     * @example
+     *
+     *      R.flatten([1, 2, [3, 4], 5, [6, [7, 8, [9, [10, 11], 12]]]]);
+     *      //=> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+     */
+    var flatten = /*#__PURE__*/_curry1( /*#__PURE__*/_makeFlat(true));
 
     /**
      * Returns a new function much like the supplied one, except that the first two
@@ -10619,6 +10765,32 @@
      *      R.init('');     //=> ''
      */
     var init = /*#__PURE__*/slice(0, -1);
+
+    /**
+     * Inserts the supplied element into the list, at the specified `index`. _Note that
+
+     * this is not destructive_: it returns a copy of the list with the changes.
+     * <small>No lists have been harmed in the application of this function.</small>
+     *
+     * @func
+     * @memberOf R
+     * @since v0.2.2
+     * @category List
+     * @sig Number -> a -> [a] -> [a]
+     * @param {Number} index The position to insert the element
+     * @param {*} elt The element to insert into the Array
+     * @param {Array} list The list to insert into
+     * @return {Array} A new Array with `elt` inserted at `index`.
+     * @example
+     *
+     *      R.insert(2, 'x', [1,2,3,4]); //=> [1,2,'x',3,4]
+     */
+    var insert = /*#__PURE__*/_curry3(function insert(idx, elt, list) {
+      idx = idx < list.length && idx >= 0 ? idx : list.length;
+      var result = Array.prototype.slice.call(list, 0);
+      result.splice(idx, 0, elt);
+      return result;
+    });
 
     /**
      * Returns a new list containing only one copy of each element in the original
@@ -11041,6 +11213,35 @@
     var project = /*#__PURE__*/useWith(_map, [pickAll, identity$1]); // passing `identity` gives correct arity
 
     /**
+     * Returns a list of numbers from `from` (inclusive) to `to` (exclusive).
+     *
+     * @func
+     * @memberOf R
+     * @since v0.1.0
+     * @category List
+     * @sig Number -> Number -> [Number]
+     * @param {Number} from The first number in the list.
+     * @param {Number} to One more than the last number in the list.
+     * @return {Array} The list of numbers in the set `[a, b)`.
+     * @example
+     *
+     *      R.range(1, 5);    //=> [1, 2, 3, 4]
+     *      R.range(50, 53);  //=> [50, 51, 52]
+     */
+    var range$1 = /*#__PURE__*/_curry2(function range(from, to) {
+      if (!(_isNumber(from) && _isNumber(to))) {
+        throw new TypeError('Both arguments to range must be numbers');
+      }
+      var result = [];
+      var n = from;
+      while (n < to) {
+        result.push(n);
+        n += 1;
+      }
+      return result;
+    });
+
+    /**
      * Splits a string into an array of strings based on the given
      * separator.
      *
@@ -11061,6 +11262,32 @@
      *      R.split('.', 'a.b.c.xyz.d'); //=> ['a', 'b', 'c', 'xyz', 'd']
      */
     var split = /*#__PURE__*/invoker(1, 'split');
+
+    /**
+     * Checks if a list starts with the provided sublist.
+     *
+     * Similarly, checks if a string starts with the provided substring.
+     *
+     * @func
+     * @memberOf R
+     * @since v0.24.0
+     * @category List
+     * @sig [a] -> [a] -> Boolean
+     * @sig String -> String -> Boolean
+     * @param {*} prefix
+     * @param {*} list
+     * @return {Boolean}
+     * @see R.endsWith
+     * @example
+     *
+     *      R.startsWith('a', 'abc')                //=> true
+     *      R.startsWith('b', 'abc')                //=> false
+     *      R.startsWith(['a'], ['a', 'b', 'c'])    //=> true
+     *      R.startsWith(['b'], ['a', 'b', 'c'])    //=> false
+     */
+    var startsWith = /*#__PURE__*/_curry2(function (prefix, list) {
+      return equals(take$1(prefix.length, list), prefix);
+    });
 
     /**
      * The lower case version of a string.
@@ -11429,7 +11656,8 @@
     </x-assumption-row>`
 
             case 'x-subheader':
-            return html`<x-subheader class="${item.ui_schema.ui_classnames}" .props=${item.json_schema} scenario=${this.renderscenario} title=${this.rendertitle} @scenariochanged="${(e) => this.scenarioChangedHandler(e)}"></x-subheader>`
+            return html`<x-subheader class="${item.ui_schema.ui_classnames}" .props=${item.json_schema} @scenariochanged="${(e) => this.scenarioChangedHandler(e)}"></x-subheader>`
+
 
             case 'x-main-header':
             return html`<x-main-header class="${item.ui_schema.ui_classnames}" .props=${item.json_schema}></x-main-header>`;
@@ -11458,6 +11686,30 @@
 
         }
     }
+
+
+    function getData(value, index) {
+        switch(value) {
+            case 'color':
+            return +this.scenario - 1 == index ? 'grey' : 'none'
+            case 'selected':
+            return +this.scenario - 1 == index ? true : false
+            case 'selectedmenu':
+            return +this.selectedmenu == index ? true : false
+            default:
+            return this.period.map((element, index) => {
+                let fn = getFunction.call(this, value)["fn"];
+                let prop$$1 = getFunction.call(this, value)["prop"];
+                return fn(
+                  element,
+                  prop$$1,
+                  index,
+                  this.period
+                );
+              });
+        }
+
+      }
 
     async function recurse(item) {
         if(item.json_schema.type == 'String') {
@@ -11521,7 +11773,7 @@
         if(item.json_schema.type == 'Object') {
             
             let orderedproperties = await Promise.all(item.ui_schema.ui_order.map(async(element, index) => {   
-                // console.log('item', item)      
+                    
                 if(item.data_schema[element].fn) {
                     item.data_schema[element] = await this[item.data_schema[element].fn].call(this, item.data_schema[element].parameter);
                     return await {json_schema: {...item.json_schema.properties[element]}, name: element, ui_schema: {...item.ui_schema[element], name: element, merged: item.ui_schema.ui_merged ? item.ui_schema.ui_merged : false}, data_schema: item.data_schema[element]}
@@ -11637,24 +11889,30 @@
     function toRender(renderdata) {
         return renderdata != undefined ? renderdata.map((item, index) => {
             if (!is(Array, item)) {
+                
                 if (item.ui_schema.merged != true) {
                     if (item.type == 'Array') {
+                        
                         return item.json_schema.map((element, index) => {
+                            
                             if (element.data_schema != 'HIDE') {
                                 return getElement.call(this, element.ui_schema.ui_widget, element, index, item);
                             }
                         })
                     } else {
+                        
                         if (item.data_schema != 'HIDE') {
                             if (item.ui_schema.ui_widget != undefined) {
                                 return getElement.call(this, item.ui_schema.ui_widget, item, index, item);
                             } else {
+                               
                                 return item.data_schema
                             }
                             
                         }
                     }
                 } else {
+                    
                     if (item.type == 'Array' || item.type == 'Object') {
                         return toRender.call(this, item.json_schema)
                     } else {
@@ -11662,10 +11920,32 @@
                     }
                     
                 }
-            } else {return toRender.call(this, item)}
+            } else {
+                return toRender.call(this, item)
+            }
 
         }) : ""
     }
+
+      function identity$2(item) {
+        return item;
+      }
+      
+      function getFunction(data) {
+        switch (data) {
+          case "identity":
+            return {
+              fn: identity$2.bind(this),
+              prop: "identity"
+            };
+        }
+      }
+
+      function arrayAdder(array) {
+        return array.reduce((acc, val) => {
+          return val === "HIDE" ? +acc : +acc + +val;
+        }, 0);
+      }
 
     let props$1 = () => ([
         { propKey: 'menu', propValue: {type: Object}, rx: true },
@@ -11709,12 +11989,12 @@
             super.updated(changedProperties);
             changedProperties.forEach((oldValue, propName) => {
                 if (propName === "props") {
-                    this.props.forEach(prop => {
-                        if (prop.name == 'menu') {
-                            this.menu = prop;
+                    this.props.forEach(prop$$1 => {
+                        if (prop$$1.name == 'menu') {
+                            this.menu = prop$$1;
                         }
-                        if (prop.name == 'icon') {
-                            this.icon = prop;
+                        if (prop$$1.name == 'icon') {
+                            this.icon = prop$$1;
                         }
                     });
                 }        });
@@ -13171,28 +13451,2346 @@
 
     window.customElements.define('x-footer', XFooter);
 
-    let props$4 = () => ([]);
+    let props$4 = () => ([
+        { propKey: "props", propValue: { type: Object }, rx: false },
+        { propKey: "data", propValue: { type: Object }, rx: true },
+        { propKey: "comment", propValue: { type: String }, rx: true },
+        { propKey: "label", propValue: { type: String }, rx: true },
+        { propKey: "okToRender", propValue: { type: Boolean }, rx: false },
+      ]);
 
-    class XA extends propsmixin(props$4, LitElement) {
+    class XMainHeader extends rxmixin(props$4, LitElement) {
+        constructor() {
+            super();
+            this.renderdata = false;
+            this.rendercomment = false;
+            this.renderlabel = false;
+            this.okToRender = false;
+        }
 
-        onBeforeEnter(location, commands, router) {
-            if (!firebase.auth().currentUser) {
-                return commands.redirect('/')
-            }
-            console.log('GOING INTO USERS');
+        firstUpdated() {
+            super.firstUpdated();
+            rx.latestCombiner([this.data$, this.comment$, this.label$])
+            .pipe(rx.undefinedElementRemover)
+            .subscribe(() => {
+                this.renderdata = this.data;
+                this.rendercomment = this.comment;
+                this.renderlabel = this.label;
+                this.okToRender = true;
+                this.requestUpdate();
+            });
+        }
+
+          updated(changedProperties){
+            super.updated(changedProperties);
+            changedProperties.forEach((oldValue, propName) => {
+              if (propName === "props") {
+                this.props.forEach(prop$$1 => {
+                    if (prop$$1.name == 'label') {
+                        this.label = prop$$1;
+                    }
+                    if (prop$$1.name == 'data') {
+                        this.data = prop$$1;
+                    }
+                    if (prop$$1.name == 'comment') {
+                        this.comment = prop$$1;
+                    }
+                });
+              }        }); 
         }
 
         render() {
-           
-            return html`AAAAA`;
+            
+            return this.okToRender ? html`
+              <style>
+        
+            .row {
+                display: grid;
+                grid-template-columns: repeat(10, 1fr);
+                grid-column-gap: 20px;
+                grid-template-areas: 
+                    "label      label       label    .        data        comment         comment         comment         select         select";
+                border-bottom: 2px solid var(--color-text);
+                align-items: center;
+                font: var(--font-main-header);
+                color: var(--color-text); 
+            }
+
+            .label {
+                grid-area: label; 
+
+            }
+
+            .data {
+                grid-area: data; 
+            }
+
+            .comment {
+                grid-area: comment;
+            }
+    </style>
+    <div class="row">
+        <div class="label">${toRender.call(this, prepareRender(this.renderlabel))}</div>
+        <div class="data">${toRender.call(this, prepareRender(this.renderdata))}</div>
+        <div class="comment">${toRender.call(this, prepareRender(this.rendercomment))}</div>
+    </div>
+        ` : html``
         }
     }
 
-    customElements.define('x-a', XA);
+    customElements.define('x-main-header', XMainHeader);
 
-    let props$5 = () => ([]);
+    const MENU_SELECTED = 'MENU_SELECTED';
+    const ASSUMPTIONS_STARTYEAR = 'ASSUMPTIONS_STARTYEAR';
+    const ASSUMPTIONS_ENDYEAR = 'ASSUMPTIONS_ENDYEAR';
+    const ASSUMPTIONS_SCENARIO = "ASSUMPTIONS_SCENARIO";
 
-    class XB extends propsmixin(props$5, LitElement) {
+    const ASSUMPTIONS_INVESTMENTS_FUTURE = 'ASSUMPTIONS_INVESTMENTS_FUTURE';
+    const ASSUMPTIONS_INVESTMENTS_INITIAL = 'ASSUMPTIONS_INVESTMENTS_INITIAL';
+    const ASSUMPTIONS_RENT_AMOUNT = 'ASSUMPTIONS_RENT_AMOUNT';
+    const ASSUMPTIONS_RENT_PERIOD = 'ASSUMPTIONS_RENT_PERIOD';
+    const ASSUMPTIONS_RENT_REMOVE = 'ASSUMPTIONS_RENT_REMOVE';
+    const ASSUMPTIONS_RENT_ADD = 'ASSUMPTIONS_RENT_ADD';
+    const ASSUMPTIONS_MAINTENANCE_PERMANENT = 'ASSUMPTIONS_MAINTENANCE_PERMANENT';
+    const ASSUMPTIONS_MAINTENANCE_DYNAMIC = 'ASSUMPTIONS_MAINTENANCE_DYNAMIC';
+    const ASSUMPTIONS_MAINTENANCE_NOTUSED = 'ASSUMPTIONS_MAINTENANCE_NOTUSED';
+    const ASSUMPTIONS_RATES_INFLATION = 'ASSUMPTIONS_RATES_INFLATION';
+    const ASSUMPTIONS_RATES_DISCOUNT = 'ASSUMPTIONS_RATES_DISCOUNT';
+
+    const INVESTMENTPROGRAM_DEMAND = 'INVESTMENTPROGRAM_DEMAND';
+    const INVESTMENTPROGRAM_VOLUMEDYNAMIC = 'INVESTMENTPROGRAM_VOLUMEDYNAMIC';
+    const INVESTMENTPROGRAM_VOLUMEPERMANENT = 'INVESTMENTPROGRAM_VOLUMEPERMANENT';
+
+    const STATIC_ASSUMPTIONS = 'STATIC_ASSUMPTIONS';
+    const STATIC_INVESTMENT = 'STATIC_INVESTMENT';
+
+
+
+    const KTH_COUNTY = 'KTH_COUNTY';
+    const KTH_COUNTY_SELECTED = 'KTH_COUNTY_SELECTED';
+    const KTH_MUNICIPALITY = 'KTH_MUNICIPALITY';
+    const KTH_MUNICIPALITY_SELECTED = 'KTH_MUNICIPALITY_SELECTED';
+    const KTH_LKF = 'KTH_LKF';
+    const KTH_LKF_SELECTED = 'KTH_LKF_SELECTED';
+
+    const action = {
+
+
+
+
+        
+      menu_selected: (payload) => {
+        return {
+            type: MENU_SELECTED,
+            payload: payload
+        };
+    },
+    assumptions_startyear: (payload) => {
+        return {
+            type: ASSUMPTIONS_STARTYEAR,
+            payload: payload
+        };
+    },
+    assumptions_endyear: (payload) => {
+        return {
+            type: ASSUMPTIONS_ENDYEAR,
+            payload: payload
+        };
+    },
+    assumptions_scenario: (payload) => {
+        return {
+            type: ASSUMPTIONS_SCENARIO,
+            payload: payload
+        };
+    },
+    assumptions_investments_future: (payload) => {
+        return {
+            type: ASSUMPTIONS_INVESTMENTS_FUTURE,
+            payload: payload
+        };
+    },
+    assumptions_investments_initial: (payload) => {
+        return {
+            type: ASSUMPTIONS_INVESTMENTS_INITIAL,
+            payload: payload
+        };
+    },
+
+    assumptions_rent_remove: (payload) => {
+        return {
+            type: ASSUMPTIONS_RENT_REMOVE,
+            payload: payload
+        };
+    },
+
+    assumptions_rent_add: (payload) => {
+        return {
+            type: ASSUMPTIONS_RENT_ADD,
+            payload: payload
+        };
+    },
+
+    assumptions_rent_amount: (payload) => {
+        return {
+            type: ASSUMPTIONS_RENT_AMOUNT,
+            payload: payload
+        };
+    },
+    assumptions_rent_period: (payload) => {
+        return {
+            type: ASSUMPTIONS_RENT_PERIOD,
+            payload: payload
+        };
+    },
+    assumptions_rent_after: (payload) => {
+        return {
+            type: ASSUMPTIONS_RENT_AFTER,
+            payload: payload
+        };
+    },
+    assumptions_maintenance_permanent: (payload) => {
+        return {
+            type: ASSUMPTIONS_MAINTENANCE_PERMANENT,
+            payload: payload
+        };
+    },
+    assumptions_maintenance_dynamic: (payload) => {
+        return {
+            type: ASSUMPTIONS_MAINTENANCE_DYNAMIC,
+            payload: payload
+        };
+    },
+    assumptions_maintenance_notused: (payload) => {
+        return {
+            type: ASSUMPTIONS_MAINTENANCE_NOTUSED,
+            payload: payload
+        };
+    },
+    assumptions_rates_inflation: (payload) => {
+        return {
+            type: ASSUMPTIONS_RATES_INFLATION,
+            payload: payload
+        };
+    },
+    assumptions_rates_discount: (payload) => {
+        return {
+            type: ASSUMPTIONS_RATES_DISCOUNT,
+            payload: payload
+        };
+    },  
+    investmentprogram_demand: (payload) => {
+        return {
+            type: INVESTMENTPROGRAM_DEMAND,
+            payload: payload
+        };
+    },
+    investmentprogram_volumedynamic: (payload) => {
+        return {
+            type: INVESTMENTPROGRAM_VOLUMEDYNAMIC,
+            payload: payload            
+        };
+    },
+    investmentprogram_volumepermanent: (payload) => {
+        return {
+            type: INVESTMENTPROGRAM_VOLUMEPERMANENT,
+            payload: payload            
+        };
+    },
+    static_assumptions: (payload) => {
+        return {
+            type: STATIC_ASSUMPTIONS,
+            payload: payload            
+        };
+    },
+    static_investment: (payload) => {
+        return {
+            type: STATIC_INVESTMENT,
+            payload: payload            
+        };
+    },
+
+
+    kth_county: (payload) => {
+      return {
+        type: KTH_COUNTY,
+        payload: payload
+      };
+    },
+    kth_county_selected: (payload) => {
+      return {
+        type: KTH_COUNTY_SELECTED,
+        payload: payload
+      };
+    },
+    kth_municipality: (payload) => {
+      return {
+        type: KTH_MUNICIPALITY,
+        payload: payload
+      };
+    },
+    kth_municipality_selected: (payload) => {
+      return {
+        type: KTH_MUNICIPALITY_SELECTED,
+        payload: payload
+      };
+    },
+
+    kth_lkf: (payload) => {
+      return {
+        type: KTH_LKF,
+        payload: payload
+      };
+    },
+    kth_lkf_selected: (payload) => {
+      return {
+        type: KTH_LKF_SELECTED,
+        payload: payload
+      };
+    },
+    };
+
+
+
+    // kth_county: (payload) => {
+    //   return {
+    //     type: KTH_COUNTY,
+    //     payload: payload
+    //   };
+    // },
+    // kth_county_selected: (payload) => {
+    //   return {
+    //     type: KTH_COUNTY_SELECTED,
+    //     payload: payload
+    //   };
+    // },
+    // kth_municipality: (payload) => {
+    //   return {
+    //     type: KTH_MUNICIPALITY,
+    //     payload: payload
+    //   };
+    // },
+    // kth_municipality_selected: (payload) => {
+    //   return {
+    //     type: KTH_MUNICIPALITY_SELECTED,
+    //     payload: payload
+    //   };
+    // },
+
+    // kth_lkf: (payload) => {
+    //   return {
+    //     type: KTH_LKF,
+    //     payload: payload
+    //   };
+    // },
+    // kth_lkf_selected: (payload) => {
+    //   return {
+    //     type: KTH_LKF_SELECTED,
+    //     payload: payload
+    //   };
+    // },
+    // menu_selected: (payload) => {
+    //   return {
+    //     type: MENU_SELECTED,
+    //     payload: payload
+    //   };
+    // },
+
+    const reduxmixin = (props$$1, superClass) => {
+        return class ReduxMixin extends superClass {
+
+            static get properties() {
+                return props$$1().reduce((acc, prop$$1) => {
+                    return { ...acc, [prop$$1.propKey]: prop$$1.propValue }
+                }, {})
+            }
+            
+            valueChanged(e) {
+              this.storeHolder.store.dispatch(action[`${e.path[0].id}Value`](e.detail.value));
+            }
+
+            stateChanged(state) {
+                console.log('state', state);
+                this.scenario = chosenScenario;
+                props$$1().forEach(prop$$1 => {
+                    console.log('prop', prop$$1);
+                    if (prop$$1.path) {
+                       
+                        if(is(Array, prop$$1.path.reduce((acc, item) => {
+                          
+                                return acc[item]
+                            }, state))) 
+                        {
+                            if (!equals(this[prop$$1.propKey], prop$$1.path.reduce((acc, item) => {
+                                return acc[item]
+                            }, state))) {
+                                this[prop$$1.propKey] = [...prop$$1.path.reduce((acc, item) => {
+                                   
+                                    return acc[item]
+                                }, state)];
+                            }
+                        } else if(is(Object, prop$$1.path.reduce((acc, item) => {
+                                return acc[item]
+                            }, state))) 
+                        {
+                            console.log('KEY', prop$$1.propKey);
+                            this[prop$$1.propKey] = {...prop$$1.path.reduce((acc, item) => {
+                            
+                                return acc[item]
+                            }, state)};
+                        } else {
+                            if (!equals(this[prop$$1.propKey], prop$$1.path.reduce((acc, item) => {
+                                return acc[item]
+                            }, state))) {
+                                console.log('KEY', prop$$1.propKey);
+                                this[prop$$1.propKey] = prop$$1.path.reduce((acc, item) => {
+                                   
+                                    return acc[item]
+                                }, state);
+                            }
+                        }
+                    }
+                });
+            }
+
+            
+            // stateChanged(state) {
+            //   props.forEach(prop => {
+            //       if (this[prop.propKey] !== state[prop.propKey] && state[prop.propKey] != undefined) {
+            //           this[prop.propKey] = state[prop.propKey];
+            //       }
+            //   });
+            // }
+        } 
+    };
+
+    let props$5 = () => ([
+        { propKey: "data", propValue: { type: Object }, rx: true },
+        { propKey: "comment", propValue: { type: String }, rx: true },
+        { propKey: "label", propValue: { type: String }, rx: true },
+        { propKey: "index", propValue: { type: Number }, rx: false },
+        { propKey: "remove", propValue: { type: Boolean }, rx: false },
+        { propKey: "props", propValue: { type: Object }, rx: false },
+        { propKey: "removehidden", propValue: { type: Boolean }, rx: false },
+        { propKey: "add", propValue: { type: Boolean }, rx: false },
+      ]);
+
+     
+    class XAssumptionRow extends rxmixin(props$5, LitElement) {
+
+        constructor() {
+            super();
+            this.data = false;
+            this.comment = false;
+            this.label = false;
+        }
+
+        cellChangedHandler(e) {
+            let event = new CustomEvent('rowchanged', { detail: {value: e.detail.value}}); 
+            this.dispatchEvent(event);
+        }
+
+
+        removeClickHandler(e) {
+            let event = new CustomEvent('removerow'); 
+            this.dispatchEvent(event);
+        }
+
+
+        addClickHandler(e) {
+            let event = new CustomEvent('addrow'); 
+            this.dispatchEvent(event);
+        }
+
+
+        render() {    
+            return this.okToRender ? html`
+    
+    <style>
+        .tablerow {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-column-gap: 20px;
+            grid-template-areas: 
+                "label      label       label    label        data        comment         comment         comment         comment         comment";
+        }
+
+        .extra {
+            padding-top: 30px;
+        }
+
+        .label {
+            grid-area: label; 
+            font: var(--font-table-row-label);
+            color: var(--color-text);
+            white-space: nowrap;
+        }
+
+        .data {
+            grid-area: data;
+        }
+
+        .comment {
+            grid-area: comment;
+            font: var(--font-table-row-comment);
+            color: var(--color-text);
+        }
+
+        .svg {
+            fill: white;
+            height: 18px;
+            margin-left: -24px;
+            padding-right: 6px;
+            position: relative;
+            left: -16px;
+            top: 34px;
+            opacity: 0.25;
+        }
+
+        .hidden {
+            visibility: hidden;
+        }
+
+        .svg:hover {
+            opacity: 1;
+            transition: opacity .25s ease-in-out .0s;
+        }
+
+        .header {
+            border: 1px solid var(--color-transparent);
+            color: var(--color-text);
+            font: var(--font-table-label);
+        }
+    </style>
+    
+  
+    <div class=${(this.index != 0 && this.remove) ? 'tablerow extra' : 'tablerow'}>
+        <div class="label ${this.renderlabel.ui_schema && this.renderlabel.ui_schema.ui_options && this.renderlabel.ui_schema.ui_options.color ? this.renderlabel.ui_schema.ui_options.color : ''}">${this.removehidden ? html`<img src="./images/minus.svg" class="svg hidden" @click="${() => this.removeClickHandler()}">` : html``}${this.remove ? html`<img src="./images/minus.svg" class="svg" @click="${() => this.removeClickHandler()}">` : html``}${this.add ? html`<img src="./images/add-circular-outlined-button.svg" class="svg" @click="${() => this.addClickHandler()}">` : html``}${this.renderlabel.data_schema}</div>
+        <div class="data">
+            ${toRender.call(this, prepareRender(this.renderdata))}
+        </div>
+        <div class="comment">
+            ${toRender.call(this, prepareRender(this.rendercomment))}
+        </div>    
+    </div>
+        ` : html``
+        }
+
+        firstUpdated() {
+            super.firstUpdated();
+            rx.latestCombiner([this.data$, this.label$, this.comment$])
+            .pipe(rx.undefinedElementRemover)
+            .subscribe(() => {
+                this.renderdata = this.data;
+                this.renderlabel = this.label;
+                this.rendercomment = this.comment;
+                this.okToRender = true;
+                this.requestUpdate();
+            });
+        }
+
+        updated(changedProperties) {
+            super.updated(changedProperties);
+            changedProperties.forEach((oldValue, propName) => { 
+                if (propName === "props") {
+                    if (is(Array, this.props)) {
+                        this.props.forEach(prop$$1 => {
+                            if(prop$$1.name == 'label') {
+                                this.label = prop$$1;
+                            }
+                            if(prop$$1.name == 'data') {
+                                this.data = prop$$1;
+                            }
+                            if(prop$$1.name == 'comment') {
+                                this.comment = prop$$1;
+                            }
+                        });
+                    } else {
+                        if(this.props.name == 'label') {
+                            this.label = this.props; 
+                        }
+                        if(this.props.name == 'data') {
+                            this.data = this.props;
+                        }
+                        if(this.props.name == 'comment') {
+                            this.comment = this.props;
+                        }
+                    }
+                }        });
+        }
+    }
+
+    customElements.define('x-assumption-row', XAssumptionRow);
+
+    let props$6 = () => ([
+        { propKey: "selected", propValue: { type: String }, rx: false },
+        { propKey: "label", propValue: { type: String }, rx: true },
+        { propKey: "button", propValue: { type: Boolean }, rx: true },
+        { propKey: "data", propValue: { type: Object }, rx: true },
+        { propKey: "rows", propValue: { type: Object }, rx: true },
+        { propKey: "props", propValue: { type: Object }, rx: false }
+      ]);
+
+    class XRowsandlabel extends rxmixin(props$6, LitElement) {
+
+        constructor() {
+            super();
+            this.rows = [];
+            this.renderlabel = false;
+            this.renderrows = false;
+            this.okToRender = false;
+        }
+
+        getData(value, index) {
+            return getData.call(this, value, index)
+          }
+
+          firstUpdated() {
+            super.firstUpdated();
+            rx.latestCombiner([this.label$, this.rows$, this.button$])
+            .pipe(rx.undefinedElementRemover)
+            .subscribe(() => {
+                this.renderlabel = this.label;
+                this.renderrows = this.rows;
+                this.renderbutton = this.button;
+                this.okToRender = true;
+                this.requestUpdate();
+            });
+        }
+
+        rowChangedHandler(e, index) {
+            let event = new CustomEvent('rowchanged', { detail: {value: e.detail.value, row: index}}); 
+            this.dispatchEvent(event);
+        }
+
+        removeRowHandler(index) {
+            let event = new CustomEvent('removerowchanged', { detail: {row: index}}); 
+            this.dispatchEvent(event);
+        }
+
+        addRowHandler(index) {
+            let event = new CustomEvent('addrowchanged', { detail: {row: index}}); 
+            this.dispatchEvent(event);
+        }
+
+        updated(changedProperties) {
+            super.updated(changedProperties);
+            changedProperties.forEach((oldValue, propName) => { 
+                if (propName === "props") {
+                    this.props.forEach((prop$$1, index) => {
+                        if (prop$$1.name == 'label') {
+                            this.label = prop$$1;
+                        }
+                        if (prop$$1.name == 'rows') {
+                            this.rows = prop$$1;
+                        }
+                        if (!isNaN(+prop$$1.name)) {
+                            this.rows[+prop$$1.name - 1] = prop$$1;
+                        }
+                        if (prop$$1.name == 'button') {
+                            this.button = prop$$1;
+                        }
+                    });
+                }          });
+        }
+        render() {
+            
+            return this.okToRender ? html`
+            <style>
+
+                .table {
+                    display: grid;
+                    grid-template-columns: repeat(1, 1fr);
+                    grid-template-rows: 28px auto;
+                    grid-column-gap: 20px;
+                    grid-row-gap: 20px;
+                }    
+
+                .rowslabel{
+                    font: var(--font-table-label);
+                    color: var(--color-text);                    
+                }
+
+                .rows {
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    grid-row-gap: 20px;
+                }
+                
+
+                .test {
+                    color: white;
+                }
+
+            </style>
+            
+            <div class="table">
+                ${toRender.call(this, prepareRender(this.renderlabel))}
+                
+                ${toRender.call(this, prepareRender(this.renderrows))}
+     
+            </div>`: html``
+        }
+    }
+
+    customElements.define('x-rowsandlabel', XRowsandlabel);
+
+    //set style to: currency, decimal or percent
+    var formatOptionsDecimal = { style: 'decimal', currency: 'SEK', minimumFractionDigits: 0, maximumFractionDigits: 0, useGrouping: true};
+    var formatOptionsPercent = { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2};
+    //change formatting according to language 
+    var decimalFormat = new Intl.NumberFormat('sv-SE', formatOptionsDecimal);
+
+    var percentFormat = new Intl.NumberFormat('sv-SE', formatOptionsPercent);
+
+    function test$1(item) {
+      return item != " ";
+    }
+
+    function removeSpaces(item) {
+      return pipe$1(
+        split(""),
+        filter$1(test$1)
+      )(item).join("");
+    }
+
+    function isAnInteger(item) {
+      let itemWithoutSpace = removeSpaces(item);
+      if (
+        !isNaN(itemWithoutSpace) &&
+        typeof itemWithoutSpace !== "boolean" &&
+        !startsWith("0", itemWithoutSpace) &&
+        !startsWith(".", itemWithoutSpace) &&
+        !startsWith(",", itemWithoutSpace)
+      ) {
+        return Number.isInteger(Number(itemWithoutSpace));
+      } else {
+        return item === "0";
+      }
+    }
+
+    function isAPercent(item) {
+      let itemWithoutSpace = removeSpaces(item);
+      if (item == "0") {
+        return true;
+      }
+
+      if (
+        !isNaN(itemWithoutSpace) &&
+        typeof itemWithoutSpace !== "boolean" &&
+        !startsWith(".", itemWithoutSpace) &&
+        !startsWith(",", itemWithoutSpace)
+      ) {
+        return Number(itemWithoutSpace) % 1 != 0 && Number(itemWithoutSpace) <= 1;
+      } else {
+        return false;
+      }
+    }
+
+    let props$7 = () => [
+      { propKey: "celltext", propValue: { type: String }, rx: false },
+      { propKey: "color", propValue: { type: String }, rx: false },
+      { propKey: "type", propValue: { type: String }, rx: false },
+      { propKey: "readonly", propValue: { type: Boolean }, rx: false },
+      { propKey: "format", propValue: { type: Boolean }, rx: false },
+      { propKey: "changeevent", propValue: { type: Object }, rx: false },
+      { propKey: "props", propValue: { type: Object }, rx: false }
+    ];
+
+    class XInput extends propsmixin(props$7, LitElement) {
+      constructor() {
+        super();
+        this.readonly = false;
+        this.format = false;
+        this.changeevent = true;
+      }
+
+      blurHandler(e) {
+        console.log(e);
+
+        let value;
+        if(e.path) {
+          value = e.path[0].value;
+        } else if(e.originalTarget) {
+          value = e.originalTarget.value;
+        } else {
+          value = e.srcElement.value;
+        }
+
+        if (this.format && this.type) {
+          if (this.type === "decimal") {
+            
+            if (isAnInteger(value)) {
+              if (removeSpaces(value) != this.celltext) {
+                let event = new CustomEvent("cellchanged", {
+                  detail: { value: removeSpaces(value) }
+                });
+                this.changeevent ? this.dispatchEvent(event) : "";
+              } else {
+                this.shadowRoot.querySelector(
+                  "#edcell"
+                ).value = decimalFormat.format(this.celltext);
+              }
+            } else {
+              this.shadowRoot.querySelector("#edcell").value = decimalFormat.format(
+                this.celltext
+              );
+            }
+          }
+
+          if (this.type === "percent") {
+            if (isAPercent(value)) {
+              if (removeSpaces(value) != this.celltext) {
+                let event = new CustomEvent("cellchanged", {
+                  detail: { value: removeSpaces(value) }
+                });
+                this.changeevent ? this.dispatchEvent(event) : "";
+              } else {
+                this.shadowRoot.querySelector(
+                  "#edcell"
+                ).value = percentFormat.format(this.celltext);
+              }
+            } else {
+              this.shadowRoot.querySelector("#edcell").value = percentFormat.format(
+                this.celltext
+              );
+            }
+          }
+        } else {
+          if (value != this.celltext) {
+            let event = new CustomEvent("cellchanged", {
+              detail: { value: removeSpaces(value) }
+            });
+            this.changeevent ? this.dispatchEvent(event) : "";
+          } else {
+            this.shadowRoot.querySelector("#edcell").value = this.celltext;
+          }
+        }
+      }
+
+      keydownHandler(e) {
+        let validKeys = [
+          "Delete",
+          "Backspace",
+          "Tab",
+          "ArrowRight",
+          "ArrowLeft",
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "-"
+        ];
+
+        if (this.type === "percent") {
+          validKeys.push(".");
+        }
+
+        if (e.key === "Enter") {
+          e.preventDefault();
+          this.shadowRoot.querySelector("#edcell").blur();
+        } else if (e.metaKey) {
+          switch (e.key) {
+            case "c":
+              break;
+            case "v":
+              break;
+          }
+        } else if (contains$1(e.key, validKeys)) ; else {
+          if (this.format) {
+            e.preventDefault();
+          }
+        }
+      }
+
+      focusHandler(e) {
+        if (!this.readonly) {
+          this.shadowRoot.querySelector("#edcell").value = this.celltext;
+          this.shadowRoot.querySelector("#edcell").select();
+        } else {
+          e.preventDefault();
+          this.shadowRoot.querySelector("#edcell").blur();
+        }
+      }
+
+      updated(changedProperties) {
+        super.updated(changedProperties);
+        changedProperties.forEach((oldValue, propName) => {
+          if (propName == "celltext") {
+            if (this.format) {
+              if (this.type !== "percent") {
+                this.shadowRoot.querySelector(
+                  "#edcell"
+                ).value = decimalFormat.format(this.celltext);
+              } else {
+                this.shadowRoot.querySelector(
+                  "#edcell"
+                ).value = percentFormat.format(this.celltext);
+              }
+            } else {
+              this.shadowRoot.querySelector("#edcell").value = this.celltext;
+            }
+          }
+          
+          if (propName === "props") {
+
+
+            // console.log('PROPS IN INPUT', this.props)
+            if (this.props.ui_schema.ui_options) {
+              this.color = this.props.ui_schema.ui_options.color;
+              this.type = this.props.ui_schema.ui_options.type;
+              this.readonly = this.props.ui_schema.ui_options.readonly;
+              this.format = this.props.ui_schema.ui_options.format;
+              this.type = this.props.ui_schema.ui_options.type
+                ? this.props.ui_schema.ui_options.type
+                : this.type;
+            }
+
+            if (this.props.ui_schema.ui_actions) {
+              this.changeevent = this.props.ui_schema.ui_actions.changeevent;
+            }
+
+            this.celltext = this.props.data_schema;
+          }
+        });
+      }
+
+      render() {
+        return html`
+            <style>
+            :host {
+              align-self: end
+            }
+
+            .input {
+                height: 3em;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font: var(--font-cell);
+                border: 0px;
+                box-sizing: border-box;
+                text-align: right;
+                padding: 0px;
+                padding-right: 9px;
+                border-radius: 0px;
+            }
+             .input:focus {
+                outline: none !important;
+                border:2px solid #FFC107;
+                padding-right: 7px;
+            }
+            ::selection {
+                background: #FFC107;
+            }
+
+            ::-moz-selection {
+                background: #FFC107;
+            } 
+            
+            .input--attention {
+                background-color: var(--color-attention);
+                color: var(--color-celltext);
+            }
+
+            .input--white {
+                background-color: var(--color-text);
+                color: var(--color-celltext);
+                box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            } 
+
+            .input--none {
+                background-color: var(--color-transparent);
+                color: var(--color-text);
+                font-weight: bold;
+                text-align: center;
+                padding-right: 0px;
+            }
+
+            .input--header {
+                background-color: var(--color-transparent);
+                color: var(--color-text);
+                font: var(--font-table-rowheader);
+                text-align: center;
+                padding-right: 0px;
+            }
+
+            .input--sum {
+                font: var(--font-cell-sum);
+                background-color: #e6ac00;
+            }
+  
+            </style>
+            <input id="edcell" class="input ${
+              this.type ? "input--" + this.type : ""
+            } input--${this.color}" tabindex=${
+      this.readonly ? "-1" : "0"
+    } ?readonly=${this.readonly} @keydown="${event =>
+      this.keydownHandler(event)}" @focus="${e =>
+      this.focusHandler(e)}" @blur="${event =>
+      this.blurHandler(event)}"></input>   
+        `;
+      }
+    }
+
+    customElements.define("x-input", XInput);
+
+    let json_ref_array = {
+        type: 'Object',
+        properties: {
+            rows: {
+                type: 'Array',
+                items: {
+                    type: 'Object',
+                    properties: {
+                        label: {
+                            type: 'String',
+                        },
+                        data: {
+                            type: 'String',
+                        },
+                        comment: {
+                            type: 'String',
+                        },
+                        button: {
+                            type: 'Boolean',
+                        }
+                    }
+                }
+            },
+            label: {
+                type: 'Object',
+                properties: {
+                    label: {
+                        type: 'String',
+                    }
+                }
+            },
+            button: {
+                type: 'Boolean',
+            }, 
+        },
+    };
+
+    let json_ref_obj = {
+        type: 'Object',
+        properties: {
+            1: {
+                type: 'Object',
+                properties: {
+                    label: {
+                        type: 'String',
+                    },
+                    data: {
+                        type: 'String',
+                    },
+                    comment: {
+                        type: 'String',
+                    },
+                    button: {
+                        type: 'Boolean',
+                    }
+                }
+
+            },
+            2: {
+                type: 'Object',
+                properties: {
+                    label: {
+                        type: 'String',
+                    },
+                    data: {
+                        type: 'String',
+                    },
+                    comment: {
+                        type: 'String',
+                    },
+                    button: {
+                        type: 'Boolean',
+                    }
+                }
+            },
+            3: {
+                type: 'Object',
+                properties: {
+                    label: {
+                        type: 'String',
+                    },
+                    data: {
+                        type: 'String',
+                    },
+                    comment: {
+                        type: 'String',
+                    },
+                    button: {
+                        type: 'Boolean',
+                    }
+                }
+            },
+            label: {
+                type: 'Object',
+                properties: {
+                    label: {
+                        type: 'String',
+                    }
+                }
+            },
+            button: {
+                type: 'Boolean',
+            }, 
+        },
+    };
+
+
+
+    let ui_ref__obj = {
+        ui_widget: "x-rowsandlabel",
+        ui_classnames: "table",
+        ui_order: [
+            "1",
+            "label",
+            "button"
+        ],
+        1: {
+            ui_widget: "x-assumption-row",
+            ui_order: [
+                "label",
+                "data",
+                "comment",
+                "button"
+            ],
+            label: {
+                ui_widget: "x-assumption-row-label",
+            },
+            data: {
+                ui_widget: "x-input",
+                ui_options:  {
+                    format: true,
+                    readonly: false,
+                    color: 'white',
+                    type: 'percent',
+                },
+                ui_actions: {
+                    changeevent: true,
+                }
+            },
+            comment: {
+                ui_widget: "x-assumption-row-comment",
+            },
+        },
+        label: {
+            ui_widget: "x-assumption-row",
+            ui_classnames: "header",
+            ui_order: [
+                "label",
+            ],
+            label: {
+                // ui_classnames: "header",
+                ui_options: {
+                    color: 'header'
+                }
+            },
+        },
+
+    };
+
+
+    let ui_ref__rates = {
+        ...ui_ref__obj,
+        ui_order: [
+            "1",
+            "2",
+            "label",
+            "button"
+        ],
+        1: {
+            ...ui_ref__obj[1], data: {
+                ui_widget: "x-input",
+                ui_options: {
+                    format: true,
+                    readonly: false,
+                    color: 'white',
+                    type: 'percent',
+                },
+                ui_actions: {
+                    changeevent: true,
+                }
+            }
+        },
+        2: {
+            ...ui_ref__obj[1], data: {
+                ui_widget: "x-input",
+                ui_options: {
+                    format: true,
+                    readonly: false,
+                    color: 'white',
+                    type: 'percent',
+                },
+                ui_actions: {
+                    changeevent: true,
+                }
+            }
+        },
+    };
+
+    let ui_ref_invest = {
+        ...ui_ref__obj,
+        ui_order: [
+            "1",
+            "2",
+            "label",
+            "button"
+        ],
+        1: {
+            ...ui_ref__obj[1], data: {
+                ui_widget: "x-input",
+                ui_options:  {
+                    format: true,
+                    readonly: false,
+                    color: 'white',
+                    type: 'percent',
+                },
+                ui_actions: {
+                    changeevent: true,
+                }
+            }
+        },
+        2: {
+            ...ui_ref__obj[1], data: {
+                ui_widget: "x-input",
+                ui_options:  {
+                    format: true,
+                    readonly: false,
+                    color: 'white',
+                    type: 'decimal',
+                },
+                ui_actions: {
+                    changeevent: true,
+                }
+            }
+        },
+    };
+
+    let ui_ref_maint = {
+        ...ui_ref__obj,
+        ui_order: [
+            "1",
+            "2",
+            "3",
+            "label",
+            "button"
+        ],
+        1: {
+            ...ui_ref__obj[1], data: {
+                ui_widget: "x-input",
+                ui_options:  {
+                    format: true,
+                    readonly: false,
+                    color: 'white',
+                    type: 'decimal'
+                },
+                ui_actions: {
+                    changeevent: true,
+                }
+            }
+        },
+        2: {
+            ...ui_ref__obj[1], data: {
+                ui_widget: "x-input",
+                ui_options:  {
+                    format: true,
+                    readonly: false,
+                    color: 'white',
+                    type: 'decimal'
+                },
+                ui_actions: {
+                    changeevent: true,
+                }
+            }
+        },
+        3: {
+            ...ui_ref__obj[1], data: {
+                ui_widget: "x-input",
+                ui_options:  {
+                    format: true,
+                    readonly: false,
+                    color: 'white',
+                    type: 'decimal'
+                },
+                ui_actions: {
+                    changeevent: true,
+                }
+            }
+        },
+    };
+
+
+
+    let ui_ref_rent = {
+        ui_widget: "x-rowsandlabel",
+        ui_classnames: "table",
+        ui_order: [
+            "rows",
+            "label",
+            "button"
+        ],
+        rows: {
+            ui_widget: "x-assumption-row",
+            ui_order: [
+                "label",
+                "data",
+                "comment",
+                "button"
+            ],
+            label: {
+                ui_widget: "x-assumption-row-label",
+            },
+            data: {
+                ui_widget: "x-input",
+                ui_options:  {
+                    format: true,
+                    readonly: false,
+                    color: 'white',
+                    type: 'decimal'
+                },
+                ui_actions: {
+                    changeevent: true,
+                }
+            },
+            comment: {
+                ui_widget: "x-assumption-row-comment",
+            },
+        },
+        label: {
+            ui_widget: "x-assumption-row",
+            ui_classnames: "header",
+            ui_order: [
+                "label",
+            ],
+            label: {
+                // ui_classnames: "header",
+                ui_options: {
+                    color: 'header'
+                }
+            },
+        },
+    };
+
+
+    function oneMainTablesschemas() {
+        return {
+            ui_schema: {
+                ui_order: [
+                    "investment",
+                    "rent",
+                    "maintenance",
+                    "rates",
+                ],
+                investment: ui_ref_invest,
+                rent: ui_ref_rent,
+                maintenance: ui_ref_maint,
+                rates: ui_ref__rates,
+            },
+            json_schema: {
+                type: 'Object',
+                properties: {
+                    maintenance: json_ref_obj,
+                    rates: json_ref_obj,
+                    investment: json_ref_obj,
+                    rent: json_ref_array,
+                }
+            },
+            data_schema: {
+                maintenance: {
+                    1: {
+                        label: "Kostnad för underhåll, permanenta lokaler",
+                        data: this['maintenanceown'],
+                        button: false,
+                        comment:
+                            "Eventuella underhållskostnader av egna lokaler samt oanvända lokaler. Underhållskostnader ska meddelas i prisnivå av startår. "
+                    }, 
+                    2: {
+                        label: "Kostnad för underhåll, dynamiska lokaler",
+                        data: this['maintenancerent'],
+                        button: false,
+                        comment: ""
+                    }, 
+                    3: {
+                        label: "Kostnad för underhåll, oanvända lokaler",
+                        data: this['maintenancenotused'],
+                        button: false,
+                        comment: ""
+                    },
+                    label: {
+                        label: "Kostnad för underhåll SEK / kvm",
+                    },
+                    button: false
+                },
+                rates: {
+                    1: {
+                        label: "Inflation per år",
+                        data: this['inflation'],
+                        button: false,
+                        comment: "Inflation per år."
+                    }, 
+                    2: {
+                        label: "Diskonteringsränta",
+                        data: this['discount'],
+                        button: false,
+                        comment: "Diskonteringsränta för nuvärdeskalkyl."
+                    },
+                    label: {
+                        label: "Inflation samt diskonteringsränta",
+                    },
+                    button: false
+                },
+                investment: {
+                    1: {
+                        label: "Reservation för kommande renoveringar",
+                        data: this['reinvestment'],
+                        button: false,
+                        comment:
+                            "Reservation av kommande renoveringar reflekterar försämring av teknisk kondition av fastighetsinnehav. Underhållsinvesteringar görs för att minska denna minskning av tekniskt värde."
+                    },
+                    2: {
+                        label: "Investering SEK / kvm, nya lokaler",
+                        data: this['investment'],
+                        button: false,
+                        comment:
+                            "Pris per kvadratmeter av nya permanenta lokaler. Pris inkluderar en byggnad med samma funktionella och tekniska egenskaper som en dynamisk lokal. Investeringskostnader skal meddelas på prisnivå av startår."
+                    },
+                    label: {
+                        label: "Reservation av kommande renoveringar samt investeringar",
+                    },
+             
+                    button: false
+                },
+                rent: {
+                    rows: pipe$1(zip$2, flatten)(this.amounts, this.periods),
+                    label: {
+                        label: "Hyreskostnader av dynamiska lokaler SEK / kvm / år",
+                    },
+                   
+                    button: true
+                }   
+            }
+        }
+    }
+
+    let schemaTemplate = {
+        ui_schema: {
+            ui_order: [
+                "header",
+            ],
+            header: {
+                ui_widget: "x-main-header",
+                ui_classnames: "header",
+                ui_order: [
+                    "label",
+                    "data",
+                    "comment",
+                ]
+            },
+        },
+        json_schema: {
+            type: 'Object',
+            properties: {
+                header: {
+                    type: 'Object',
+                    properties: {
+                        label: {
+                            type: 'String',
+                        },
+                        data: {
+                            type: 'String',
+                        },
+                        comment: {
+                            type: 'String',
+                        },
+                    },
+                },
+            }
+        },
+    };
+
+    function oneMainHeaderSchemas() {
+        return {
+            ...schemaTemplate, 
+            data_schema: {
+                header: {
+                    label: "Kostnadsslag",
+                    data: "Scenariodata",
+                    comment: "Kommentarer",
+                }
+            }
+        }
+    }
+
+    let props$8 = () => ([
+        { propKey: "props", propValue: { type: Object }, rx: false },
+        { propKey: "data", propValue: { type: Object }, rx: false },
+        { propKey: "selected", propValue: { type: Boolean }, rx: false },
+        { propKey: "value", propValue: { type: String }, rx: false },
+        { propKey: "color", propValue: { type: String }, rx: false },
+      ]);
+
+
+    class XButton extends propsmixin(props$8, LitElement) {
+
+        constructor() {
+            super();
+            this.selected = false;
+        }
+
+        clickHandler() {
+            // console.log('click')
+            let event = new CustomEvent('clickchanged');
+            this.dispatchEvent(event);
+        }
+
+        updated(changedProperties) {
+            super.updated(changedProperties);
+            changedProperties.forEach((oldValue, propName) => {
+                if (propName === "props") {
+                    if (this.props.ui_schema.ui_options) {
+                        this.color = this.props.ui_schema.ui_options.color;
+                        this.selected = this.props.ui_schema.ui_options.selected;
+                    }
+
+                    if (this.props.ui_schema.ui_actions) ;
+
+                    this.value = this.props.data_schema.value;
+
+                }        });
+        }
+        
+        render() {
+            
+            return html`
+            <style>
+                .button {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;                    
+                    padding-left: 1.0em;
+                    padding-right: 1.0em;
+                    box-shadow: var(--shadow--small);
+                    font: var(--font-scenario-button);
+                    border: 1px solid var(--color-text);
+                    color: var(--color-text);
+                }
+
+                .grey {
+                    background-color: var(--color-grey); 
+                    border: 1px solid var(--color-text);
+                    color: var(--color-text);
+                }
+
+                .grey.selected{
+                    transition: background-color 0.1s ease-in;
+                    background-color: var(--color-grey); 
+                }
+            </style>   
+            
+            <div class="button ${this.color} ${this.selected ? 'selected' : ''}" @click="${() => this.clickHandler()}">${this.value}</div> 
+        `;
+        }
+    }
+
+    customElements.define('x-button', XButton);
+
+    let props$9 = () => ([
+        {
+            propKey: "props",
+            propValue: { type: Object },
+            rx: true
+        },
+        {
+            propKey: "buttons",
+            propValue: { type: Object },
+            rx: true
+        },
+        {
+            propKey: "headline",
+            propValue: { type: Object },
+            rx: true
+        },
+        {
+            propKey: "okToRender",
+            propValue: { type: Boolean },
+            rx: false
+        },
+    ]);
+
+    class XSubheader extends rxmixin(props$9, LitElement) {
+        constructor() {
+            super();
+            this.rendertitle = false;
+            this.renderbuttons = false;
+            this.okToRender = false;
+        }
+
+        getData(value, index) {
+            return getData.call(this, value, index)
+          }
+
+        scenarioChangedHandler(index) {
+            let event = new CustomEvent('scenariochanged', { detail: {index: index }}); 
+            this.dispatchEvent(event);
+          }
+
+        
+          firstUpdated() {
+            super.firstUpdated();
+            rx.latestCombiner([this.buttons$, this.headline$])
+            .pipe(rx.undefinedElementRemover)
+            .subscribe((result) => {
+                this.renderbuttons = this.buttons;
+                this.rendertitle = this.headline;
+                this.okToRender = true;
+                this.requestUpdate();
+            });
+        }
+
+        updated(changedProperties) {
+            super.updated(changedProperties);
+            changedProperties.forEach((oldValue, propName) => {
+                if (propName === "props") {
+                    this.props.forEach(prop$$1 => {
+                        if (prop$$1.name == 'buttons') {
+                            this.buttons = prop$$1;
+                        }
+                        if (prop$$1.name == 'title') {
+                            this.headline = prop$$1;
+                        }
+                    });
+                }        });
+        }
+
+
+
+        render() {
+            return this.okToRender ? 
+            html`
+            <style>
+                .subheader {
+                    display: grid;
+                    grid-template-columns: repeat(12, 1fr);
+                    grid-column-gap: 20px;
+                    grid-template-areas: 
+                        ".    title     title     title    title     title    title    boxes     boxes     boxes     boxes     .";
+                }
+
+                .title {                            
+                    grid-area: title;
+                    font: var(--font-subheader);
+                    color: var(--color-text);
+                    align-self: center;
+                    /* visibility: ${this.hidetitle ? 'hidden' : 'visible'}; */
+                } 
+
+                .boxes {
+                    display: grid;
+                    grid-template-columns: repeat(1, 1fr);
+                    grid-column-gap: 20px;
+                    grid-template-areas: 
+                    "firstbox";                    
+                    grid-area: boxes;
+                    align-self: center;
+                    justify-self: end;
+               
+                    
+                }
+
+                .data {
+                    grid-area: firstbox;
+                    display: grid;
+                    grid-template-columns: repeat(${this.renderbuttons.json_schema.length}, 1fr);
+                    grid-template-rows: auto;
+                    grid-column-gap: 6px;
+                }
+            </style>
+            
+            <div class="subheader">
+                <div class="title">${this.rendertitle.data_schema}</div>
+                <div class="boxes">
+                    <div class="data">
+                        ${toRender.call(this, prepareRender(this.renderbuttons))}   
+                    </div>
+                </div>
+            </div>`
+                : html``
+        }
+    }
+
+    customElements.define('x-subheader', XSubheader);
+
+    let schemaTemplate$1 = {
+        ui_schema: {
+            ui_order: [
+                "subheader",
+            ],
+            subheader: {
+                ui_widget: "x-subheader",
+                ui_classnames: "subheader",
+                ui_order: [
+                    "buttons",
+                    "title"
+                ],
+                buttons: {
+                    ui_widget: "x-button",
+                    ui_options:  {
+                        color: {
+                            fn: 'getData',
+                            parameter: 'color'
+                        },
+                        selected: {
+                            fn: 'getData',
+                            parameter: 'selected'
+                        }
+                    },
+                    ui_order: [
+                        "value",
+                    ]
+                },
+            }
+            
+        },
+        json_schema: {
+            type: 'Object',
+            properties: {
+                subheader: {
+                    type: 'Object',
+                    properties: {
+                        buttons: {
+                            type: 'Array',
+                            items: {
+                                type: 'Object',
+                                properties: {
+                                    value: {
+                                        type: 'String',
+                                    },
+                                },
+                            }
+                        },
+                        title: {
+                            type: 'String',
+                        },
+                    }
+                }
+                
+            }
+        },
+        data_schema: {
+            subheader: {
+                buttons: [
+                    {
+                        value: "Scenario 1",
+                    },
+                    {
+                        value: "Scenario 2",
+                    },
+                    {
+                        value: "Scenario 3",
+                    }
+                ],
+                title: 'Antaganden'
+            }  
+        }
+    };
+
+
+    function oneSubheaderSchemas() {
+        return {
+            ...schemaTemplate$1,
+            data_schema: {
+                subheader: {
+                    buttons: [
+                        {
+                            value: "Scenario 1",
+                        },
+                        {
+                            value: "Scenario 2",
+                        },
+                        {
+                            value: "Scenario 3",
+                        }
+                    ],
+                    title: 'Antaganden'
+                }  
+            }
+        }
+    }
+
+    let props$a = () => [
+      {
+        propKey: "scenario",
+        propValue: { type: String }
+      },
+      {
+        propKey: "title",
+        propValue: { type: String }
+      },
+      { 
+        propKey: "renderdata", 
+        propValue: { type: Array }, 
+        rx: false 
+      },
+      { 
+        propKey: "props", 
+        propValue: { type: Object }, 
+        rx: false 
+      },
+      { 
+        propKey: "subheader", 
+        propValue: { type: Object }, 
+        rx: true 
+      },
+      { 
+        propKey: "header", 
+        propValue: { type: Object }, 
+        rx: true 
+      },
+      { 
+        propKey: "main", 
+        propValue: { type: Object }, 
+        rx: true 
+      },
+      // { 
+      //   propKey: "hidesubheader", 
+      //   propValue: { type: Boolean }, 
+      //   rx: false 
+      // },
+    ];
+
+    class XMain extends rxmixin(props$a, LitElement) {
+      constructor() {
+        super();
+        this.rendermain = false;
+        this.renderheader = false;
+        this.rendersubheader = false;
+        this.okToRender = false;
+        this.scenario = chosenScenario;
+        // this.hidesubheader = false
+      }
+
+      scenarioChangedHandler(e) {
+        let event = new CustomEvent('scenariochanged', { detail: {index: e.detail.index} });
+        this.dispatchEvent(event);
+      }
+
+      gridChangedHandler(e, index) {
+        let event = new CustomEvent('gridchanged', { detail: {...e.detail, table: index} });
+        this.dispatchEvent(event);
+      }
+
+      tableChangedHandler(e, index) {
+        let event = new CustomEvent('tablechanged', { detail: {...e.detail, table: index} });
+        this.dispatchEvent(event);
+      }
+
+      addRowChangedHandler(e, index) {
+        let event = new CustomEvent('addrowchanged', { detail: {...e.detail, table: index} });
+        this.dispatchEvent(event);
+      }
+
+      removeRowChangedHandler(e, index) {
+        let event = new CustomEvent('removerowchanged', { detail: {...e.detail, table: index} });
+        this.dispatchEvent(event);
+      }
+
+      rowChangedHandler(e, index) {
+        let event = new CustomEvent('rowchanged', { detail: {...e.detail, table: index} });
+        this.dispatchEvent(event);
+      }
+
+      firstUpdated() {
+        super.firstUpdated();
+        rx.latestCombiner([this.subheader$])
+          .pipe(rx.undefinedElementRemover)
+          .subscribe(() => {
+            this.rendersubheader = this.subheader;
+            this.renderheader = this.header;
+            this.rendermain = this.main;
+            // this.renderscenario = this.scenario
+            // this.rendertitle = this.title
+            this.okToRender = true;
+            this.requestUpdate();
+          });
+       
+      }
+
+    //   rx.latestCombiner([this.subheader$, this.header$, this.main$])
+    //   .pipe(rx.undefinedElementRemover)
+    //   .subscribe(() => {
+    //     this.rendersubheader = this.subheader;
+    //     this.renderheader = this.header;
+    //     this.rendermain = this.main;
+    //     this.renderscenario = this.scenario
+    //     this.rendertitle = this.title
+    //     this.okToRender = true
+    //     this.requestUpdate();
+    //   })
+
+    // }
+
+      updated(changedProperties) {
+        super.updated(changedProperties);
+        changedProperties.forEach((oldValue, propName) => {
+            if (propName === "props") {
+              
+              this.props.forEach(prop$$1 => {
+                console.log('prop in main', prop$$1);
+                if (prop$$1.name == 'subheader') {
+                  this.subheader = prop$$1;
+                  console.log('prop in main', prop$$1);
+                }
+                if (prop$$1.name == 'header') {
+                  this.header = prop$$1;
+                }
+                if (prop$$1.name == 'main') {
+                  this.main = prop$$1;
+                }
+              });
+            }    });
+
+    }
+
+
+      render() {
+        return this.okToRender ? html`
+      ${grid}
+      <style>
+        .center {
+          display: grid;
+          grid-template-columns: repeat(12, 1fr);
+          grid-template-rows: 90px auto 94px auto 200px;
+          grid-column-gap: 20px;
+          grid-template-areas:
+            ".  .   .   .   .   .   .   .   .   .   .  ."
+            "subheader  subheader   subheader   subheader   subheader   subheader   subheader   subheader   subheader   subheader   subheader  subheader"
+            ".          .           .           .           .           .           .           .           .           .           .           ."
+            "main       main        main        main        main        main        main        main        main        main        main        main"
+            ".          .           .           .           .           .           .           .           .           .           .           .";
+
+          grid-area: center;
+        }
+
+        .subheader {
+          grid-area: subheader;
+          /* position: sticky;
+          top: 100px; */
+          /* visibility: ${this.hidesubheader ? 'hidden' : 'visible'}; */
+        }
+
+        .main {
+          grid-area: main;
+          grid-template-columns: repeat(12, 1fr);
+          grid-template-rows: auto;
+          grid-column-gap: 20px;
+          grid-row-gap: 3em;
+          display: grid;
+        }
+
+        .header {
+          grid-column-start: 2;
+          grid-column-end: 12;
+          /* position: sticky;
+          top: 180px; */
+        }
+
+        .table {
+          grid-column-start: 2;
+          grid-column-end: 12;
+          padding-bottom: 10px;
+          /* position: sticky;
+          top: 180px; */
+        }
+
+        .table-0 {
+          grid-column-start: 2;
+          grid-column-end: 7;
+          padding-bottom: 50px;
+
+        }
+
+        .table-1 {
+          grid-column-start: 7;
+          grid-column-end: 12;
+          padding-bottom: 50px;
+        }
+
+        .gridbox-0 {
+          grid-column-start: 2;
+          grid-column-end: 4;
+          padding-bottom: 50px;
+          align-self: start
+
+        }
+
+        .gridbox-1 {
+          grid-column-start: 4;
+          grid-column-end: 6;
+          padding-bottom: 50px;
+          align-self: start
+        }
+
+        .gridbox-2 {
+          grid-column-start: 6;
+          grid-column-end: 8;
+          padding-bottom: 50px;
+          align-self: start
+        }
+
+      </style>
+
+
+      <div class="center">
+          ${toRender.call(this, prepareRender(this.rendersubheader))}
+        <div class="main">
+          ${toRender.call(this, prepareRender(this.renderheader))}
+          ${toRender.call(this, prepareRender(this.rendermain))}
+        </div>
+      </div>
+      ` : html``
+        ;
+      }
+    }
+
+    customElements.define("x-main", XMain);
+
+    function mergeSchemas() {
+      return {
+          ui_schema: {
+              ui_order: [
+                "xmain"
+              ],
+              xmain: {
+                ui_widget: 'x-main',
+                ui_order: [
+                  "subheader",
+                  "header",
+                  "main",
+                ],
+                ui_merged: true,
+                subheader: oneSubheaderSchemas.call(this).ui_schema,
+                header: oneMainHeaderSchemas.call(this).ui_schema,
+                main: oneMainTablesschemas.call(this).ui_schema,
+              }
+              
+          },
+          json_schema: {
+              type: 'Object',
+              properties: {
+                  xmain: {
+                      type: 'Object',
+                      properties: {
+                          subheader: oneSubheaderSchemas.call(this).json_schema,
+                          header: oneMainHeaderSchemas.call(this).json_schema,
+                          main: oneMainTablesschemas.call(this).json_schema,
+                      }
+                  }
+              }
+          },
+          data_schema: {
+            xmain: {
+              subheader: oneSubheaderSchemas.call(this).data_schema,
+              header: oneMainHeaderSchemas.call(this).data_schema,
+              main: oneMainTablesschemas.call(this).data_schema,
+            }
+            
+          }
+      }
+    }
+
+    let props$b = () => [
+      {
+        propKey: "startyear",
+        propValue: { type: String },
+        rx: true,
+        path: ["assumptions", "startyear"]
+      },
+      {
+        propKey: "scenario",
+        propValue: { type: String },
+        rx: true,
+      },
+      {
+        propKey: "investment",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "investments", "scenario" + chosenScenario, "initial"]
+      },
+      {
+        propKey: "reinvestment",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "investments", "scenario" + chosenScenario, "future"]
+      },
+      {
+        propKey: "inflation",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rates", "scenario" + chosenScenario, "inflation"]
+      },
+      {
+        propKey: "discount",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rates", "scenario" + chosenScenario, "discount"]
+      },
+      {
+        propKey: "rentamount",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rent", "scenario" + chosenScenario, "amount"]
+      },
+      {
+        propKey: "rentperiod",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rent", "scenario" + chosenScenario, "period"]
+      },
+      {
+        propKey: "maintenanceown",
+        propValue: { type: Array },
+        rx: true,
+        path: [
+          "assumptions",
+          "maintenance",
+          "scenario" + chosenScenario,
+          "permanent"
+        ]
+      },
+      {
+        propKey: "maintenancerent",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "maintenance", "scenario" + chosenScenario, "dynamic"]
+      },
+      {
+        propKey: "maintenancenotused",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "maintenance", "scenario" + chosenScenario, "notused"]
+      },
+      { propKey: "okToRender", propValue: { type: Boolean }, rx: false },
+      { propKey: "periods", propValue: { type: Array }, rx: false },
+      { propKey: "amounts", propValue: { type: Array }, rx: false }
+    ];
+
+    class XOne extends reduxmixin(props$b, rxmixin(props$b, LitElement)) {
+      constructor() {
+        super();
+        this.renderxmain = false;
+        this.okToRender = false;
+        this.prevState = {};
+        this.amounts = [];
+        this.periods = [];
+        this.scenario = chosenScenario;
+      }
+
+      getData(value, index) {
+        return getData.call(this, value, index)
+      }
+
+      scenarioChangedHandler(e) {
+        chosenScenario = +e.detail.index + 1;
+        // this.scenario = chosenScenario;
+        // console.log(chosenScenario)
+        this.stateChanged(this.storeHolder.store.getState(), props$b);
+      }
+
+      addRowChangedHandler(e) {
+        this.storeHolder.store.dispatch(
+          action.assumptions_rent_add({
+            index: e.detail.row,
+            scenario: chosenScenario
+          })
+        );
+      }
+
+      removeRowChangedHandler(e) {
+        this.storeHolder.store.dispatch(
+          action.assumptions_rent_remove({
+            index: e.detail.row,
+            scenario: chosenScenario
+          })
+        );
+      }
+
+      rowChangedHandler(e, index) {
+        let group = e.detail.table;
+
+        if (group == 0) {
+          if (e.detail.row == 0) {
+            this.storeHolder.store.dispatch(
+              action.assumptions_investments_future({
+                value: e.detail.value,
+                scenario: chosenScenario
+              })
+            );
+          }
+          if (e.detail.row == 1) {
+            this.storeHolder.store.dispatch(
+              action.assumptions_investments_initial({
+                value: e.detail.value,
+                scenario: chosenScenario
+              })
+            );
+          }
+        }
+
+        if (group == 1) {
+          if (e.detail.row % 2 === 0) {
+            this.storeHolder.store.dispatch(
+              action.assumptions_rent_amount({
+                value: e.detail.value,
+                index: chosenScenario,
+                scenario: chosenScenario,
+                item: math.floor(Number(e.detail.row) / 2),
+                order: math.floor(Number(e.detail.row) / 2)
+              })
+            );
+          }
+          if (e.detail.row % 2 === 1) {
+            this.storeHolder.store.dispatch(
+              action.assumptions_rent_period({
+                value: e.detail.value,
+                index: chosenScenario,
+                scenario: chosenScenario,
+                item: math.floor(Number(e.detail.row) / 2),
+                order: math.floor(Number(e.detail.row) / 2)
+              })
+            );
+          }
+        }
+
+        if (group == 2) {
+          if (e.detail.row == 0) {
+            this.storeHolder.store.dispatch(
+              action.assumptions_maintenance_permanent({
+                value: e.detail.value,
+                scenario: chosenScenario
+              })
+            );
+          }
+          if (e.detail.row == 1) {
+            this.storeHolder.store.dispatch(
+              action.assumptions_maintenance_dynamic({
+                value: e.detail.value,
+                scenario: chosenScenario
+              })
+            );
+          }
+          if (e.detail.row == 2) {
+            this.storeHolder.store.dispatch(
+              action.assumptions_maintenance_notused({
+                value: e.detail.value,
+                scenario: chosenScenario
+              })
+            );
+          }
+        }
+
+        if (group == 3) {
+          if (e.detail.row == 0) {
+            this.storeHolder.store.dispatch(
+              action.assumptions_rates_inflation({ value: e.detail.value })
+            );
+          }
+          if (e.detail.row == 1) {
+            this.storeHolder.store.dispatch(
+              action.assumptions_rates_discount({ value: e.detail.value })
+            );
+          }
+        }
+      }
+
+
+
+      firstUpdated() {
+        super.firstUpdated();
+
+        rx.latestCombiner([
+          this.rentamount$,
+          this.rentperiod$,
+          this.maintenanceown$,
+          this.maintenancerent$,
+          this.maintenancenotused$,
+          this.inflation$,
+          this.discount$,
+          this.investment$,
+          this.reinvestment$,
+          this.scenario$
+        ])
+          .pipe(rx.undefinedElementRemover)
+          .subscribe(() => {
+            console.log('HERE');
+            this.amounts = this.rentamount.map(item => {
+              return {
+                label: "Hyreskostnader SEK / kvm / år",
+                data: item,
+                button: false,
+                comment:
+                  "Hyreskostnad per kvadratmeter per år av dynamiska lokaler. Informationen ska baseras på prisnivån av startåret."
+              };
+            });
+
+            this.periods = this.rentperiod.map(item => {
+              return {
+                label: "Kontraktslängd, antal år",
+                data: item,
+                button: false,
+                comment: ""
+              };
+            });
+
+            this.storeHolder.store.dispatch(
+              action.assumptions_endyear({
+                endyear: (
+                  arrayAdder(this.rentperiod) +
+                  +this.startyear -
+                  1
+                ).toString(),
+                startyear: this.startyear,
+                scenario: chosenScenario
+              })
+            );
+
+            getRenderData.call(this, mergeSchemas)
+            .then(renderdata => {
+              renderdata.forEach(prop$$1 => {
+                if (prop$$1.name == 'xmain') {
+                  this.xmain = prop$$1;
+                }
+              });
+
+              this.renderxmain = this.xmain;
+              this.okToRender = true;
+              this.requestUpdate();
+            });
+          });
+      }
+
+      render() {
+        return this.okToRender ? html`
+      ${toRender.call(this, prepareRender(this.renderxmain))}
+        ` : html``
+      }
+    }
+
+    customElements.define("x-one", XOne);
+
+    let props$c = () => ([]);
+
+    class XB extends propsmixin(props$c, LitElement) {
         onBeforeEnter(location, commands, router) {
             if (!firebase.auth().currentUser) {
                 return commands.redirect('/')
@@ -13207,9 +15805,9 @@
 
     customElements.define('x-b', XB);
 
-    let props$6 = () => ([]);
+    let props$d = () => ([]);
 
-    class XC extends propsmixin(props$6, LitElement) {
+    class XC extends propsmixin(props$d, LitElement) {
         onBeforeEnter(location, commands, router) {
             if (!firebase.auth().currentUser) {
                 return commands.redirect('/')
@@ -13224,9 +15822,9 @@
 
     customElements.define('x-c', XC);
 
-    let props$7 = () => ([]);
+    let props$e = () => ([]);
 
-    class XD extends propsmixin(props$7, LitElement) {
+    class XD extends propsmixin(props$e, LitElement) {
         onBeforeEnter(location, commands, router) {
             if (!firebase.auth().currentUser) {
                 return commands.redirect('/')
@@ -13241,68 +15839,13 @@
 
     customElements.define('x-d', XD);
 
-    const KTH_COUNTY = 'KTH_COUNTY';
-    const KTH_COUNTY_SELECTED = 'KTH_COUNTY_SELECTED';
-    const KTH_MUNICIPALITY = 'KTH_MUNICIPALITY';
-    const KTH_MUNICIPALITY_SELECTED = 'KTH_MUNICIPALITY_SELECTED';
-    const KTH_LKF = 'KTH_LKF';
-    const KTH_LKF_SELECTED = 'KTH_LKF_SELECTED';
-    const MENU_SELECTED = 'MENU_SELECTED';
-
-    const action = {
-
-      kth_county: (payload) => {
-        return {
-          type: KTH_COUNTY,
-          payload: payload
-        };
-      },
-      kth_county_selected: (payload) => {
-        return {
-          type: KTH_COUNTY_SELECTED,
-          payload: payload
-        };
-      },
-      kth_municipality: (payload) => {
-        return {
-          type: KTH_MUNICIPALITY,
-          payload: payload
-        };
-      },
-      kth_municipality_selected: (payload) => {
-        return {
-          type: KTH_MUNICIPALITY_SELECTED,
-          payload: payload
-        };
-      },
-
-      kth_lkf: (payload) => {
-        return {
-          type: KTH_LKF,
-          payload: payload
-        };
-      },
-      kth_lkf_selected: (payload) => {
-        return {
-          type: KTH_LKF_SELECTED,
-          payload: payload
-        };
-      },
-      menu_selected: (payload) => {
-        return {
-          type: MENU_SELECTED,
-          payload: payload
-        };
-      },
-    };
-
-    let props$8 = () => ([
+    let props$f = () => ([
         { propKey: "props", propValue: { type: Object }, rx: false },
         { propKey: "buttons", propValue: { type: Object }, rx: true },
         { propKey: "okToRender", propValue: { type: Boolean }, rx: false },
       ]);
 
-    class XMenuLogin extends rxmixin(props$8, LitElement) {
+    class XMenuLogin extends rxmixin(props$f, LitElement) {
 
         constructor() {
             super();
@@ -13329,9 +15872,9 @@
             super.updated(changedProperties);
             changedProperties.forEach((oldValue, propName) => { 
                 if (propName === "props") {
-                    this.props.forEach(prop => {
-                        if (prop.name == 'buttons') {
-                            this.buttons = prop;
+                    this.props.forEach(prop$$1 => {
+                        if (prop$$1.name == 'buttons') {
+                            this.buttons = prop$$1;
                         }
                     });
                 }        });
@@ -13386,9 +15929,9 @@
         } 
     };
 
-    let props$9 = () => ([]);
+    let props$g = () => ([]);
 
-    class XLogin extends usermixin(props$9, LitElement) {
+    class XLogin extends usermixin(props$g, LitElement) {
       keyHandler(e) {
         if (e.key === "Enter") {
           e.preventDefault();
@@ -13526,12 +16069,12 @@
 
     customElements.define("x-login", XLogin);
 
-    let props$a = () => ([
+    let props$h = () => ([
         { propKey: "props", propValue: { type: Object }, rx: false },
         { propKey: "value", propValue: { type: String }, rx: false },
       ]);
 
-    class XIcon extends propsmixin(props$a, LitElement) {
+    class XIcon extends propsmixin(props$h, LitElement) {
 
         clickHandler() {
             console.log('LO');
@@ -18853,6 +21396,9 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
     function reducer(state, action) {
       let tmp1;
       let tmp2;
+      let tmp3;
+      let tmp6;
+      let tmp7;
 
       switch (action.type) {
         case "KTH_COUNTY":
@@ -18915,8 +21461,152 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
           return { ...state, kth: { ...state.kth, lkf: [...tmp1] } };
 
         
-        case "MENU_SELECTED":
-          return { ...state, menu: { ...state.menu, selected: action.payload } };
+      
+
+
+          case 'MENU_SELECTED':
+          return {...state, menu: {...state.menu, selected: action.payload}}
+      case 'ASSUMPTIONS_STARTYEAR':
+          return {...state, assumptions: {...state.assumptions, startyear: action.payload}}
+      case 'ASSUMPTIONS_ENDYEAR':
+
+          tmp7 = {...state.investmentprogram};
+
+          //YEAR ARRAY
+          tmp3 = range$1(+action.payload.startyear, +action.payload.endyear + 1);
+
+
+          //VALUE ZERO FOR ALL YEARS IN ARRAY
+          tmp1 = {};
+          tmp3.forEach(year => {
+              tmp1[year] = '0';
+          });
+
+
+          //ARRAY OF ALL COST NAMES
+          let keysOfObj = Object.keys(tmp7);
+
+
+
+          //ARRAYS WITH ALL CORRECT VALUES FOR COST NAMES IN SCENARIO
+          tmp6 = keysOfObj.map(item => {
+
+              let myObject = {...tmp1};
+              for (var property in myObject) {
+                  if (tmp7[item]['scenario' + +action.payload.scenario][property] != undefined) {
+                      myObject[property] = tmp7[item]['scenario' + +action.payload.scenario][property];
+                  }
+              }
+
+              return {...myObject}
+          });
+
+
+          keysOfObj.forEach((prop$$1, index) => {
+              tmp7[prop$$1]['scenario' + +action.payload.scenario] = tmp6[index];
+          });            
+
+           return {...state, assumptions: {...state.assumptions, ['scenario' + +action.payload.scenario]: {...state.assumptions['scenario' + +action.payload.scenario], endyear: action.payload.endyear}}, investmentprogram: {...tmp7}}
+
+      case 'ASSUMPTIONS_SCENARIO':
+          return {...state, assumptions: {...state.assumptions, scenario: action.payload}}
+      
+
+
+
+
+      
+
+
+
+      //OK
+      case 'ASSUMPTIONS_RENT_REMOVE':
+          tmp1 = +action.payload.index / 2;
+          tmp2 = remove(tmp1, 1, [...state.assumptions.rent['scenario' + chosenScenario].period]);
+          tmp3 = remove(tmp1, 1, [...state.assumptions.rent['scenario' + chosenScenario].amount]);
+          return {...state, assumptions: {...state.assumptions, rent: {...state.assumptions.rent, ['scenario' + chosenScenario]: {...state.assumptions.rent['scenario' + chosenScenario], amount: tmp3, period: tmp2}}}}
+
+      //OK
+      case 'ASSUMPTIONS_RENT_ADD':
+          tmp1 = insert(math.ceil(+action.payload.index / 2), '0', [...state.assumptions.rent['scenario' + chosenScenario].amount]);
+          tmp2 = insert(math.ceil(+action.payload.index / 2), '0', [...state.assumptions.rent['scenario' + chosenScenario].period]);
+          return {...state, assumptions: {...state.assumptions, rent: {...state.assumptions.rent, ['scenario' + chosenScenario]: {...state.assumptions.rent['scenario' + chosenScenario], amount: tmp1, period: tmp2}}}}
+
+      //OK
+      case 'ASSUMPTIONS_RENT_AMOUNT':
+          newArr = [...state.assumptions.rent['scenario' + chosenScenario].amount];
+          newArr[action.payload.order] = action.payload.value;
+          return {...state, assumptions: {...state.assumptions, rent: {...state.assumptions.rent, ['scenario' + chosenScenario]: {...state.assumptions.rent['scenario' + chosenScenario], amount: newArr}}}}
+
+      //OK 
+      case 'ASSUMPTIONS_RENT_PERIOD':
+          newArr = [...state.assumptions.rent['scenario' + chosenScenario].period];
+          newArr[action.payload.order] = action.payload.value;
+          return {...state, assumptions: {...state.assumptions, rent: {...state.assumptions.rent, ['scenario' + chosenScenario]: {...state.assumptions.rent['scenario' + chosenScenario], period: newArr}}}}
+
+      //OK
+      case 'ASSUMPTIONS_INVESTMENTS_FUTURE':
+          newArr = {...state.assumptions.investments['scenario' + chosenScenario]};
+          newArr.future = action.payload.value;
+          return {...state, assumptions: {...state.assumptions, investments: {...state.assumptions.investments, ['scenario' + chosenScenario]: {...newArr}}}}
+      
+      //OK
+      case 'ASSUMPTIONS_INVESTMENTS_INITIAL':
+          newArr = {...state.assumptions.investments['scenario' + chosenScenario]};
+          newArr.initial = action.payload.value;
+          return {...state, assumptions: {...state.assumptions, investments: {...state.assumptions.investments, ['scenario' + chosenScenario]: {...newArr}}}}
+
+      //OK
+      case 'ASSUMPTIONS_MAINTENANCE_PERMANENT':
+          newArr = {...state.assumptions.maintenance['scenario' + chosenScenario]};
+          newArr.permanent = action.payload.value;
+          return {...state, assumptions: {...state.assumptions, maintenance: {...state.assumptions.maintenance, ['scenario' + chosenScenario]: {...newArr}}}}
+      
+      //OK
+      case 'ASSUMPTIONS_MAINTENANCE_DYNAMIC':
+          newArr = {...state.assumptions.maintenance['scenario' + chosenScenario]};
+          newArr.dynamic = action.payload.value;
+          return {...state, assumptions: {...state.assumptions, maintenance: {...state.assumptions.maintenance, ['scenario' + chosenScenario]: {...newArr}}}}
+
+      //OK
+      case 'ASSUMPTIONS_MAINTENANCE_NOTUSED':
+          newArr = {...state.assumptions.maintenance['scenario' + chosenScenario]};
+          newArr.notused = action.payload.value;
+          return {...state, assumptions: {...state.assumptions, maintenance: {...state.assumptions.maintenance, ['scenario' + chosenScenario]: {...newArr}}}}
+
+      //OK
+      case 'ASSUMPTIONS_RATES_INFLATION':
+          newArr = {...state.assumptions.rates['scenario' + chosenScenario]};
+          newArr.inflation = action.payload.value;
+          return {...state, assumptions: {...state.assumptions, rates: {...state.assumptions.rates, ['scenario' + chosenScenario]: {...newArr}}}}
+      
+      //OK
+      case 'ASSUMPTIONS_RATES_DISCOUNT':
+          newArr = {...state.assumptions.rates['scenario' + chosenScenario]};
+          newArr.discount = action.payload.value;
+          return {...state, assumptions: {...state.assumptions, rates: {...state.assumptions.rates, ['scenario' + chosenScenario]: {...newArr}}}}
+
+      //OK
+      case 'INVESTMENTPROGRAM_DEMAND':
+          return {...state, investmentprogram: {...state.investmentprogram, demand: {...state.investmentprogram.demand, ['scenario' + chosenScenario]: {...state.investmentprogram.demand['scenario' + chosenScenario], [action.payload.key]: action.payload.value}}}};
+      
+      //OK
+      case 'INVESTMENTPROGRAM_VOLUMEDYNAMIC':
+          return {...state, investmentprogram: {...state.investmentprogram, volumedynamic: {...state.investmentprogram.volumedynamic, ['scenario' + chosenScenario]: {...state.investmentprogram.volumedynamic['scenario' + chosenScenario], [action.payload.key]: action.payload.value}}}};
+      
+      //OK
+      case 'INVESTMENTPROGRAM_VOLUMEPERMANENT':
+          return {...state, investmentprogram: {...state.investmentprogram, volumepermanent: {...state.investmentprogram.volumepermanent, ['scenario' + chosenScenario]: {...state.investmentprogram.volumepermanent['scenario' + chosenScenario], [action.payload.key]: action.payload.value}}}};
+
+
+
+
+      case 'STATIC_ASSUMPTIONS':
+          return {...state}
+      case 'STATIC_INVESTMENT':
+          return {...state}
+
+
 
 
         default:
@@ -18947,17 +21637,210 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
     }
 
     const initState = {
-        kth: {
-            county: [
-            ],
-            municipality: [
-            ],
-            lkf: [
-            ]
-        },
+
         menu: {
-            selected: '0'
-        }
+            selected: "0"
+        },
+        assumptions: {
+            startyear: "2019",
+            endyear: ["2028", "2028", "2028"],
+            scenario1: {
+                endyear: "2028"
+            },
+            scenario2: {
+                endyear: "2028"
+            },
+            scenario3: {
+                endyear: "2028"
+            },
+            scenario: "1",
+            investments: {
+                scenario1: {
+                    future: "0.02",
+                    initial: "0",
+                },
+                scenario2: {
+                    future: "0.02",
+                    initial: "0",
+                },
+                scenario3: {
+                    future: "0.02",
+                    initial: "0",
+                },
+            },
+            rent: {
+                scenario1: {
+                    amount: ["0"],
+                    period: ["10"],
+                },
+                scenario2: {
+                    amount: ["0"],
+                    period: ["10"],
+                },
+                scenario3: {
+                    amount: ["0"],
+                    period: ["10"],
+                },
+            },
+            maintenance: {
+                scenario1: {
+                    permanent: "0",
+                    dynamic: "0",
+                    notused: "0",
+                },
+                scenario2: {
+                    permanent: "0",
+                    dynamic: "0",
+                    notused: "0",
+                },
+                scenario3: {
+                    permanent: "0",
+                    dynamic: "0",
+                    notused: "0",
+                },
+            },
+            rates: {
+                scenario1: {
+                    inflation: "0.02",
+                    discount: "0.05",
+                },
+                scenario2: {
+                    inflation: "0.02",
+                    discount: "0.05",
+                },
+                scenario3: {
+                    inflation: "0.02",
+                    discount: "0.05",
+                },
+            }
+        },
+        investmentprogram: {
+            demand: {
+                scenario1: {
+                    "2019": "0",
+                    "2020": "0",
+                    "2021": "0",
+                    "2022": "0",
+                    "2023": "0",
+                    "2024": "0",
+                    "2025": "0",
+                    "2026": "0",
+                    "2027": "0",
+                    "2028": "0",
+                    "2029": "0",
+                },
+                scenario2: {
+                    "2019": "0",
+                    "2020": "0",
+                    "2021": "0",
+                    "2022": "0",
+                    "2023": "0",
+                    "2024": "0",
+                    "2025": "0",
+                    "2026": "0",
+                    "2027": "0",
+                    "2028": "0",
+                    "2029": "0",
+                },
+                scenario3: {
+                    "2019": "0",
+                    "2020": "0",
+                    "2021": "0",
+                    "2022": "0",
+                    "2023": "0",
+                    "2024": "0",
+                    "2025": "0",
+                    "2026": "0",
+                    "2027": "0",
+                    "2028": "0",
+                    "2029": "0",
+                }
+            },
+            volumedynamic: {
+                scenario1: {
+                    "2019": "0",
+                    "2020": "0",
+                    "2021": "0",
+                    "2022": "0",
+                    "2023": "0",
+                    "2024": "0",
+                    "2025": "0",
+                    "2026": "0",
+                    "2027": "0",
+                    "2028": "0",
+                    "2029": "0",
+                },
+                scenario2: {
+                    "2019": "0",
+                    "2020": "0",
+                    "2021": "0",
+                    "2022": "0",
+                    "2023": "0",
+                    "2024": "0",
+                    "2025": "0",
+                    "2026": "0",
+                    "2027": "0",
+                    "2028": "0",
+                    "2029": "0",
+                },
+                scenario3: {
+                    "2019": "0",
+                    "2020": "0",
+                    "2021": "0",
+                    "2022": "0",
+                    "2023": "0",
+                    "2024": "0",
+                    "2025": "0",
+                    "2026": "0",
+                    "2027": "0",
+                    "2028": "0",
+                    "2029": "0",
+                }
+
+            },
+            volumepermanent: {
+                scenario1: {
+                    "2019": "0",
+                    "2020": "0",
+                    "2021": "0",
+                    "2022": "0",
+                    "2023": "0",
+                    "2024": "0",
+                    "2025": "0",
+                    "2026": "0",
+                    "2027": "0",
+                    "2028": "0",
+                    "2029": "0",
+                },
+                scenario2: {
+                    "2019": "0",
+                    "2020": "0",
+                    "2021": "0",
+                    "2022": "0",
+                    "2023": "0",
+                    "2024": "0",
+                    "2025": "0",
+                    "2026": "0",
+                    "2027": "0",
+                    "2028": "0",
+                    "2029": "0",
+                },
+                scenario3: {
+                    "2019": "0",
+                    "2020": "0",
+                    "2021": "0",
+                    "2022": "0",
+                    "2023": "0",
+                    "2024": "0",
+                    "2025": "0",
+                    "2026": "0",
+                    "2027": "0",
+                    "2028": "0",
+                    "2029": "0",
+                }
+
+            }
+        },
     };
 
     var pouchdb = createCommonjsModule(function (module, exports) {
@@ -35026,71 +37909,7 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
 
     };
 
-    const reduxmixin = (props$$1, superClass) => {
-        return class ReduxMixin extends superClass {
-
-            static get properties() {
-                return props$$1().reduce((acc, prop$$1) => {
-                    return { ...acc, [prop$$1.propKey]: prop$$1.propValue }
-                }, {})
-            }
-            
-            valueChanged(e) {
-              this.storeHolder.store.dispatch(action[`${e.path[0].id}Value`](e.detail.value));
-            }
-
-            stateChanged(state) {
-            
-                props$$1().forEach(prop$$1 => {
-                    if (prop$$1.path) {
-                       
-                        if(is(Array, prop$$1.path.reduce((acc, item) => {
-                          
-                                return acc[item]
-                            }, state))) 
-                        {
-                            if (!equals(this[prop$$1.propKey], prop$$1.path.reduce((acc, item) => {
-                                return acc[item]
-                            }, state))) {
-                                this[prop$$1.propKey] = [...prop$$1.path.reduce((acc, item) => {
-                                   
-                                    return acc[item]
-                                }, state)];
-                            }
-                        } else if(is(Object, prop$$1.path.reduce((acc, item) => {
-                                return acc[item]
-                            }, state))) 
-                        {
-                            this[prop$$1.propKey] = {...prop$$1.path.reduce((acc, item) => {
-                            
-                                return acc[item]
-                            }, state)};
-                        } else {
-                            if (!equals(this[prop$$1.propKey], prop$$1.path.reduce((acc, item) => {
-                                return acc[item]
-                            }, state))) {
-                                this[prop$$1.propKey] = prop$$1.path.reduce((acc, item) => {
-                                   
-                                    return acc[item]
-                                }, state);
-                            }
-                        }
-                    }
-                });
-            }
-
-            
-            // stateChanged(state) {
-            //   props.forEach(prop => {
-            //       if (this[prop.propKey] !== state[prop.propKey] && state[prop.propKey] != undefined) {
-            //           this[prop.propKey] = state[prop.propKey];
-            //       }
-            //   });
-            // }
-        } 
-    };
-
-    let props$b = () => [
+    let props$i = () => [
       {
         propKey: "selectedmenu",
         propValue: { type: String },
@@ -35104,7 +37923,7 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
       }
     ];
 
-    class XApp extends reduxmixin(props$b, rxmixin(props$b, connectmixin(props$b, LitElement))) {
+    class XApp extends reduxmixin(props$i, rxmixin(props$i, connectmixin(props$i, LitElement))) {
       constructor() {
         super();
         this.okToRender = false;
@@ -35175,9 +37994,9 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
           .pipe(rx.undefinedElementRemover)
           .subscribe(() => {
             getRenderData.call(this, loggedinHeaderSchemas).then(renderdata => {
-              renderdata.forEach(prop => {
-                if (prop.name == "header") {
-                  this.header = prop;
+              renderdata.forEach(prop$$1 => {
+                if (prop$$1.name == "header") {
+                  this.header = prop$$1;
                 }
               });
               this.renderheader = this.header;
@@ -35187,9 +38006,9 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
           });
 
         getRenderData.call(this, loggedoutHeaderSchemas).then(renderdata => {
-          renderdata.forEach(prop => {
-            if (prop.name == "header") {
-              this.header = prop;
+          renderdata.forEach(prop$$1 => {
+            if (prop$$1.name == "header") {
+              this.header = prop$$1;
             }
           });
           this.renderloggedoutheader = this.header;
@@ -35205,7 +38024,7 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
               const outlet = this.shadowRoot.getElementById("outlet");
               const router = new Router(outlet);
               router.setRoutes([
-                { path: '/antaganden', component: 'x-a' },
+                { path: '/antaganden', action: this.antagandenAction.bind(this) },
                 { path: '/investeringsprogram', component: 'x-b' },
                 { path: '/kostnader', component: 'x-c' },
                 { path: '/resultat', component: 'x-d' },
@@ -35216,6 +38035,15 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
           });
 
       }
+
+      antagandenAction(context, commands) {
+        let el = commands.component('x-one');
+      
+        el.storeHolder = this;
+        el.stateChanged(this.store.getState());
+        
+        return el;  
+    }
 
       render() {
         return this.okToRender
@@ -35301,7 +38129,8 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
   </nav> -->
 
         <main>
-        <div id="outlet"></div>
+          <div id="outlet"></div>
+        
           
           <!-- Main content -->
         </main>

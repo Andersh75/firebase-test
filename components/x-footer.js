@@ -2,6 +2,7 @@ import { html, LitElement} from 'lit-element';
 import { rxmixin } from "../mixins/rxmixin.js";
 import { rx, toRender, prepareRender, getData } from "../utils/whcg-functions.js";
 import { grid } from "../css/grid.css.js";
+import * as R from "ramda/es/index.js";
 
 
 let props = () => ([

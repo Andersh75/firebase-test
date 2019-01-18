@@ -2,6 +2,7 @@ import '../components/x-menulogin';
 import '../components/x-menu-button';
 import '../components/x-login';
 import '../components/x-icon';
+import * as R from "ramda/es/index.js";
 
 export function loggedinHeaderSchemas() {
 

@@ -14,6 +14,7 @@ import {
 import { connectmixin } from "../mixins/connectmixin.js";
 import { reduxmixin } from "../mixins/reduxmixin.js";
 import { rxmixin } from "../mixins/rxmixin.js";
+import * as R from "ramda/es/index.js";
 
 let props = () => [];
 

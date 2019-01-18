@@ -1,5 +1,6 @@
 import { html, LitElement } from 'lit-element';
 import { connectmixin } from '../mixins/connectmixin.js';
+import * as R from "ramda/es/index.js";
 
 let props = () => ([]);
 

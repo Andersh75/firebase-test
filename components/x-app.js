@@ -2,7 +2,7 @@ import { html, LitElement } from "lit-element";
 import "./x-header.js";
 import "./x-menu-button";
 import "./x-footer";
-import "./x-a";
+import "./x-one";
 import "./x-b";
 import "./x-c";
 import "./x-d";
@@ -20,6 +20,7 @@ import {
 import { connectmixin } from "../mixins/connectmixin.js";
 import { reduxmixin } from "../mixins/reduxmixin.js";
 import { rxmixin } from "../mixins/rxmixin.js";
+import * as R from "ramda/es/index.js";
 
 let props = () => [
   {
@@ -136,7 +137,7 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
           const outlet = this.shadowRoot.getElementById("outlet");
           const router = new Router(outlet);
           router.setRoutes([
-            { path: '/antaganden', component: 'x-a' },
+            { path: '/antaganden', action: this.antagandenAction.bind(this) },
             { path: '/investeringsprogram', component: 'x-b' },
             { path: '/kostnader', component: 'x-c' },
             { path: '/resultat', component: 'x-d' },
@@ -147,6 +148,15 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
       })
 
   }
+
+  antagandenAction(context, commands) {
+    let el = commands.component('x-one');
+  
+    el.storeHolder = this
+    el.stateChanged(this.store.getState())
+    
+    return el;  
+}
 
   render() {
     return this.okToRender
@@ -232,7 +242,8 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
   </nav> -->
 
         <main>
-        <div id="outlet"></div>
+          <div id="outlet"></div>
+        
           
           <!-- Main content -->
         </main>
@@ -250,3 +261,5 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
 }
 
 customElements.define("x-app", XApp);
+
+{/*  */}

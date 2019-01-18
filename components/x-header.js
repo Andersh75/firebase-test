@@ -1,6 +1,7 @@
 import { html, LitElement} from 'lit-element';
 import { rxmixin } from "../mixins/rxmixin.js";
 import { rx, toRender, prepareRender } from "../utils/whcg-functions.js";
+import * as R from "ramda/es/index.js";
 
 let props = () => ([
     { propKey: 'menu', propValue: {type: Object}, rx: true },

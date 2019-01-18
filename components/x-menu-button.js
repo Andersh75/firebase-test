@@ -1,5 +1,6 @@
 import { html, LitElement } from 'lit-element';
 import { propsmixin } from "../mixins/propsmixin.js";
+import * as R from "ramda/es/index.js";
 
 let props = () => ([
     { propKey: "props", propValue: { type: Object }, rx: false },

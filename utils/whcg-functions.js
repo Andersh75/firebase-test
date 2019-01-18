@@ -582,7 +582,8 @@ export function getElement(name, item, index, arr) {
     </x-assumption-row>`
 
         case 'x-subheader':
-        return html`<x-subheader class="${item.ui_schema.ui_classnames}" .props=${item.json_schema} scenario=${this.renderscenario} title=${this.rendertitle} @scenariochanged="${(e) => this.scenarioChangedHandler(e)}"></x-subheader>`
+        return html`<x-subheader class="${item.ui_schema.ui_classnames}" .props=${item.json_schema} @scenariochanged="${(e) => this.scenarioChangedHandler(e)}"></x-subheader>`
+
 
         case 'x-main-header':
         return html`<x-main-header class="${item.ui_schema.ui_classnames}" .props=${item.json_schema}></x-main-header>`;
@@ -702,7 +703,7 @@ export async function recurse(item) {
     if(item.json_schema.type == 'Object') {
         
         let orderedproperties = await Promise.all(item.ui_schema.ui_order.map(async(element, index) => {   
-            // console.log('item', item)      
+                
             if(item.data_schema[element].fn) {
                 item.data_schema[element] = await this[item.data_schema[element].fn].call(this, item.data_schema[element].parameter)
                 return await {json_schema: {...item.json_schema.properties[element]}, name: element, ui_schema: {...item.ui_schema[element], name: element, merged: item.ui_schema.ui_merged ? item.ui_schema.ui_merged : false}, data_schema: item.data_schema[element]}
@@ -950,24 +951,30 @@ export function prepareRender(processedSchema) {
 export function toRender(renderdata) {
     return renderdata != undefined ? renderdata.map((item, index) => {
         if (!R.is(Array, item)) {
+            
             if (item.ui_schema.merged != true) {
                 if (item.type == 'Array') {
+                    
                     return item.json_schema.map((element, index) => {
+                        
                         if (element.data_schema != 'HIDE') {
                             return getElement.call(this, element.ui_schema.ui_widget, element, index, item);
                         }
                     })
                 } else {
+                    
                     if (item.data_schema != 'HIDE') {
                         if (item.ui_schema.ui_widget != undefined) {
                             return getElement.call(this, item.ui_schema.ui_widget, item, index, item);
                         } else {
+                           
                             return item.data_schema
                         }
                         
                     }
                 }
             } else {
+                
                 if (item.type == 'Array' || item.type == 'Object') {
                     return toRender.call(this, item.json_schema)
                 } else {
@@ -975,7 +982,9 @@ export function toRender(renderdata) {
                 }
                 
             }
-        } else {return toRender.call(this, item)}
+        } else {
+            return toRender.call(this, item)
+        }
 
     }) : ""
 }

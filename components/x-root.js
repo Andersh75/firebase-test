@@ -3,6 +3,7 @@ import './x-header.js';
 import './x-footer.js';
 import { usermixin } from '../mixins/usermixin.js';
 import { rxmixin } from '../mixins/rxmixin.js';
+import * as R from "ramda/es/index.js";
 
 let props = () => ([]);
 
