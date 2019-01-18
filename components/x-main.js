@@ -177,15 +177,15 @@ export class XMain extends rxmixin(props, LitElement) {
         }
 
         .header {
-          grid-column-start: 2;
-          grid-column-end: 12;
+          grid-column-start: 1;
+          grid-column-end: 13;
           /* position: sticky;
           top: 180px; */
         }
 
         .table {
-          grid-column-start: 2;
-          grid-column-end: 12;
+          grid-column-start: 1;
+          grid-column-end: 13;
           padding-bottom: 10px;
           /* position: sticky;
           top: 180px; */

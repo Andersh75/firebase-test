@@ -89,7 +89,7 @@ export class XHeader extends rxmixin(props, LitElement) {
 
                 .icon {
                     grid-area: icon;
-                    justify-self: center;
+                    justify-self: end;
                     align-self: center;
                 }
             

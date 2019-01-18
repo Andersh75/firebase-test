@@ -84,7 +84,7 @@ export class XSubheader extends rxmixin(props, LitElement) {
                     grid-template-columns: repeat(12, 1fr);
                     grid-column-gap: 20px;
                     grid-template-areas: 
-                        ".    title     title     title    title     title    title    boxes     boxes     boxes     boxes     .";
+                        "title    title     title     title    title     title    title    boxes     boxes     boxes     boxes     boxes";
                 }
 
                 .title {                            

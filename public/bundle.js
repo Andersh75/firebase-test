@@ -12032,7 +12032,7 @@
 
                 .icon {
                     grid-area: icon;
-                    justify-self: center;
+                    justify-self: end;
                     align-self: center;
                 }
             
@@ -15084,7 +15084,7 @@
                     grid-template-columns: repeat(12, 1fr);
                     grid-column-gap: 20px;
                     grid-template-areas: 
-                        ".    title     title     title    title     title    title    boxes     boxes     boxes     boxes     .";
+                        "title    title     title     title    title     title    title    boxes     boxes     boxes     boxes     boxes";
                 }
 
                 .title {                            
@@ -15399,15 +15399,15 @@
         }
 
         .header {
-          grid-column-start: 2;
-          grid-column-end: 12;
+          grid-column-start: 1;
+          grid-column-end: 13;
           /* position: sticky;
           top: 180px; */
         }
 
         .table {
-          grid-column-start: 2;
-          grid-column-end: 12;
+          grid-column-start: 1;
+          grid-column-end: 13;
           padding-bottom: 10px;
           /* position: sticky;
           top: 180px; */
@@ -15825,15 +15825,23 @@
     let props$e = () => ([]);
 
     class XD extends propsmixin(props$e, LitElement) {
-        onBeforeEnter(location, commands, router) {
-            if (!firebase.auth().currentUser) {
-                return commands.redirect('/')
-            }
-            console.log('GOING INTO USERS');
+        // onBeforeEnter(location, commands, router) {
+        //     if (!firebase.auth().currentUser) {
+        //         return commands.redirect('/')
+        //     }
+        //     console.log('GOING INTO USERS')
+        // }
+
+        constructor() {
+            super();
+            firebase.auth().onAuthStateChanged((user) => {
+                this.requestUpdate();
+              });
         }
         render() {
            
-            return html`DDDD`;
+            return html`DDDD
+        ${JSON.stringify(firebase.auth().currentUser)}`;
         }
     }
 
@@ -37929,9 +37937,10 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
         this.okToRender = false;
         firebase.auth().onAuthStateChanged((user) => {
           if (user) {
-            this.selectedmenu = 0;
-            Router.go("/antaganden");
+            this.selectedmenu = -1;
+            Router.go("/");
             this.requestUpdate();
+            
           } else {
             this.requestUpdate();
             Router.go("/");  
@@ -38041,6 +38050,8 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
       
         el.storeHolder = this;
         el.stateChanged(this.store.getState());
+
+        
         
         return el;  
     }
@@ -38054,7 +38065,7 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
 
           grid-template-areas:
             "header header header"
-            "content content side"
+            "content content content"
             "footer footer footer";
 
           grid-template-columns: 200px 1fr 200px;
@@ -38062,25 +38073,24 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
           grid-gap: 10px;
 
           height: 100vh;
-          margin-left: 50px;
-          margin-right: 50px;
+          margin-left: 150px;
+          margin-right: 150px;
         }
 
         header {
           grid-area: header;
-          margin-left: 0.5rem;
-          margin-right: 0.5rem;
+          /* margin-left: 1rem;
+          margin-right: 0.5rem; */
         }
 
         nav {
           grid-area: nav;
-          margin-left: 0.5rem;
+          /* margin-left: 0.1rem; */
           background-color: firebrick;
         }
 
         main {
           grid-area: content;
-          background-color: darkblue;
         }
 
         aside {
@@ -38123,10 +38133,10 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
           ${this.user.currentUser ? toRender.call(this, prepareRender(this.renderheader)) : toRender.call(this, prepareRender(this.renderloggedoutheader))}
         </header>
 
-        <!-- <nav>
+        <nav>
+        
     
-    
-  </nav> -->
+  </nav>
 
         <main>
           <div id="outlet"></div>
@@ -38135,10 +38145,10 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
           <!-- Main content -->
         </main>
 
-        <aside>
-          <!-- Sidebar / Ads -->
-          <button @click=${e => this.login(e)}>LOGIN</button>
-        </aside>
+        <!-- <aside>
+        
+         
+        </aside> -->
 
         <footer><x-footer></x-footer></footer>
       </div>

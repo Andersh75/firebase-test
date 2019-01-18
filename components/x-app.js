@@ -42,9 +42,10 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
     this.okToRender = false
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        this.selectedmenu = 0;
-        Router.go("/antaganden");
+        this.selectedmenu = -1;
+        Router.go("/");
         this.requestUpdate()
+        
       } else {
         this.requestUpdate()
         Router.go("/");  
@@ -154,6 +155,8 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
   
     el.storeHolder = this
     el.stateChanged(this.store.getState())
+
+    
     
     return el;  
 }
@@ -167,7 +170,7 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
 
           grid-template-areas:
             "header header header"
-            "content content side"
+            "content content content"
             "footer footer footer";
 
           grid-template-columns: 200px 1fr 200px;
@@ -175,25 +178,24 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
           grid-gap: 10px;
 
           height: 100vh;
-          margin-left: 50px;
-          margin-right: 50px;
+          margin-left: 150px;
+          margin-right: 150px;
         }
 
         header {
           grid-area: header;
-          margin-left: 0.5rem;
-          margin-right: 0.5rem;
+          /* margin-left: 1rem;
+          margin-right: 0.5rem; */
         }
 
         nav {
           grid-area: nav;
-          margin-left: 0.5rem;
+          /* margin-left: 0.1rem; */
           background-color: firebrick;
         }
 
         main {
           grid-area: content;
-          background-color: darkblue;
         }
 
         aside {
@@ -236,10 +238,10 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
           ${this.user.currentUser ? toRender.call(this, prepareRender(this.renderheader)) : toRender.call(this, prepareRender(this.renderloggedoutheader))}
         </header>
 
-        <!-- <nav>
+        <nav>
+        
     
-    
-  </nav> -->
+  </nav>
 
         <main>
           <div id="outlet"></div>
@@ -248,10 +250,10 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
           <!-- Main content -->
         </main>
 
-        <aside>
-          <!-- Sidebar / Ads -->
-          <button @click=${e => this.login(e)}>LOGIN</button>
-        </aside>
+        <!-- <aside>
+        
+         
+        </aside> -->
 
         <footer><x-footer></x-footer></footer>
       </div>
@@ -262,4 +264,4 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
 
 customElements.define("x-app", XApp);
 
-{/*  */}
+{/* <button @click=${e => this.login(e)}>LOGIN</button> */}
