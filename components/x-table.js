@@ -50,7 +50,7 @@ export class XTable extends rxmixin(props, LitElement) {
                 .table {
                     display: grid;
                     grid-template-columns: repeat(1, 1fr);
-                    grid-gap: 2px;                    
+                    grid-gap: 2px;                 
                 }
             </style>
             

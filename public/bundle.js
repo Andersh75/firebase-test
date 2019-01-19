@@ -15774,9 +15774,10 @@
         .table {
           grid-column-start: 1;
           grid-column-end: 13;
-          padding-bottom: 10px;
+          padding-bottom: 10px; 
           /* position: sticky;
           top: 180px; */
+
         }
 
         .table-0 {
@@ -16201,7 +16202,7 @@
                 .table {
                     display: grid;
                     grid-template-columns: repeat(1, 1fr);
-                    grid-gap: 2px;                    
+                    grid-gap: 2px;                 
                 }
             </style>
             

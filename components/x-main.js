@@ -186,9 +186,10 @@ export class XMain extends rxmixin(props, LitElement) {
         .table {
           grid-column-start: 1;
           grid-column-end: 13;
-          padding-bottom: 10px;
+          padding-bottom: 10px; 
           /* position: sticky;
           top: 180px; */
+
         }
 
         .table-0 {
