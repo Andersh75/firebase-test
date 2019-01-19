@@ -14160,6 +14160,12 @@
             white-space: nowrap;
         }
 
+        .avtalsperiod {
+            font: var(--font-table-row-label-fat);
+            color: var(--color-text);
+            padding-bottom: 10px;
+        }
+
         .data {
             grid-area: data;
         }
@@ -14197,9 +14203,15 @@
         }
     </style>
     
-  
-    <div class=${(this.index != 0 && this.remove) ? 'tablerow extra' : 'tablerow'}>
-        <div class="label ${this.renderlabel.ui_schema && this.renderlabel.ui_schema.ui_options && this.renderlabel.ui_schema.ui_options.color ? this.renderlabel.ui_schema.ui_options.color : ''}">${this.removehidden ? html`<img src="./images/minus.svg" class="svg hidden" @click="${() => this.removeClickHandler()}">` : html``}${this.remove ? html`<img src="./images/minus.svg" class="svg" @click="${() => this.removeClickHandler()}">` : html``}${this.add ? html`<img src="./images/add-circular-outlined-button.svg" class="svg" @click="${() => this.addClickHandler()}">` : html``}${this.renderlabel.data_schema}</div>
+    ${this.remove ? html`<div class="avtalsperiod ${this.index != 0 ? 'extra' : ''}">Avtalsperiod ${+this.index / 2 + 1}</div>` : html``}
+    <div class=${(this.index != 0 && this.remove) ? 'tablerow' : 'tablerow'}>
+        
+        <div class="label ${this.renderlabel.ui_schema && this.renderlabel.ui_schema.ui_options && this.renderlabel.ui_schema.ui_options.color ? this.renderlabel.ui_schema.ui_options.color : ''}">
+            ${this.remove && this.index == 0 ? html`<img src="./images/minus.svg" class="svg hidden" @click="${() => this.removeClickHandler()}">` : html``}
+            ${this.remove && this.index != 0 ? html`<img src="./images/minus.svg" class="svg" @click="${() => this.removeClickHandler()}">` : html``}
+            ${this.add ? html`<img src="./images/add-circular-outlined-button.svg" class="svg" @click="${() => this.addClickHandler()}">` : html``}
+            ${this.renderlabel.data_schema}
+        </div>
         <div class="data">
             ${toRender.call(this, prepareRender(this.renderdata))}
         </div>
