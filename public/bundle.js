@@ -19404,7 +19404,7 @@
         }
         render() {
            
-            return html`DDDD
+            return html`STARTSIDA
         <style>
             div {
                 min-height: 60vh;
@@ -41623,6 +41623,24 @@ ${this.value == 'in' ? html`<div @click="${e => this.hoverHandler(e)}"><svg clas
             username = username.replace(".", "dot");
 
             let db = new pouchdb(username);
+            // let couchDB = new PouchDB(`http://plex:1111111111@localhost:5984/${username}`);
+
+            // db
+            //   .replicate
+            //   .from(couchDB)
+            //   .on('complete', (info) => {
+            //     db.sync(couchDB, { live: true, retry: true })
+            //     console.log('info');
+            //     console.log(info);
+            //   })
+            //   .on('error', (info) => {
+            //     console.log('error');
+            //     console.log(info);
+            //   })
+            //   .on('change', (info) => {
+            //     console.log('change');
+            //     console.log(info);
+            //   });
 
             db.allDocs({
               include_docs: true,

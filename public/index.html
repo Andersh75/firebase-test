@@ -30,6 +30,8 @@
       // window.location.href != 'http://localhost:5500/' ? window.location.href = 'http://localhost:5500/' : ''
       // // window.location.href != 'http://localhost:3006/' ? window.location.href = 'http://localhost:3006/' : ''
       var chosenScenario = 1;
+
+
   </script>
     <script defer src="./bundle.js"></script>
   </head>
@@ -139,6 +141,36 @@
     }
         </style>
   <body>
-    <x-app></x-app>
+    <script>
+            // Opera 8.0+
+            var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+
+// Firefox 1.0+
+var isFirefox = typeof InstallTrigger !== 'undefined';
+
+// Safari 3.0+ "[object HTMLElementConstructor]" 
+var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
+
+// Internet Explorer 6-11
+var isIE = /*@cc_on!@*/false || !!document.documentMode;
+
+// Edge 20+
+var isEdge = !isIE && !!window.StyleMedia;
+
+// Chrome 1 - 71
+var isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+
+// Blink engine detection
+var isBlink = (isChrome || isOpera) && !!window.CSS;
+
+if(isFirefox || isChrome || isSafari) {
+  document.body.appendChild(document.createElement('x-app'));
+} else {
+  let div = document.createElement('div');
+  div.textContent = "Använd Chrome, Firefox eller Safari"
+  document.body.appendChild(div);
+  
+}
+    </script>
   </body>
 </html>

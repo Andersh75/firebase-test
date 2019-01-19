@@ -19,7 +19,7 @@ export class XStartpage extends reduxmixin(props, LitElement) {
     }
     render() {
        
-        return html`DDDD
+        return html`STARTSIDA
         <style>
             div {
                 min-height: 60vh;
