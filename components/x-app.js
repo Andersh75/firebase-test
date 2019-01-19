@@ -38,6 +38,11 @@ let props = () => [
     propKey: "okToRender",
     propValue: { type: Boolean },
     rx: true,
+  },
+  {
+    propKey: "loginhidden",
+    propValue: { type: Boolean },
+    rx: true,
   }
 ];
 
@@ -46,6 +51,7 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
   constructor() {
     super();
     this.okToRender = false
+    this.loginhidden = true
   }
 
   menuchangedHandler(e) {
@@ -68,10 +74,12 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
   }
 
   loggedinHandler(e) {
-    firebase
-      .auth()
-      .signInWithEmailAndPassword("ahell@kth.se", "111111")
-      .catch(function(error) {});
+    this.loginhidden = !this.loginhidden;
+    // this.requestUpdate();
+    // firebase
+    //   .auth()
+    //   .signInWithEmailAndPassword("ahell@kth.se", "111111")
+    //   .catch(function(error) {});
   }
 
   loggedoutHandler(e) {
@@ -152,6 +160,9 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
         });
       });
 
+      rx.latestCombiner([this.loginhidden$])
+      .pipe(rx.undefinedElementRemover)
+      .subscribe(() => {
     getRenderData.call(this, loggedoutHeaderSchemas).then(renderdata => {
       renderdata.forEach(prop => {
         if (prop.name == "header") {
@@ -162,6 +173,7 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
       this.okToRender = true;
       this.requestUpdate();
     });
+  });
 
 
     rx.latestCombiner([this.okToRender$])
@@ -225,9 +237,31 @@ stateChanged(state) {
       <style>
         .container {
           display: grid;
+          position: -webkit-sticky; /* Safari */
+          position: sticky;
+          top: 0;
+          background-color: var(--color-bg);
+
 
           grid-template-areas:
-            "header header header"
+            "header header header";
+            /* "content content content"
+            "footer footer footer"; */
+
+          grid-template-columns: 200px 1fr 200px;
+          grid-template-rows: auto 1fr auto;
+          grid-gap: 10px;
+
+          /* height: 100vh; */
+          margin-left: 150px;
+          margin-right: 150px;
+        }
+
+        .container2 {
+          display: grid;
+
+          grid-template-areas:
+            /* "header header header" */
             "content content content"
             "footer footer footer";
 
@@ -235,13 +269,14 @@ stateChanged(state) {
           grid-template-rows: auto 1fr auto;
           grid-gap: 10px;
 
-          height: 100vh;
+          /* height: 100vh; */
           margin-left: 150px;
           margin-right: 150px;
         }
 
         header {
           grid-area: header;
+          /* position: sticky; */
           /* margin-left: 1rem;
           margin-right: 0.5rem; */
         }
@@ -290,11 +325,14 @@ stateChanged(state) {
           }
         }
       </style>
-
       <div class="container">
         <header>
           ${firebase.auth().currentUser ? toRender.call(this, prepareRender(this.renderheader)) : toRender.call(this, prepareRender(this.renderloggedoutheader))}
         </header>
+      </div>
+
+      <div class="container2">
+
 
         <!-- <nav></nav> -->
 

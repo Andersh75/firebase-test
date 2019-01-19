@@ -549,8 +549,7 @@ export function getElement(name, item, index, arr) {
         return html`<x-header class="header" .props=${item.json_schema} selected=${this.selectedmenu} @menuchanged="${(event) => this.menuchangedHandler(event)}" @loggedout="${(event) => this.loggedoutHandler(event)}" @loggedin="${(event) => this.loggedinHandler(event)}"></x-header>
         `
 
-        case 'x-login':
-        return html`<x-login></x-login>`
+
 
         case 'x-menulogin':
         return html`<x-menulogin .props=${item.json_schema} @menuchanged="${(event) => this.menuchangedHandler(event)}"></x-menulogin>`
@@ -609,6 +608,8 @@ export function getElement(name, item, index, arr) {
         case 'x-icon':
         return html`<x-icon class="${item.ui_schema.ui_classnames}" .props=${item} @loggedout="${(e) => this.loggedoutHandler(e)}"  @loggedin="${(e) => this.loggedinHandler(e)}"></x-icon>`;
         
+        case 'x-login':
+        return html`<x-login .props=${item}></x-login>`
 
     }
 }

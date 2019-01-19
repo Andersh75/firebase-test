@@ -20,7 +20,14 @@ export class XStartpage extends reduxmixin(props, LitElement) {
     render() {
        
         return html`DDDD
-        ${JSON.stringify(firebase.auth().currentUser)}`;
+        <style>
+            div {
+                min-height: 60vh;
+            }
+        </style>
+        <div>
+            ${JSON.stringify(firebase.auth().currentUser)}
+        </div>`;
     }
 }
 

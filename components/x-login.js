@@ -3,7 +3,10 @@ import { usermixin } from "../mixins/usermixin.js";
 import * as R from "ramda/es/index.js";
 ;
 
-let props = () => ([]);
+let props = () => ([
+  { propKey: "props", propValue: { type: Object }, rx: false },
+  { propKey: "hidden", propValue: { type: Boolean }, rx: false },
+]);
 
 export class XLogin extends usermixin(props, LitElement) {
   keyHandler(e) {
@@ -60,6 +63,17 @@ export class XLogin extends usermixin(props, LitElement) {
         this.shadowRoot.querySelector("#name").value = "";
         this.shadowRoot.querySelector("#password").value = "";
         this.requestUpdate();
+      }
+    });
+  }
+
+  updated(changedProperties) {
+    super.updated(changedProperties);
+    changedProperties.forEach((oldValue, propName) => {
+      
+      if (propName === "props") {
+        console.log('THEPROPS', this.props)
+        this.hidden = this.props.ui_schema.ui_options.hidden
       }
     });
   }
@@ -125,9 +139,14 @@ export class XLogin extends usermixin(props, LitElement) {
           color: var(--color-text);
           opacity: var(--focus-placeholder-opacity); /* Firefox */
         }
+
+        .hidden {
+          visibility: hidden;
+        }
+
       </style>
 
-    <div class="menu">
+    <div class="menu ${this.hidden ? 'hidden' : ''}">
             <input class="input item-0" type="textfield" id="name" placeholder="ANVÄNDARE" @keydown="${event =>
               this.keyHandler(event)}" @blur="${event =>
       this.blurHandler(event)}" @focus="${event =>

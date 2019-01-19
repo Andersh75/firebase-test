@@ -123,6 +123,9 @@ export function loggedoutHeaderSchemas() {
                 ],
                 menu: {
                     ui_widget: "x-login",
+                    ui_options:  {
+                        hidden: this.loginhidden
+                    },
                 },
                 icon: {
                     ui_widget: "x-icon",

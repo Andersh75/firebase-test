@@ -4,9 +4,15 @@ import { propsmixin } from "../mixins/propsmixin.js";
 let props = () => ([
     { propKey: "props", propValue: { type: Object }, rx: false },
     { propKey: "value", propValue: { type: String }, rx: false },
+    { propKey: "menuhidden", propValue: { type: Boolean }, rx: false },
   ]);
 
 export class XIcon extends propsmixin(props, LitElement) {
+
+    constructor() {
+        super();
+        this.menuhidden = true
+    }
 
     logoutHandler() {
         let event = new CustomEvent('loggedout');
@@ -16,6 +22,11 @@ export class XIcon extends propsmixin(props, LitElement) {
     loginHandler() {
         let event = new CustomEvent('loggedin');
         this.dispatchEvent(event);
+    }
+
+    hoverHandler() {
+        console.log('hover');
+        this.menuhidden = !this.menuhidden
     }
 
     updated(changedProperties) {
@@ -55,14 +66,34 @@ export class XIcon extends propsmixin(props, LitElement) {
                 fill: var(--color-menu);
             }
 
+            .logout {
+                background-color: rgba(0, 0, 0, 0.05);
+                font: var(--font-menu);
+                color: var(--color-menu);
+                padding-top: 20px;
+                padding-bottom: 20px;
+                padding-left: 20px;
+                padding-right: 20px;
+                position: absolute;
+                top: 80px;
+                right: -32px;
+                /* z-index: 1000; */
+            }
+
+            .hidden {
+                visibility: hidden;
+            }
+
+
             .selected {
                 transition: border-bottom 0.1s ease-in;
                 border-bottom: 2px solid var(--color-attention);
             }
 
             </style>
+            <div class="logout ${this.menuhidden ? 'hidden' : ''}" @click="${e => this.logoutHandler(e)}" @mouseout="${e => this.hoverHandler(e)}">LOGGA UT</div>
             
-${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg class="in" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="512px" height="512px" viewBox="0 0 311.541 311.541" style="enable-background:new 0 0 311.541 311.541;" xml:space="preserve">
+${this.value == 'in' ? html`<div @click="${e => this.hoverHandler(e)}"><svg class="in" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="512px" height="512px" viewBox="0 0 311.541 311.541" style="enable-background:new 0 0 311.541 311.541;" xml:space="preserve">
 <g>
 <g>
 <path d="M155.771,26.331C69.74,26.331,0,96.071,0,182.102c0,37.488,13.25,71.883,35.314,98.761    c3.404-27.256,30.627-50.308,68.8-61.225c13.946,12.994,31.96,20.878,51.656,20.878c19.233,0,36.894-7.487,50.698-19.936    c38.503,11.871,65.141,36.27,66.017,64.63c24.284-27.472,39.056-63.555,39.056-103.108    C311.541,96.071,241.801,26.331,155.771,26.331z M155.771,222.069c-9.944,0-19.314-2.732-27.634-7.464    c-20.05-11.409-33.855-34.756-33.855-61.711c0-38.143,27.583-69.176,61.489-69.176c33.909,0,61.489,31.033,61.489,69.176    c0,27.369-14.237,51.004-34.786,62.215C174.379,219.523,165.346,222.069,155.771,222.069z" fill="#FFFFFF"/>
