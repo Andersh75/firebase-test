@@ -3,6 +3,9 @@ import "./x-header.js";
 import "./x-menu-button";
 import "./x-footer";
 import "./x-one";
+import "./x-two";
+import "./x-three";
+import "./x-four";
 import "./x-b";
 import "./x-c";
 import "./x-d";
@@ -139,9 +142,9 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
           const router = new Router(outlet);
           router.setRoutes([
             { path: '/antaganden', action: this.antagandenAction.bind(this) },
-            { path: '/investeringsprogram', component: 'x-b' },
-            { path: '/kostnader', component: 'x-c' },
-            { path: '/resultat', component: 'x-d' },
+            { path: '/investeringsprogram', action: this.investeringsprogramAction.bind(this) },
+            { path: '/kostnader', action: this.kostnaderAction.bind(this) },
+            { path: '/resultat', action: this.resultatAction.bind(this) },
             { path: '(.*)', component: 'x-d' }
           ]);
         }
@@ -152,13 +155,30 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
 
   antagandenAction(context, commands) {
     let el = commands.component('x-one');
-  
     el.storeHolder = this
     el.stateChanged(this.store.getState())
-
-    
-    
     return el;  
+}
+
+investeringsprogramAction(context, commands) {
+  let el = commands.component('x-two');
+  el.storeHolder = this
+  el.stateChanged(this.store.getState())
+  return el;  
+}
+
+kostnaderAction(context, commands) {
+  let el = commands.component('x-three');
+  el.storeHolder = this
+  el.stateChanged(this.store.getState())
+  return el;  
+}
+
+resultatAction(context, commands) {
+  let el = commands.component('x-four');
+  el.storeHolder = this
+  el.stateChanged(this.store.getState())
+  return el;  
 }
 
   render() {

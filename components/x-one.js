@@ -278,7 +278,6 @@ export class XOne extends reduxmixin(props, rxmixin(props, LitElement)) {
     ])
       .pipe(rx.undefinedElementRemover)
       .subscribe(() => {
-        console.log('HERE')
         this.amounts = this.rentamount.map(item => {
           return {
             label: "Hyreskostnader SEK / kvm / år",

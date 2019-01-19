@@ -9,7 +9,6 @@ let props = () => ([
 export class XIcon extends propsmixin(props, LitElement) {
 
     clickHandler() {
-        console.log('LO')
         let event = new CustomEvent('loggedout');
         this.dispatchEvent(event);
     }

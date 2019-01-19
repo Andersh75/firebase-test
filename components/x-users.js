@@ -13,7 +13,7 @@ let props = () => ([]);
         if (!firebase.auth().currentUser) {
             return commands.redirect('/')
         }
-        console.log('GOING INTO USERS')
+
     }
 
     stateChanged(state) {

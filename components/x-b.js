@@ -8,7 +8,6 @@ export class XB extends propsmixin(props, LitElement) {
         if (!firebase.auth().currentUser) {
             return commands.redirect('/')
         }
-        console.log('GOING INTO USERS')
     }
     render() {
        

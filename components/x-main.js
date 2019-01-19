@@ -123,10 +123,10 @@ export class XMain extends rxmixin(props, LitElement) {
         if (propName === "props") {
           
           this.props.forEach(prop => {
-            console.log('prop in main', prop)
+          
             if (prop.name == 'subheader') {
               this.subheader = prop;
-              console.log('prop in main', prop)
+       
             }
             if (prop.name == 'header') {
               this.header = prop;
@@ -192,7 +192,7 @@ export class XMain extends rxmixin(props, LitElement) {
         }
 
         .table-0 {
-          grid-column-start: 2;
+          grid-column-start: 1;
           grid-column-end: 7;
           padding-bottom: 50px;
 
@@ -200,7 +200,7 @@ export class XMain extends rxmixin(props, LitElement) {
 
         .table-1 {
           grid-column-start: 7;
-          grid-column-end: 12;
+          grid-column-end: 13;
           padding-bottom: 50px;
         }
 

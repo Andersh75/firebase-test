@@ -38,7 +38,7 @@ class XPets extends reduxmixin(
       if (!firebase.auth().currentUser) {
           return commands.redirect('/')
       }
-      console.log('GOING INTO USERS')
+      
   }
 
 

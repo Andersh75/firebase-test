@@ -5130,7 +5130,7 @@
             updated(changedProps) {
                 super.updated(changedProps);
                 changedProps.forEach((value, key) => {
-                    console.log(key);
+                 
                     if (this[`${key}$`] !== undefined && this[`${key}$`] !== null) {
                         this[`${key}$`].next(this[key]);
                     }
@@ -11875,6 +11875,70 @@
           return renderdata;
     }
 
+    function sipper(arrays) {
+
+       
+        let longest = 0;
+        if (arrays.length > 0) {
+            arrays.forEach((array, index) => {
+                if (array.length > arrays[longest].length) {
+                    longest = index;
+                }
+            });
+
+            return arrays[longest].map((item, index) => {
+                return arrays.map((element, ind) => {
+                    return element[index] != undefined ? element[index] : "HIDE";
+                })
+            })
+        } else {
+            return arrays;
+        }
+    }
+
+
+    function getRateArr(arr, rate, sign) {
+
+        return arr.map((item, index) => {
+            switch(sign) {
+                case '*':
+                    return math.multiply( 1, math.pow((1 + +rate), index));
+                case '/':
+                    return math.divide(1, math.pow((1 + +rate), index + 1));
+                default:
+                console.log('Sorry, ' + sign + ' is not available.');
+            }
+            
+        })
+    }
+
+
+    function distributeFn(item, index, length$$1, max$$1) {
+        let sum$$1 = [];
+        for (let i = 0; i < (index + 1); i++) {
+            sum$$1.push(0);
+        }
+
+        for (let i = 0; i < (length$$1 - index - 1); i++) {
+            if (i < max$$1) {
+                sum$$1.push(item);
+            } else {
+                sum$$1.push(0);
+            }
+        }
+        return sum$$1
+    }
+
+    /**
+     * Converts values below zero to zero
+     * @param {Array} arr array to work with
+     */
+    function trimArr(arr) {
+        return arr.map(item => {
+            return item >= 0 ? +item : 0;
+        })
+    }
+
     function prepareRender(processedSchema) {
         if (processedSchema != undefined && processedSchema.type == "Array") {
             return processedSchema.json_schema
@@ -11927,6 +11991,16 @@
         }) : ""
     }
 
+    function aggregater(arr) {
+        return arr.map((item, index) => {
+          let sum$$1 = 0;
+          for (var i = 0; i <= index; i++) {
+            sum$$1 = math.add(sum$$1, +arr[i]);
+          }
+          return sum$$1;
+        });
+      }
+
       function identity$2(item) {
         return item;
       }
@@ -11941,10 +12015,165 @@
         }
       }
 
+      function arrayMultiplier(array) {
+        return array.reduce((acc, val) => {
+          return val === "HIDE" ? +acc : +acc * +val;
+        }, 1);
+      }
+
+      function mathRound(item) {
+        return math.round(item);
+      }
+
+      function mathDivide(dividend, divisor) {
+        return math.divide(dividend, divisor);
+      }
+
+      function getRealCosts(cost, period) {
+        return period.map(() => {
+          return +cost;
+        });
+      }
+
       function arrayAdder(array) {
         return array.reduce((acc, val) => {
           return val === "HIDE" ? +acc : +acc + +val;
         }, 0);
+      }
+
+      function arrayAggregator(arr) {
+        return arr.map((item, index) => {
+          let sum$$1 = 0;
+          for (var i = 0; i <= index; i++) {
+            sum$$1 = math.add(sum$$1, +arr[i]);
+          }
+          return sum$$1;
+        });
+      }
+
+
+      function getPeriodArray(startyear, endyear) {
+        return range$1(+startyear, +endyear + 1);
+      }
+
+      function addArraysAndSip(array) {
+        return sipper(array).map(arrayAdder);
+      }
+
+    function multiplyArraysAndSip(array) {
+        return sipper(array).map(arrayMultiplier);
+      }
+
+      function getPropertyFromName(name) {
+          return this[name]
+      }
+      function getValuesFromObject(item) {
+          return Object.values(item)
+        }
+    function getValuesFromObjectByName(name) {
+        return getValuesFromObject(getPropertyFromName.call(this, name))
+    }
+
+    function getGrowthArray(item) {
+        return getRateArr(getValuesFromObjectByName.call(this, item.space), getPropertyFromName.call(this, item.growthRate), "*")
+    }
+
+    function getDiscountArray(item) {
+        return getRateArr(getValuesFromObjectByName.call(this, item.space), getPropertyFromName.call(this, item.discountRate), "/")
+    }
+
+    function createRealPriceArray(item) {
+        return getRealCosts(getPropertyFromName.call(this, item.name), getPropertyFromName.call(this, item.period))
+    }
+
+    function createRealInvestmentPriceArray(item) {
+        return getRealCosts(getPropertyFromName.call(this, item.investment), getPropertyFromName.call(this, item.period))
+    }
+
+    function createRealCostArray(item) {
+        return multiplyArraysAndSip([getValuesFromObjectByName.call(this, item.space), createRealPriceArray.call(this, item)]).map(mathRound);
+    }
+
+
+
+
+
+    function getRealCostArray(item, realPriceArray) {
+            return multiplyArraysAndSip([aggregater(getValuesFromObjectByName.call(this, item.space)), realPriceArray]).map(mathRound);
+          }
+
+    function getDiscountedRealCostArray(item, realPriceArray) {
+        return multiplyArraysAndSip([getDiscountArray.call(this, item), getRealCostArray.call(this, item, realPriceArray)]).map(mathRound);
+    }
+
+
+
+
+
+
+    function createRealAggregatedCostArray(item) {
+        return aggregater.call(this, createRealCostArray.call(this, item));
+    }
+
+
+
+
+
+
+    function createNominalAggregatedCostArray(item) {
+        return multiplyArraysAndSip([getGrowthArray.call(this, item), createRealAggregatedCostArray.call(this, item)]).map(mathRound);
+      }
+
+      function createDiscountedNominalAggregatedCostArray(item) {
+        return multiplyArraysAndSip([getDiscountArray.call(this, item), createNominalAggregatedCostArray.call(this, item)]).map(mathRound);
+      }
+
+
+
+
+
+
+
+    function createNominalCostArray(item) {
+        return multiplyArraysAndSip([getGrowthArray.call(this, item), createRealCostArray.call(this, item)]).map(mathRound);
+      }
+
+
+
+
+
+
+    function createPositiveOnlyNominalCostArray(item) {
+        return createNominalCostArray.call(this, item).map(item => {
+          return item > 0 ? mathRound(item) : 0;
+        });
+      }
+
+      function createDiscountedPositiveOnlyNominalCostArray(item) {
+        return multiplyArraysAndSip([getDiscountArray.call(this, item), createPositiveOnlyNominalCostArray.call(this, item)]).map(mathRound);
+      }
+
+
+
+
+
+
+    function createDepreciationArray(item) {
+        return mathRound(addArraysAndSip.call(this, trimArr.call(this, multiplyArraysAndSip.call(this, [createNominalCostArray.call(this, item), createRealInvestmentPriceArray.call(this, item)])).map(
+          (element, index, arr) => {
+            return distributeFn.call(this, 
+              element,
+              index,
+              arr.length,
+              mathRound(mathDivide(1, getPropertyFromName.call(this, item.name)))
+            );
+          }
+        )));
+      }
+
+
+      function createDiscountedDepreciationArray(item) {
+        return multiplyArraysAndSip([getDiscountArray.call(this, item), createDepreciationArray.call(this, item)]).map(mathRound);
       }
 
     let props$1 = () => ([
@@ -13809,10 +14038,10 @@
             }
 
             stateChanged(state) {
-                console.log('state', state);
+        
                 this.scenario = chosenScenario;
                 props$$1().forEach(prop$$1 => {
-                    console.log('prop', prop$$1);
+      
                     if (prop$$1.path) {
                        
                         if(is(Array, prop$$1.path.reduce((acc, item) => {
@@ -13832,7 +14061,7 @@
                                 return acc[item]
                             }, state))) 
                         {
-                            console.log('KEY', prop$$1.propKey);
+                        
                             this[prop$$1.propKey] = {...prop$$1.path.reduce((acc, item) => {
                             
                                 return acc[item]
@@ -13841,7 +14070,7 @@
                             if (!equals(this[prop$$1.propKey], prop$$1.path.reduce((acc, item) => {
                                 return acc[item]
                             }, state))) {
-                                console.log('KEY', prop$$1.propKey);
+                  
                                 this[prop$$1.propKey] = prop$$1.path.reduce((acc, item) => {
                                    
                                     return acc[item]
@@ -14205,7 +14434,6 @@
       }
 
       blurHandler(e) {
-        console.log(e);
 
         let value;
         if(e.path) {
@@ -14932,6 +15160,45 @@
         }
     }
 
+    function twoMainHeaderSchemas() {
+        return {
+            ...schemaTemplate, 
+            data_schema: {
+                header: {
+                    label: "Tabeller",
+                    data: "",
+                    comment: "",
+                }
+            }
+        }
+    }
+
+    function threeHeaderSchemas() {
+        return {
+            ...schemaTemplate, 
+            data_schema: {
+                header: {
+                    label: "Tabeller",
+                    data: "",
+                    comment: "",
+                }
+            }
+        }
+    }
+
+    function fourHeaderSchemas() {
+        return {
+            ...schemaTemplate, 
+            data_schema: {
+                header: {
+                    label: "Grafer och Tabeller",
+                    data: "",
+                    comment: "",
+                }
+            }
+        }
+    }
+
     let props$8 = () => ([
         { propKey: "props", propValue: { type: Object }, rx: false },
         { propKey: "data", propValue: { type: Object }, rx: false },
@@ -15228,6 +15495,72 @@
         }
     }
 
+    function twoSubheaderSchemas() {
+        return {
+            ...schemaTemplate$1,
+            data_schema: {
+                subheader: {
+                    buttons: [
+                        {
+                            value: "Scenario 1",
+                        },
+                        {
+                            value: "Scenario 2",
+                        },
+                        {
+                            value: "Scenario 3",
+                        }
+                    ],
+                    title: 'Investeringsprogram'
+                }  
+            }
+        }
+    }
+
+    function threeSubheaderSchemas() {
+        return {
+            ...schemaTemplate$1,
+            data_schema: {
+                subheader: {
+                    buttons: [
+                        {
+                            value: "Scenario 1",
+                        },
+                        {
+                            value: "Scenario 2",
+                        },
+                        {
+                            value: "Scenario 3",
+                        }
+                    ],
+                    title: 'Kostnader per år'
+                }  
+            }
+        }
+    }
+
+    function fourSubheaderSchemas() {
+        return {
+            ...schemaTemplate$1,
+            data_schema: {
+                subheader: {
+                    buttons: [
+                        {
+                            value: "Scenario 1",
+                        },
+                        {
+                            value: "Scenario 2",
+                        },
+                        {
+                            value: "Scenario 3",
+                        }
+                    ],
+                    title: 'Resultat'
+                }  
+            }
+        }
+    }
+
     let props$a = () => [
       {
         propKey: "scenario",
@@ -15346,10 +15679,10 @@
             if (propName === "props") {
               
               this.props.forEach(prop$$1 => {
-                console.log('prop in main', prop$$1);
+              
                 if (prop$$1.name == 'subheader') {
                   this.subheader = prop$$1;
-                  console.log('prop in main', prop$$1);
+           
                 }
                 if (prop$$1.name == 'header') {
                   this.header = prop$$1;
@@ -15414,7 +15747,7 @@
         }
 
         .table-0 {
-          grid-column-start: 2;
+          grid-column-start: 1;
           grid-column-end: 7;
           padding-bottom: 50px;
 
@@ -15422,7 +15755,7 @@
 
         .table-1 {
           grid-column-start: 7;
-          grid-column-end: 12;
+          grid-column-end: 13;
           padding-bottom: 50px;
         }
 
@@ -15732,7 +16065,6 @@
         ])
           .pipe(rx.undefinedElementRemover)
           .subscribe(() => {
-            console.log('HERE');
             this.amounts = this.rentamount.map(item => {
               return {
                 label: "Hyreskostnader SEK / kvm / år",
@@ -15788,14 +16120,3228 @@
 
     customElements.define("x-one", XOne);
 
-    let props$c = () => ([]);
+    let props$c = () => ([
+        { propKey: "props", propValue: { type: Object }, rx: false },
+        { propKey: "header", propValue: { type: Object }, rx: true },
+        { propKey: "rows", propValue: { type: Object }, rx: true },
+        { propKey: "sumrow", propValue: { type: Object }, rx: true },
+        { propKey: "okToRender", propValue: { type: Boolean }, rx: false },
+      ]);
 
-    class XB extends propsmixin(props$c, LitElement) {
+    class XTable extends rxmixin(props$c, LitElement) {
+
+        constructor() {
+            super();
+            this.okToRender = false;
+            this.header = false;
+            this.rows = false;
+            this.sumrow = false;
+          }
+
+          getData(value, index) {
+            return getData.call(this, value, index)
+          }
+
+        rowChangedHandler(e, index) {
+            let event = new CustomEvent('tablechanged', { detail: {row: index, column: e.detail.column, value: e.detail.value}}); 
+            this.dispatchEvent(event);
+        }
+
+        firstUpdated() {
+            super.firstUpdated();
+            rx.latestCombiner([this.header$, this.rows$, this.sumrow$])
+            .pipe(rx.undefinedElementRemover)
+            .subscribe(() => {
+                this.renderheader = this.header;
+                this.renderrows = this.rows;
+                this.rendersumrow = this.sumrow;
+                this.okToRender = true;
+                this.requestUpdate();
+            });
+        }
+
+        render() {
+            
+            return this.okToRender ? html`
+            <style>
+                .table {
+                    display: grid;
+                    grid-template-columns: repeat(1, 1fr);
+                    grid-gap: 2px;                    
+                }
+            </style>
+            
+            <div class="table">
+                ${toRender.call(this, prepareRender(this.renderheader))}
+                ${toRender.call(this, prepareRender(this.renderrows))}
+                ${toRender.call(this, prepareRender(this.rendersumrow))}
+            </div>
+            ` : html``
+        }
+
+        updated(changedProperties){
+            super.updated(changedProperties);
+            changedProperties.forEach((oldValue, propName) => {
+              if (propName === "props") {
+                this.props.forEach(prop$$1 => {
+                    if (prop$$1.name == 'header') {
+                        this.header = prop$$1;
+                    }
+                    if (prop$$1.name == 'rows') {
+                        this.rows = prop$$1;
+                    }
+                    if (prop$$1.name == 'sumrow') {
+                        this.sumrow = prop$$1;
+                    }
+                });
+              }        });   
+        }
+    }
+
+
+
+
+    customElements.define('x-table', XTable);
+
+    let props$d = () => ([
+        { propKey: "label", propValue: { type: Array }, rx: true },
+        { propKey: "data", propValue: { type: Array }, rx: true },
+        { propKey: "type", propValue: { type: String }, rx: false },
+        { propKey: "startyear", propValue: { type: String }, rx: false},
+        { propKey: "endyear", propValue: { type: Array }, rx: false},
+        { propKey: "format", propValue: { type: Boolean }, rx: false },
+        { propKey: "readonly", propValue: { type: Boolean }, rx: false },
+        { propKey: "props", propValue: { type: Object }, rx: false },
+        { propKey: "okToRender", propValue: { type: Boolean }, rx: false },
+      ]);
+
+
+    class XTableRow extends rxmixin(props$d, LitElement) {
+
+        constructor() {
+            super();
+            this.readonly = false;
+            this.label = false;
+            this.data = false;
+            this.okToRender = false;
+            
+        }
+
+
+        cellChangedHandler(e, index) {
+          
+            let event = new CustomEvent('rowchanged', { detail: {column: index, value: e.detail.value }}); 
+            this.dispatchEvent(event);
+        }
+
+        firstUpdated() {
+            super.firstUpdated();
+            rx.latestCombiner([this.data$, this.label$])
+            .pipe(rx.undefinedElementRemover)
+            .subscribe(() => {
+                this.renderdata = this.data;
+                this.renderlabel = this.label;
+
+                if (this.renderdata && this.renderlabel) {
+                    this.okToRender = true;
+                    this.requestUpdate();
+                }
+            });
+
+        }
+
+        render() {
+
+            return this.okToRender ? html`
+            <style>
+                .tablerow {
+                    display: grid;
+                    grid-template-columns: repeat(10, 1fr);
+                    grid-column-gap: 20px;
+                    grid-template-areas: 
+                        "label    label    label      data    data      data    data      data    data     data";
+                } 
+
+                .label {
+                    grid-area: label;
+                    font: var(--font-table-row-label);
+                    color: var(--color-text);
+                }
+
+                .data {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(1px,1fr));
+                    grid-gap:2px;
+                    grid-area: data;
+                }
+
+                .label--sum {
+                    font: var(--font-table-row-label--sum);
+                }
+
+                .attention {
+                    background-color: var(--color-attention);
+                    border: 1px solid var(--color-attention);
+                    color: var(--color-text);
+                }
+
+                .grey {
+                    background-color: rgba(196, 196, 196, 0.16);
+                    border: 1px solid var(--color-text);
+                    color: var(--color-text);
+                }
+
+                .white {
+                    border: 1px solid var(--color-text);
+                    background-color: var(--color-text);
+                    color: #575757;
+                    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); 
+                } 
+
+                .header {
+                    border: 1px solid var(--color-transparent);
+                    color: var(--color-text);
+                    font: var(--font-table-label);
+                }
+            </style>
+            
+            <div class="tablerow">
+                <div class="label ${this.renderlabel.ui_schema.ui_options.color == 'header' ? 'header' : ''} ${this.renderlabel.ui_schema.ui_options.type == 'sum' ? 'label--sum' : ''}">${this.renderlabel.data_schema}</div>
+                <div class="data">
+                    ${toRender.call(this, prepareRender(this.renderdata))}
+                </div> 
+            </div>
+            ` : html``
+        }
+
+        updated(changedProperties) {
+            super.updated(changedProperties);
+            changedProperties.forEach((oldValue, propName) => {
+                if (propName === "props") {
+                    if (is(Array, this.props)) {
+                        this.props.forEach(prop$$1 => {
+                            if (prop$$1.name == 'label') {
+                                this.label = prop$$1;
+                            }
+                            if (prop$$1.name == 'data') {
+                                this.data = prop$$1;
+                            }
+                        });
+                    } else {
+                        if (this.props.name == 'label') {
+                            this.label = this.props;
+
+                        }
+                        if (this.props.name == 'data') {
+                            this.data = this.props;
+                        }
+                    }
+                }        });
+        }
+    }
+
+    customElements.define('x-table-row', XTableRow);
+
+    let ui_ref_header = {
+        ui_widget: "x-table-row",
+        ui_classnames: "header",
+        ui_order: [
+            "label",
+            "data"
+        ],
+        label: {
+            // ui_widget: "x-table-row-label",
+            ui_options:  {
+                format: false,
+                readonly: true,
+                color: 'header',
+            },
+        },
+        data: {
+            ui_widget: "x-input",
+            ui_options:  {
+                format: false,
+                readonly: true,
+                color: 'none',
+            },
+        }
+    };
+
+
+    let ui_ref_rows = {
+        ui_widget: "x-table-row",
+        ui_classnames: "rows",
+        ui_order: [
+            "label",
+            "data"
+        ],
+        label: {
+            // ui_widget: "x-table-row-label",
+            ui_options:  {
+                format: true,
+                color: 'white',
+            },
+        },
+        data: {
+            ui_widget: "x-input",
+            ui_options:  {
+                format: true,
+                color: 'white',
+                type: 'decimal'
+            },
+            ui_actions: {
+                changeevent: true,
+            }
+        }
+    };
+
+    let ui_ref_rows__aggregate = {
+        ui_widget: "x-table-row",
+        ui_classnames: "aggregaterow",
+        ui_order: [
+            "label",
+            "data",
+        ],
+        label: {
+            ui_widget: "x-table-row-label",
+            ui_options:  {
+                format: true,
+                color: 'white',
+            },
+        },
+        data: {
+            ui_widget: "x-input",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                color: 'attention',
+            },
+        }
+    };
+
+
+    let json_ref_table = {
+        type: 'Object',
+        properties: {
+            header: {
+                type: 'Object',
+                properties: {
+                    label: {
+                        type: 'String',
+                    },
+                    data: {
+                        type: 'Array',
+                        items: {
+                            type: 'Number',
+                        }
+                    }
+                },
+                
+            },
+            rows: {
+                type: 'Array',
+                items: {
+                    type: 'Object',
+                    properties: {
+                        label: {
+                            type: 'String',
+                        },
+                        data: {
+                            type: 'Array',
+                            items: {
+                                type: 'Number',
+                            },
+                        }
+                    },
+                }
+            },
+        }
+    };
+
+
+    function twoMainTablesSchemas() {
+
+        return {
+            ui_schema: {
+                ui_order: [
+                    "inputtable",
+                    "outputtable",
+                ],
+                inputtable: {
+                    ui_widget: "x-table",
+                    ui_classnames: "table",
+                    ui_order: [
+                        "header",
+                        "rows",
+                    ],
+                    header: ui_ref_header,
+                    rows: ui_ref_rows,
+                },
+                outputtable: {
+                    ui_widget: "x-table",
+                    ui_classnames: "table",
+                    ui_order: [
+                        "header",
+                        "rows",
+                    ],
+                    header: ui_ref_header,
+                    rows: ui_ref_rows__aggregate,
+                },
+            },
+            json_schema: {
+                type: 'Object',
+                properties: {
+                    inputtable: json_ref_table,
+                    outputtable: json_ref_table,
+                }
+            },
+            data_schema: {
+                inputtable: {
+                    header: {
+                        label: "Förändrad efterfrågan och volym av lokaler",
+                        data: {
+                            fn: 'getData',
+                            parameter: 'identity'
+                        }
+                    },
+                    rows: [
+                        {
+                            label: "Efterfrågan av lokaler",
+                            data: this.dataArray[0]  
+                        },
+                        {
+                            label: "Dynamiska lokaler",
+                            data: this.dataArray[1]
+                        },
+                        {
+                            label: "Permanenta lokaler",
+                            data: this.dataArray[2]
+                        }
+                    ]
+                },
+                outputtable: {
+                    header: {
+                        label: "Aggregerad efterfrågan och volym av lokaler",
+                        data: {
+                            fn: 'getData',
+                            parameter: 'identity'
+                        }
+                    },
+                    rows: [
+                        {
+                            label: "Efterfrågan av lokaler",
+                            data: this.aggregateDataArr[0]
+                        },
+                        {
+                            label: "Dynamiska lokaler",
+                            data: this.aggregateDataArr[1]
+                        },
+                        {
+                            label: "Permanenta lokaler",
+                            data: this.aggregateDataArr[2]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+
+    function mergeSchemas$1() {
+      return {
+          ui_schema: {
+              ui_order: [
+                "xmain"
+              ],
+              xmain: {
+                ui_widget: 'x-main',
+                ui_order: [
+                  "subheader",
+                  "header",
+                  "main",
+                ],
+                ui_merged: true,
+                subheader: twoSubheaderSchemas.call(this).ui_schema,
+              header: twoMainHeaderSchemas.call(this).ui_schema,
+              main: twoMainTablesSchemas.call(this).ui_schema,
+              }
+              
+          },
+          json_schema: {
+              type: 'Object',
+              properties: {
+                  xmain: {
+                      type: 'Object',
+                      properties: {
+                        subheader: twoSubheaderSchemas.call(this).json_schema,
+                        header: twoMainHeaderSchemas.call(this).json_schema,
+                        main: twoMainTablesSchemas.call(this).json_schema,
+                      }
+                  }
+              }
+          },
+          data_schema: {
+            xmain: {
+              subheader: twoSubheaderSchemas.call(this).data_schema,
+            header: twoMainHeaderSchemas.call(this).data_schema,
+            main: twoMainTablesSchemas.call(this).data_schema,
+            }
+            
+          }
+      }
+    }
+
+
+    let props$e = () => [
+      { 
+        propKey: "data", 
+        propValue: { type: Array }, 
+        rx: false 
+      },
+      {
+        propKey: "scenario",
+        propValue: { type: String },
+        rx: true,
+      },
+      {
+        propKey: "startyear",
+        propValue: { type: String },
+        rx: true,
+        path: ["assumptions", "startyear"]
+      },
+      {
+        propKey: "endyear",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "scenario" + chosenScenario, "endyear"]
+      },
+      {
+        propKey: "demandrow",
+        propValue: { type: Object },
+        rx: true,
+        path: ["investmentprogram", "demand", "scenario" + chosenScenario]
+      },
+      {
+        propKey: "volumedynamicrow",
+        propValue: { type: Object },
+        rx: true,
+        path: ["investmentprogram", "volumedynamic", "scenario" + chosenScenario]
+      },
+      {
+        propKey: "volumepermanentrow",
+        propValue: { type: Object },
+        rx: true,
+        path: ["investmentprogram", "volumepermanent", "scenario" + chosenScenario]
+      },
+      { 
+        propKey: "renderdata", 
+        propValue: { type: Array }, 
+        rx: false 
+      }
+    ];
+
+
+
+    class XTwo extends reduxmixin(props$e, rxmixin(props$e, LitElement)) {
+      constructor() {
+        super();
+        this.renderxmain = false;
+        this.okToRender = false;
+        this.scenario = chosenScenario;
+      }
+
+      getData(value, index) {
+        return getData.call(this, value, index)
+      }
+
+      scenarioChangedHandler(e) {
+        chosenScenario = +e.detail.index + 1;
+        this.scenario = chosenScenario;
+        this.stateChanged(this.storeHolder.store.getState(), props$e);
+      }
+
+
+
+      tableChangedHandler(e) {
+        let column = e.detail.column;
+        let row = e.detail.row;
+        let value = e.detail.value;
+        let year = +this.startyear + +column;
+
+        if (row == 0) {
+          this.storeHolder.store.dispatch(
+            action.investmentprogram_demand({
+              key: year,
+              value: value,
+              years: getPeriodArray(this.startyear, this.endyear)
+            })
+          );
+        }
+
+        if (row == 1) {
+          this.storeHolder.store.dispatch(
+            action.investmentprogram_volumedynamic({
+              key: year,
+              value: value,
+              years: getPeriodArray(this.startyear, this.endyear)
+            })
+          );
+        }
+
+        if (row == 2) {
+          this.storeHolder.store.dispatch(
+            action.investmentprogram_volumepermanent({
+              key: year,
+              value: value,
+              years: getPeriodArray(this.startyear, this.endyear)
+            })
+          );
+        }
+      }
+
+      firstUpdated() {
+        super.firstUpdated();
+        rx.latestCombiner([
+          this.startyear$,
+          this.endyear$,
+          this.demandrow$,
+          this.volumepermanentrow$,
+          this.volumedynamicrow$,
+          this.scenario$,
+        ])
+          .pipe(rx.undefinedElementRemover)
+          .subscribe(() => {
+            this.period = getPeriodArray(this.startyear, this.endyear);
+
+            this.dataArray = ["demandrow", "volumedynamicrow", "volumepermanentrow"]
+              .map(item => this[item])
+              .map(item => Object.values(item));
+
+            this.aggregateDataArr = this.dataArray.map(arrayAggregator);
+
+            getRenderData.call(this, mergeSchemas$1)
+              .then(renderdata => {
+                renderdata.forEach(prop$$1 => {
+                  if (prop$$1.name == 'xmain') {
+                    this.xmain = prop$$1;
+                  }
+                });
+
+                this.renderxmain = this.xmain;
+                this.okToRender = true;
+                this.requestUpdate();
+              });
+          });
+      }
+
+      render() {
+        return this.okToRender ? html`
+      ${toRender.call(this, prepareRender(this.renderxmain))}
+        ` : html``
+      }
+    }
+
+    customElements.define("x-two", XTwo);
+
+    let ui_ref_header$1 = {
+        ui_widget: "x-table-row",
+        ui_order: [
+            "label",
+            "data"
+        ],
+        label: {
+            // ui_widget: "x-table-row-label",
+            ui_options:  {
+                format: false,
+                readonly: true,
+                nottabable: true,
+                color: 'header',
+            },
+        },
+        data: {
+            ui_widget: "x-input",
+            ui_options:  {
+                format: false,
+                readonly: true,
+                nottabable: true,
+                color: 'none',
+            },
+        }
+    };
+
+
+    let ui_ref_rows$1 = {
+        ui_widget: "x-table-row",
+        ui_order: [
+            "label",
+            "data"
+        ],
+        label: {
+            // ui_widget: "x-table-row-label",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                color: 'white',
+            },
+        },
+        data: {
+            ui_widget: "x-input",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                color: 'attention'
+            },
+        }
+    };
+
+    let ui_ref_sumrow = {
+        ui_widget: "x-table-row",
+        ui_order: [
+            "label",
+            "data"
+        ],
+        label: {
+            // ui_widget: "x-table-row-label",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                color: 'white',
+                type: 'sum',
+            },
+        },
+        data: {
+            ui_widget: "x-input",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                color: 'attention',
+                type: 'sum',
+            },
+        }
+    };
+
+    let json_ref_row = {
+        type: 'Object',
+        properties: {
+            label: {
+                type: 'String',
+            },
+            data: {
+                type: 'Array',
+                items: {
+                    type: 'Number',
+                }
+            }
+        },
+    };
+
+    let json_ref_table__sum = {
+        type: 'Object',
+        properties: {
+            header: json_ref_row,
+            rows: {
+                type: 'Array',
+                items: json_ref_row
+            },
+            sumrow: json_ref_row,
+        }
+    };
+
+    function threeMainSchemas() {
+
+        return {
+            ui_schema: {
+                ui_order: [
+                    "table",
+                ],
+                table: {
+                    ui_widget: "x-table",
+                    ui_classnames: "table",
+                    ui_order: [
+                        "header",
+                        "rows",
+                        "sumrow",
+                    ],
+                    header: ui_ref_header$1,
+                    rows: ui_ref_rows$1,
+                    sumrow: ui_ref_sumrow,
+                },
+            },
+            json_schema: {
+                type: 'Object',
+                properties: {
+                    table: {
+                        type: 'Array',
+                        items: json_ref_table__sum
+                    }
+                }
+            },
+            data_schema: {
+                table: [
+                    {
+                        header: {
+                            label: "Kostnader av permanenta lokaler",
+                            data: {
+                                fn: 'getData',
+                                parameter: 'identity'
+                            }
+                        },
+                        rows: [
+                            {
+                                label: "Investering i nya lokaler",
+                                data: this.permanentInvestmentCosts
+                            },
+                            {
+                                label: "Underhåll av egna lokaler",
+                                data: this.permanentMaintenanceCosts
+                            },
+                            {
+                                label: "Minskning av tekniskt värde",
+                                data: this.permanentReinvestmentCosts
+                            },
+                        ],
+                        sumrow: {
+                            label: "Summa kostnader",
+                            data: this.sippedpermanentCost
+                        },
+                    },
+                    {
+                        header: {
+                            label: "Kostnader av dynamiska lokaler",
+                            data: {
+                                fn: 'getData',
+                                parameter: 'identity'
+                            }
+                        },
+                        rows: [
+                            {
+                                label: "Underhålls av dynamiska lokaler",
+                                data: this.dynamicMaintenanceCosts
+                            },
+                            {
+                                label: "Hyra av dynamiska lokaler",
+                                data: this.dynamicRentCosts
+                            },
+                        ],
+                        sumrow: {
+                            label: "Summa kostnader",
+                            data: this.sippeddynamicCost
+                        }
+                    },
+                    {
+                        header: {
+                            label: "Diskonterade kostnader av permanenta lokaler",
+                            data: {
+                                fn: 'getData',
+                                parameter: 'identity'
+                            }
+                        },
+                        rows: [
+                            {
+                                label: "Investering i nya lokaler",
+                                data: this.discountedPermanentInvestmentCosts
+                            },
+                            {
+                                label: "Underhåll av egna lokaler",
+                                data: this.discountedPermanentMaintenanceCosts
+                            },
+                            {
+                                label: "Minskning av tekniskt värde",
+                                data: this.discountedPermanentReinvestmentCosts
+                            },
+                        ],
+                        sumrow: {
+                            label: "Summa kostnader",
+                            data: this.sippeddiscountedpermanentCost
+                        },
+                    },
+                    {
+                        header: {
+                            label: "Diskonterade kostnader av dynamiska lokaler",
+                            data: {
+                                fn: 'getData',
+                                parameter: 'identity'
+                            }
+                        },
+                        rows: [
+                            {
+                                label: "Underhålls av dynamiska lokaler",
+                                data: this.discountedDynamicMaintenanceCosts
+                            },
+                            {
+                                label: "Hyra av dynamiska lokaler",
+                                data: this.discountedDynamicRentCosts
+                            },
+                        ],
+                        sumrow: {
+                            label: "Summa kostnader",
+                            data: this.sippeddiscounteddynamicCost
+                        }
+                    },
+                    {
+                        header: {
+                            label: "Aggregerade diskonterade kostnader av permanenta lokaler",
+                            data: {
+                                fn: 'getData',
+                                parameter: 'identity'
+                            }
+                        },
+                        rows: [
+                            {
+                                label: "Investering i nya lokaler",
+                                data: this.aggregatedDiscountedPermanentInvestmentCosts
+                            },
+                            {
+                                label: "Underhåll av egna lokaler",
+                                data: this.aggregatedDiscountedPermanentMaintenanceCosts
+                            },
+                            {
+                                label: "Minskning av tekniskt värde",
+                                data: this.aggregatedDiscountedPermanentReinvestmentCosts
+                            },
+                        ],
+                        sumrow: {
+                            label: "Summa kostnader",
+                            data: this.sippedaggregateddiscountedpermanentCost
+                        },
+                    },
+                    {
+                        header: {
+                            label: "Aggregerade diskonterade kostnader av dynamiska lokaler",
+                            data: {
+                                fn: 'getData',
+                                parameter: 'identity'
+                            }
+                        },
+                        rows: [
+                            {
+                                label: "Underhåll av dynamiska lokaler",
+                                data: this.aggregatedDiscountedDynamicMaintenanceCosts
+                            },
+                            {
+                                label: "Hyra av dynamiska lokaler",
+                                data: this.aggregatedDiscountedDynamicRentCosts
+                            },
+                        ],
+                        sumrow: {
+                            label: "Summa kostnader",
+                            data: this.sippedaggregateddiscounteddynamicCost
+                        }
+                    },
+                ]
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+    // let ui_ref_header = {
+    //     ui_widget: "x-table-row",
+    //     ui_order: [
+    //         "label",
+    //         "data"
+    //     ],
+    //     label: {
+    //         ui_options:  {
+    //             format: false,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'header',
+    //         },
+    //     },
+    //     data: {
+    //         ui_widget: "x-input",
+    //         ui_options:  {
+    //             format: false,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'none',
+    //         },
+    //     }
+    // }
+
+
+    // let ui_ref_rows = {
+    //     ui_widget: "x-table-row",
+    //     ui_order: [
+    //         "label",
+    //         "data"
+    //     ],
+    //     label: {
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'white',
+    //         },
+    //     },
+    //     data: {
+    //         ui_widget: "x-input",
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'attention'
+    //         },
+    //     }
+    // }
+
+    // let ui_ref_sumrow = {
+    //     ui_widget: "x-table-row",
+    //     ui_order: [
+    //         "label",
+    //         "data"
+    //     ],
+    //     label: {
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'white',
+    //             type: 'sum',
+    //         },
+    //     },
+    //     data: {
+    //         ui_widget: "x-input",
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'attention',
+    //             type: 'sum',
+    //         },
+    //     }
+    // }
+
+    // let json_ref_row = {
+    //     type: 'Object',
+    //     properties: {
+    //         label: {
+    //             type: 'String',
+    //         },
+    //         data: {
+    //             type: 'Array',
+    //             items: {
+    //                 type: 'Number',
+    //             }
+    //         }
+    //     },
+    // }
+
+    // let json_ref_table__sum = {
+    //     type: 'Object',
+    //     properties: {
+    //         header: json_ref_row,
+    //         rows: {
+    //             type: 'Array',
+    //             items: json_ref_row
+    //         },
+    //         sumrow: json_ref_row,
+    //     }
+    // }
+
+    // export function schemas() {
+
+    //     return {
+    //         ui_schema: {
+    //             ui_order: [
+    //                 "tableone",
+    //                 "tabletwo",
+    //                 "tablethree",
+    //                 "tablefour",
+    //                 "tablefive",
+    //                 "tablesix",
+    //             ],
+    //             tableone: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "table",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //             tabletwo: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "table",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //             tablethree: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "table",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //             tablefour: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "table",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //             tablefive: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "table",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //             tablesix: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "table",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //         },
+    //         json_schema: {
+    //             type: 'Object',
+    //             properties: {
+    //                 tableone: json_ref_table__sum,
+    //                 tabletwo: json_ref_table__sum,
+    //                 tablethree: json_ref_table__sum,
+    //                 tablefour: json_ref_table__sum,
+    //                 tablefive: json_ref_table__sum,
+    //                 tablesix: json_ref_table__sum,
+    //             }
+    //         },
+    //         data_schema: {
+    //             tableone: {
+    //                 header: {
+    //                     label: "Kostnader av permanenta lokaler",
+    //                     data: {
+    //                       fn: 'getData',
+    //                       parameter: 'identity'
+    //                   }
+    //                 },
+    //                 rows: [
+    //                     {
+    //                         label: "Investering i nya lokaler",
+    //                         data: this.permanentSingleCost[0]
+    //                     },
+    //                     {
+    //                         label: "Underhållskostnad av egna lokaler",
+    //                         data: this.permanentAnnualCost[0]
+    //                     },
+    //                     {
+    //                         label: "Minskning av tekniskt värde",
+    //                         data: this.permanentPercentageCost[0]
+    //                     },
+    //                 ],
+    //                 sumrow: {
+    //                     label: "Summa kostnader permanenta lokaler",
+    //                     data: this.sippedpermanentCost
+    //                 },
+    //             },
+    //             tabletwo: {
+    //                 header: {
+    //                     label: "Kostnader av dynamiska lokaler",
+    //                     data: {
+    //                       fn: 'getData',
+    //                       parameter: 'identity'
+    //                   }
+    //                 },
+    //                 rows: [
+    //                     {
+    //                         label: "Underhållskostnad av dynamiska lokaler",
+    //                         data: this.dynamicAnnualCost[0]
+    //                     },
+    //                     {
+    //                         label: "Hyreskostnader av dynamiska lokaler",
+    //                         data: this.dynamicAnnualCost[1]
+    //                     },
+    //                 ],
+    //                 sumrow: {
+    //                     label: "Summa kostnader dynamiska lokaler",
+    //                     data: this.sippeddynamicCost
+    //                 }
+    //             },
+    //             tablethree: {
+    //                 header: {
+    //                     label: "Diskonterade kostnader av permanenta lokaler",
+    //                     data: {
+    //                       fn: 'getData',
+    //                       parameter: 'identity'
+    //                   }
+    //                 },
+    //                 rows: [
+    //                     {
+    //                         label: "Investering i nya lokaler",
+    //                         data: this.discountedpermanentSingleCost[0]
+    //                     },
+    //                     {
+    //                         label: "Underhållskostnad av egna lokaler",
+    //                         data: this.discountedpermanentAnnualCost[0]
+    //                     },
+    //                     {
+    //                         label: "Minskning av tekniskt värde",
+    //                         data: this.discountedpermanentPercentageCost[0]
+    //                     },
+    //                 ],
+    //                 sumrow: {
+    //                     label: "Summa kostnader permanenta lokaler",
+    //                     data: this.sippeddiscountedpermanentCost
+    //                 },
+    //             },
+    //             tablefour: {
+    //                 header: {
+    //                     label: "Diskonterade kostnader av dynamiska lokaler",
+    //                     data: {
+    //                       fn: 'getData',
+    //                       parameter: 'identity'
+    //                   }
+    //                 },
+    //                 rows: [
+    //                     {
+    //                         label: "Underhållskostnad av dynamiska lokaler",
+    //                         data: this.discounteddynamicAnnualCost[0]
+    //                     },
+    //                     {
+    //                         label: "Hyreskostnader av dynamiska lokaler",
+    //                         data: this.discounteddynamicAnnualCost[1]
+    //                     },
+    //                 ],
+    //                 sumrow: {
+    //                     label: "Summa kostnader dynamiska lokaler",
+    //                     data: this.sippeddiscounteddynamicCost
+    //                 }
+    //             },
+    //             tablefive: {
+    //                 header: {
+    //                     label: "Aggregerade diskonterade kostnader av permanenta lokaler",
+    //                     data: {
+    //                       fn: 'getData',
+    //                       parameter: 'identity'
+    //                   }
+    //                 },
+    //                 rows: [
+    //                     {
+    //                         label: "Investering i nya lokaler",
+    //                         data: this.aggregateddiscountedpermanentSingleCost[0]
+    //                     },
+    //                     {
+    //                         label: "Underhållskostnad av egna lokaler",
+    //                         data: this.aggregateddiscountedpermanentAnnualCost[0]
+    //                     },
+    //                     {
+    //                         label: "Minskning av tekniskt värde",
+    //                         data: this.aggregateddiscountedpermanentPercentageCost[0]
+    //                     },
+    //                 ],
+    //                 sumrow: {
+    //                     label: "Summa kostnader permanenta lokaler",
+    //                     data: this.sippedaggregateddiscountedpermanentCost
+    //                 },
+    //             },
+    //             tablesix: {
+    //                 header: {
+    //                     label: "Aggregerade diskonterade kostnader av dynamiska lokaler",
+    //                     data: {
+    //                       fn: 'getData',
+    //                       parameter: 'identity'
+    //                   }
+    //                 },
+    //                 rows: [
+    //                     {
+    //                         label: "Underhållskostnad av dynamiska lokaler",
+    //                         data: this.aggregateddiscounteddynamicAnnualCost[0]
+    //                     },
+    //                     {
+    //                         label: "Hyreskostnader av dynamiska lokaler",
+    //                         data: this.aggregateddiscounteddynamicAnnualCost[1]
+    //                     },
+    //                 ],
+    //                 sumrow: {
+    //                     label: "Summa kostnader dynamiska lokaler",
+    //                     data: this.sippedaggregateddiscounteddynamicCost
+    //                 }
+    //             },
+    //         }
+    //     }
+    // }
+
+    function mergeSchemas$2() {
+      return {
+          ui_schema: {
+              ui_order: [
+                "xmain"
+              ],
+              xmain: {
+                ui_widget: 'x-main',
+                ui_order: [
+                  "subheader",
+                  "header",
+                  "main",
+                ],
+                ui_merged: true,
+                subheader: threeSubheaderSchemas.call(this).ui_schema,
+          header: threeHeaderSchemas.call(this).ui_schema,
+          main: threeMainSchemas.call(this).ui_schema
+              }
+              
+          },
+          json_schema: {
+              type: 'Object',
+              properties: {
+                  xmain: {
+                      type: 'Object',
+                      properties: {
+                        subheader: threeSubheaderSchemas.call(this).json_schema,
+            header: threeHeaderSchemas.call(this).json_schema,
+            main: threeMainSchemas.call(this).json_schema
+                      }
+                  }
+              }
+          },
+          data_schema: {
+            xmain: {
+              subheader: threeSubheaderSchemas.call(this).data_schema,
+          header: threeHeaderSchemas.call(this).data_schema,
+          main: threeMainSchemas.call(this).data_schema
+            }
+            
+          }
+      }
+    }
+
+
+
+    let props$f = () => [
+      { propKey: "comment", propValue: { type: String }, rx: false },
+      {
+        propKey: "startyear",
+        propValue: { type: String },
+        rx: true,
+        path: ["assumptions", "startyear"]
+      },
+      {
+        propKey: "scenario",
+        rx: true,
+        propValue: { type: String }
+      },
+      {
+        propKey: "endyear",
+        propValue: { type: String },
+        rx: true,
+        path: ["assumptions", "scenario" + chosenScenario, "endyear"]
+      },
+      {
+        propKey: "demandrow",
+        propValue: { type: Object },
+        rx: false,
+        path: ["investmentprogram", "demand", "scenario" + chosenScenario]
+      },
+      {
+        propKey: "volumedynamicrow",
+        propValue: { type: Object },
+        rx: false,
+        path: ["investmentprogram", "volumedynamic", "scenario" + chosenScenario]
+      },
+      {
+        propKey: "volumepermanentrow",
+        propValue: { type: Object },
+        rx: false,
+        path: ["investmentprogram", "volumepermanent", "scenario" + chosenScenario]
+      },
+      {
+        propKey: "scenariodynamicrentamounts",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rent", "scenario" + chosenScenario, "amount"]
+      },
+      {
+        propKey: "scenariodynamicrentperiods",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rent", "scenario" + chosenScenario, "period"]
+      },
+      {
+        propKey: "scenarioinvestment",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "investments", "scenario" + chosenScenario, "initial"]
+      },
+      {
+        propKey: "scenarioreinvestment",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "investments", "scenario" + chosenScenario, "future"]
+      },
+      {
+        propKey: "scenarioinflation",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rates", "scenario" + chosenScenario, "inflation"]
+      },
+      {
+        propKey: "scenariodiscountrate",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rates", "scenario" + chosenScenario, "discount"]
+      },
+      {
+        propKey: "scenariorent",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rent", "scenario" + chosenScenario, "amount"]
+      },
+      {
+        propKey: "scenariorentperiod",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rent", "scenario" + chosenScenario, "period"]
+      },
+      {
+        propKey: "scenariomaintenanceown",
+        propValue: { type: Array },
+        rx: true,
+        path: [
+          "assumptions",
+          "maintenance",
+          "scenario" + chosenScenario,
+          "permanent"
+        ]
+      },
+      {
+        propKey: "scenariomaintenancerent",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "maintenance", "scenario" + chosenScenario, "dynamic"]
+      },
+      {
+        propKey: "scenariomaintenancenotused",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "maintenance", "scenario" + chosenScenario, "notused"]
+      },
+      {
+        propKey: "selectedpremises",
+        propValue: { type: String },
+        rx: true,
+        path: ["menu", "selected"]
+      },
+      { propKey: "selected", propValue: { type: Number }, rx: true },
+      { propKey: "renderdata", propValue: { type: Array }, rx: false }
+    ];
+
+
+
+    class XThree extends reduxmixin(props$f, rxmixin(props$f, LitElement)) {
+      constructor() {
+        super();
+        this.renderxmain = false;
+        this.okToRender = false;
+        this.scenario = chosenScenario;
+      }
+
+      firstUpdated() {
+        super.firstUpdated();
+        
+        
+        rx.latestCombiner([
+          this.startyear$,
+          this.endyear$,
+          this.scenario$,
+        ])
+          .pipe(rx.undefinedElementRemover)
+          .subscribe(() => {
+
+              function rangeFromPeriod(period) {
+                  return range$1(0, +period);
+                }
+              
+                let rentRealPriceArray = flatten([
+                  ...this.scenariodynamicrentperiods
+                    .map(rangeFromPeriod)
+                    .map((arr, index) => {
+                      return arr.map(year => {
+                        return this.scenariodynamicrentamounts[index];
+                      });
+                    })
+                ]);
+            
+                
+
+              this.period = getPeriodArray(this.startyear, this.endyear);
+
+              this.dynamicRentCosts = getRealCostArray.call(this, 
+                  {
+                    name: "dynamicrentcosts",
+                    type: "dynamic",
+                    method: "annual",
+                    space: "volumedynamicrow",
+                    discountRate: "scenariodiscountrate",
+                  }, rentRealPriceArray
+                );
+
+                this.discountedDynamicRentCosts = getDiscountedRealCostArray.call(this, 
+                  {
+                    name: "dynamicrentcosts",
+                    type: "dynamic",
+                    method: "annual",
+                    space: "volumedynamicrow",
+                    discountRate: "scenariodiscountrate",
+                  }, rentRealPriceArray
+                );
+                this.aggregatedDiscountedDynamicRentCosts = arrayAggregator(this.discountedDynamicRentCosts);
+        
+
+
+
+              this.dynamicMaintenanceCosts = createNominalAggregatedCostArray.call(this, 
+                  {
+                    name: "scenariomaintenancerent",
+                    type: "dynamic",
+                    method: "annual",
+                    space: "volumedynamicrow",
+                    growthRate: "scenarioinflation",
+                    discountRate: "scenariodiscountrate",
+                    period: "period"
+                  }
+                );
+
+                this.discountedDynamicMaintenanceCosts = createDiscountedNominalAggregatedCostArray.call(this,
+                  {
+                    name: "scenariomaintenancerent",
+                    type: "dynamic",
+                    method: "annual",
+                    space: "volumedynamicrow",
+                    growthRate: "scenarioinflation",
+                    discountRate: "scenariodiscountrate",
+                    period: "period"
+                  }
+                );
+
+                this.aggregatedDiscountedDynamicMaintenanceCosts = arrayAggregator(this.discountedDynamicMaintenanceCosts);
+
+
+
+
+                this.permanentMaintenanceCosts = createNominalAggregatedCostArray.call(this, 
+                  {
+                    name: "scenariomaintenanceown",
+                    type: "permanent",
+                    method: "annual",
+                    space: "volumepermanentrow",
+                    growthRate: "scenarioinflation",
+                    discountRate: "scenariodiscountrate",
+                    period: "period"
+                  }
+                );
+              this.discountedPermanentMaintenanceCosts = createDiscountedNominalAggregatedCostArray.call(this,
+                {
+                  name: "scenariomaintenanceown",
+                  type: "permanent",
+                  method: "annual",
+                  space: "volumepermanentrow",
+                  growthRate: "scenarioinflation",
+                  discountRate: "scenariodiscountrate",
+                  period: "period"
+                }
+              );
+              this.aggregatedDiscountedPermanentMaintenanceCosts = arrayAggregator(this.discountedPermanentMaintenanceCosts);
+      
+
+
+
+              this.permanentInvestmentCosts = 
+              createPositiveOnlyNominalCostArray.call(this, 
+                {
+                  name: "scenarioinvestment",
+                  type: "permanent",
+                  method: "single",
+                  space: "volumepermanentrow",
+                  growthRate: "scenarioinflation",
+                  discountRate: "scenariodiscountrate",
+                  period: "period"
+                }
+              );
+              this.discountedPermanentInvestmentCosts = createDiscountedPositiveOnlyNominalCostArray.call(this, 
+                {
+                  name: "scenarioinvestment",
+                  type: "permanent",
+                  method: "single",
+                  space: "volumepermanentrow",
+                  growthRate: "scenarioinflation",
+                  discountRate: "scenariodiscountrate",
+                  period: "period"
+                }
+              );
+              this.aggregatedDiscountedPermanentInvestmentCosts = arrayAggregator(this.discountedPermanentInvestmentCosts);
+
+              
+
+
+              this.permanentReinvestmentCosts = 
+              createDepreciationArray.call(this, 
+                {
+                  name: "scenarioreinvestment",
+                  investment: "scenarioinvestment",
+                  type: "permanent",
+                  method: "percentage",
+                  space: "volumepermanentrow",
+                  growthRate: "scenarioinflation",
+                  discountRate: "scenariodiscountrate",
+                  period: "period"
+                }
+              );
+            this.discountedPermanentReinvestmentCosts = createDiscountedDepreciationArray.call(this, 
+              {
+                name: "scenarioreinvestment",
+                investment: "scenarioinvestment",
+                type: "permanent",
+                method: "percentage",
+                space: "volumepermanentrow",
+                growthRate: "scenarioinflation",
+                discountRate: "scenariodiscountrate",
+                period: "period"
+              }
+            );
+            this.aggregatedDiscountedPermanentReinvestmentCosts = arrayAggregator(this.discountedPermanentReinvestmentCosts);
+
+            
+
+            this.sippedpermanentCost = addArraysAndSip(
+              [
+                this.permanentMaintenanceCosts,
+                this.permanentInvestmentCosts,
+                this.permanentReinvestmentCosts
+              ]
+            );
+
+            this.sippeddynamicCost = addArraysAndSip(
+              [
+                this.dynamicMaintenanceCosts,
+                this.dynamicRentCosts
+              ]
+            );
+            
+            this.sippeddiscountedpermanentCost = addArraysAndSip(
+              [
+                this.discountedPermanentMaintenanceCosts,
+                this.discountedPermanentInvestmentCosts,
+                this.discountedPermanentReinvestmentCosts
+              ]
+            );
+
+            this.sippeddiscounteddynamicCost = addArraysAndSip(
+              [
+                this.discountedDynamicMaintenanceCosts,
+                this.discountedDynamicRentCosts
+              ]
+            );
+
+
+            this.sippedaggregateddiscountedpermanentCost = addArraysAndSip(
+              [
+                this.aggregatedDiscountedPermanentMaintenanceCosts,
+                this.aggregatedDiscountedPermanentInvestmentCosts,
+                this.aggregatedDiscountedPermanentReinvestmentCosts
+              ]
+            );
+
+            this.sippedaggregateddiscounteddynamicCost = addArraysAndSip(
+              [
+                this.aggregatedDiscountedDynamicMaintenanceCosts,
+                this.aggregatedDiscountedDynamicRentCosts
+              ]
+            );
+
+            getRenderData.call(this, mergeSchemas$2)
+              .then(renderdata => {
+                renderdata.forEach(prop$$1 => {
+                  if (prop$$1.name == 'xmain') {
+                    this.xmain = prop$$1;
+                  }
+                });
+
+                this.renderxmain = this.xmain;
+                this.okToRender = true;
+                this.requestUpdate();
+              });
+          });
+    }
+
+    tableChangedHandler(e) {
+        //console.log(e)
+    }
+
+      scenarioChangedHandler(e) {
+        chosenScenario = +e.detail.index + 1;
+        this.scenario = chosenScenario;
+        this.stateChanged(this.storeHolder.store.getState(), props$f);
+      }
+
+      getData(value, index) {
+        return getData.call(this, value, index)
+      }
+
+      render() {
+        return this.okToRender ? html`
+      ${toRender.call(this, prepareRender(this.renderxmain))}
+        ` : html``
+      }
+    }
+
+    customElements.define("x-three", XThree);
+
+    let ui_ref_header$2 = {
+        ui_widget: "x-table-row",
+        ui_order: [
+            "label",
+            "data"
+        ],
+        label: {
+            // ui_widget: "x-table-row-label",
+            ui_options:  {
+                format: false,
+                readonly: true,
+                nottabable: true,
+                color: 'header',
+            },
+        },
+        data: {
+            ui_widget: "x-input",
+            ui_options:  {
+                format: false,
+                readonly: true,
+                nottabable: true,
+                color: 'none',
+            },
+        }
+    };
+
+
+    let ui_ref_rows$2 = {
+        ui_widget: "x-table-row",
+        ui_order: [
+            "label",
+            "data"
+        ],
+        label: {
+            // ui_widget: "x-table-row-label",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                color: 'white',
+            },
+        },
+        data: {
+            ui_widget: "x-input",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                color: 'attention'
+            },
+        }
+    };
+
+    let ui_ref_sumrow$1 = {
+        ui_widget: "x-table-row",
+        ui_order: [
+            "label",
+            "data"
+        ],
+        label: {
+            // ui_widget: "x-table-row-label",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                color: 'white',
+                type: 'sum',
+            },
+        },
+        data: {
+            ui_widget: "x-input",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                color: 'attention',
+                type: 'sum',
+            },
+        }
+    };
+
+    let json_ref_row$1 = {
+        type: 'Object',
+        properties: {
+            label: {
+                type: 'String',
+            },
+            data: {
+                type: 'Array',
+                items: {
+                    type: 'Number',
+                }
+            }
+        },
+    };
+
+    let json_ref_table__sum$1 = {
+        type: 'Object',
+        properties: {
+            header: json_ref_row$1,
+            rows: {
+                type: 'Array',
+                items: json_ref_row$1
+            },
+            sumrow: json_ref_row$1,
+        }
+    };
+
+    function fourMainSchemas() {
+
+        return {
+            ui_schema: {
+                ui_order: [
+                    "tablechart",
+                    "table",
+                ],
+                tablechart: {
+                    ui_widget: "x-chart",
+                    ui_classnames: "table",
+                    ui_order: [
+                        "header",
+                        "rows",
+                        // "sumrow",
+                    ],
+                    header: ui_ref_header$2,
+                    rows: ui_ref_rows$2,
+                    sumrow: ui_ref_sumrow$1,
+                },
+                table: {
+                    ui_widget: "x-table",
+                    ui_classnames: "table",
+                    ui_order: [
+                        "header",
+                        "rows",
+                        // "sumrow",
+                    ],
+                    header: ui_ref_header$2,
+                    rows: ui_ref_rows$2,
+                    sumrow: ui_ref_sumrow$1,
+                },
+            },
+            json_schema: {
+                type: 'Object',
+                properties: {
+                    table: {
+                        type: 'Array',
+                        items: json_ref_table__sum$1
+                    },
+                    tablechart: {
+                        type: 'Array',
+                        items: json_ref_table__sum$1
+                    }
+                }
+            },
+            data_schema: {
+                tablechart: [
+                    {
+                        header: {
+                            label: "Aggregerade diskonterade kostnader",
+                            data: {
+                                fn: 'getData',
+                                parameter: 'identity'
+                            }
+                        },
+                        rows: [
+                            {
+                                label: "Permanenta lokaler",
+                                data: this.sippedaggregateddiscountedpermanentCost
+                            },
+                            {
+                                label: "Dynamiska lokaler",
+                                data: this.sippedaggregateddiscounteddynamicCost
+                            },
+                        ],
+                    },
+                    {
+                        header: {
+                            label: "Aggregerad efterfrågan och volym av lokaler",
+                            data: {
+                                fn: 'getData',
+                                parameter: 'identity'
+                            }
+                        },
+                        rows: [
+                            {
+                                label: "Efterfrågan av lokaler",
+                                data: this.aggregateDataArr[0]
+                            },
+                            {
+                                label: "Dynamiska lokaler",
+                                data: this.aggregateDataArr[1]
+                            },
+                            {
+                                label: "Permanenta lokaler",
+                                data: this.aggregateDataArr[2]
+                            }
+                        ],
+                    },
+                ],
+                table: [
+                    {
+                        header: {
+                            label: "Aggregerade diskonterade kostnader",
+                            data: {
+                                fn: 'getData',
+                                parameter: 'identity'
+                            }
+                        },
+                        rows: [
+                            {
+                                label: "Permanenta lokaler",
+                                data: this.sippedaggregateddiscountedpermanentCost
+                            },
+                            {
+                                label: "Dynamiska lokaler",
+                                data: this.sippedaggregateddiscounteddynamicCost
+                            },
+                        ],
+                    },
+                    {
+                        header: {
+                            label: "Aggregerad efterfrågan och volym av lokaler",
+                            data: {
+                                fn: 'getData',
+                                parameter: 'identity'
+                            }
+                        },
+                        rows: [
+                            {
+                                label: "Efterfrågan av lokaler",
+                                data: this.aggregateDataArr[0]
+                            },
+                            {
+                                label: "Dynamiska lokaler",
+                                data: this.aggregateDataArr[1]
+                            },
+                            {
+                                label: "Permanenta lokaler",
+                                data: this.aggregateDataArr[2]
+                            }
+                        ],
+                    },
+                ]
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+    // let ui_ref_header = {
+    //     ui_widget: "x-table-row",
+    //     ui_order: [
+    //         "label",
+    //         "data"
+    //     ],
+    //     label: {
+    //         ui_options:  {
+    //             format: false,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'header',
+    //         },
+    //     },
+    //     data: {
+    //         ui_widget: "x-input",
+    //         ui_options:  {
+    //             format: false,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'none',
+    //         },
+    //     }
+    // }
+
+
+    // let ui_ref_rows = {
+    //     ui_widget: "x-table-row",
+    //     ui_order: [
+    //         "label",
+    //         "data"
+    //     ],
+    //     label: {
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'white',
+    //         },
+    //     },
+    //     data: {
+    //         ui_widget: "x-input",
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'attention'
+    //         },
+    //     }
+    // }
+
+    // let ui_ref_sumrow = {
+    //     ui_widget: "x-table-row",
+    //     ui_order: [
+    //         "label",
+    //         "data"
+    //     ],
+    //     label: {
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'white',
+    //             type: 'sum',
+    //         },
+    //     },
+    //     data: {
+    //         ui_widget: "x-input",
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'attention',
+    //             type: 'sum',
+    //         },
+    //     }
+    // }
+
+    // let json_ref_row = {
+    //     type: 'Object',
+    //     properties: {
+    //         label: {
+    //             type: 'String',
+    //         },
+    //         data: {
+    //             type: 'Array',
+    //             items: {
+    //                 type: 'Number',
+    //             }
+    //         }
+    //     },
+    // }
+
+    // let json_ref_table__sum = {
+    //     type: 'Object',
+    //     properties: {
+    //         header: json_ref_row,
+    //         rows: {
+    //             type: 'Array',
+    //             items: json_ref_row
+    //         },
+    //         sumrow: json_ref_row,
+    //     }
+    // }
+
+    // export function schemas() {
+
+    //     return {
+    //         ui_schema: {
+    //             ui_order: [
+    //                 "tableone",
+    //                 "tabletwo",
+    //                 "tablethree",
+    //                 "tablefour",
+    //                 "tablefive",
+    //                 "tablesix",
+    //             ],
+    //             tableone: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "table",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //             tabletwo: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "table",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //             tablethree: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "table",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //             tablefour: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "table",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //             tablefive: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "table",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //             tablesix: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "table",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //         },
+    //         json_schema: {
+    //             type: 'Object',
+    //             properties: {
+    //                 tableone: json_ref_table__sum,
+    //                 tabletwo: json_ref_table__sum,
+    //                 tablethree: json_ref_table__sum,
+    //                 tablefour: json_ref_table__sum,
+    //                 tablefive: json_ref_table__sum,
+    //                 tablesix: json_ref_table__sum,
+    //             }
+    //         },
+    //         data_schema: {
+    //             tableone: {
+    //                 header: {
+    //                     label: "Kostnader av permanenta lokaler",
+    //                     data: {
+    //                       fn: 'getData',
+    //                       parameter: 'identity'
+    //                   }
+    //                 },
+    //                 rows: [
+    //                     {
+    //                         label: "Investering i nya lokaler",
+    //                         data: this.permanentSingleCost[0]
+    //                     },
+    //                     {
+    //                         label: "Underhållskostnad av egna lokaler",
+    //                         data: this.permanentAnnualCost[0]
+    //                     },
+    //                     {
+    //                         label: "Minskning av tekniskt värde",
+    //                         data: this.permanentPercentageCost[0]
+    //                     },
+    //                 ],
+    //                 sumrow: {
+    //                     label: "Summa kostander permanenta lokaler",
+    //                     data: this.sippedpermanentCost
+    //                 },
+    //             },
+    //             tabletwo: {
+    //                 header: {
+    //                     label: "Kostnader av dynamiska lokaler",
+    //                     data: {
+    //                       fn: 'getData',
+    //                       parameter: 'identity'
+    //                   }
+    //                 },
+    //                 rows: [
+    //                     {
+    //                         label: "Underhållskostnad av dynamiska lokaler",
+    //                         data: this.dynamicAnnualCost[0]
+    //                     },
+    //                     {
+    //                         label: "Hyreskostnader av dynamiska lokaler",
+    //                         data: this.dynamicAnnualCost[1]
+    //                     },
+    //                 ],
+    //                 sumrow: {
+    //                     label: "Summa kostander dynamiska lokaler",
+    //                     data: this.sippeddynamicCost
+    //                 }
+    //             },
+    //             tablethree: {
+    //                 header: {
+    //                     label: "Diskonterade kostnader av permanenta lokaler",
+    //                     data: {
+    //                       fn: 'getData',
+    //                       parameter: 'identity'
+    //                   }
+    //                 },
+    //                 rows: [
+    //                     {
+    //                         label: "Investering i nya lokaler",
+    //                         data: this.discountedpermanentSingleCost[0]
+    //                     },
+    //                     {
+    //                         label: "Underhållskostnad av egna lokaler",
+    //                         data: this.discountedpermanentAnnualCost[0]
+    //                     },
+    //                     {
+    //                         label: "Minskning av tekniskt värde",
+    //                         data: this.discountedpermanentPercentageCost[0]
+    //                     },
+    //                 ],
+    //                 sumrow: {
+    //                     label: "Summa kostander permanenta lokaler",
+    //                     data: this.sippeddiscountedpermanentCost
+    //                 },
+    //             },
+    //             tablefour: {
+    //                 header: {
+    //                     label: "Diskonterade kostnader av dynamiska lokaler",
+    //                     data: {
+    //                       fn: 'getData',
+    //                       parameter: 'identity'
+    //                   }
+    //                 },
+    //                 rows: [
+    //                     {
+    //                         label: "Underhållskostnad av dynamiska lokaler",
+    //                         data: this.discounteddynamicAnnualCost[0]
+    //                     },
+    //                     {
+    //                         label: "Hyreskostnader av dynamiska lokaler",
+    //                         data: this.discounteddynamicAnnualCost[1]
+    //                     },
+    //                 ],
+    //                 sumrow: {
+    //                     label: "Summa kostander dynamiska lokaler",
+    //                     data: this.sippeddiscounteddynamicCost
+    //                 }
+    //             },
+    //             tablefive: {
+    //                 header: {
+    //                     label: "Aggregerade diskonterade kostnader av permanenta lokaler",
+    //                     data: {
+    //                       fn: 'getData',
+    //                       parameter: 'identity'
+    //                   }
+    //                 },
+    //                 rows: [
+    //                     {
+    //                         label: "Investering i nya lokaler",
+    //                         data: this.aggregateddiscountedpermanentSingleCost[0]
+    //                     },
+    //                     {
+    //                         label: "Underhållskostnad av egna lokaler",
+    //                         data: this.aggregateddiscountedpermanentAnnualCost[0]
+    //                     },
+    //                     {
+    //                         label: "Minskning av tekniskt värde",
+    //                         data: this.aggregateddiscountedpermanentPercentageCost[0]
+    //                     },
+    //                 ],
+    //                 sumrow: {
+    //                     label: "Summa kostander permanenta lokaler",
+    //                     data: this.sippedaggregateddiscountedpermanentCost
+    //                 },
+    //             },
+    //             tablesix: {
+    //                 header: {
+    //                     label: "Aggregerade diskonterade kostnader av dynamiska lokaler",
+    //                     data: {
+    //                       fn: 'getData',
+    //                       parameter: 'identity'
+    //                   }
+    //                 },
+    //                 rows: [
+    //                     {
+    //                         label: "Underhållskostnad av dynamiska lokaler",
+    //                         data: this.aggregateddiscounteddynamicAnnualCost[0]
+    //                     },
+    //                     {
+    //                         label: "Hyreskostnader av dynamiska lokaler",
+    //                         data: this.aggregateddiscounteddynamicAnnualCost[1]
+    //                     },
+    //                 ],
+    //                 sumrow: {
+    //                     label: "Summa kostander dynamiska lokaler",
+    //                     data: this.sippedaggregateddiscounteddynamicCost
+    //                 }
+    //             },
+    //         }
+    //     }
+    // }
+
+    let props$g = () => [
+        { propKey: "value", propValue: { type: Array }, rx: false },
+        { propKey: "valuedyn", propValue: { type: Array }, rx: false },
+        { propKey: "valueperm", propValue: { type: Array }, rx: false },
+        { propKey: "type", propValue: { type: String }, rx: false },
+        { propKey: "label", propValue: { type: Array }, rx: false },
+        { propKey: "props", propValue: { type: Array }, rx: false },
+        { propKey: "test", propValue: { type: Array }, rx: false },
+        { propKey: "years", propValue: { type: Array }, rx: false }
+        
+        // { propKey: "selected", propValue: { type: String }, rx: false },
+        // { propKey: "label", propValue: { type: Array }, rx: false },
+        // { propKey: "data", propValue: { type: String }, rx: false },
+        // { propKey: "type", propValue: { type: String }, rx: false },
+        // { propKey: "format", propValue: { type: Boolean }, rx: false },
+        // { propKey: "readonly", propValue: { type: Boolean }, rx: false },
+        // { propKey: "props", propValue: { type: Object }, rx: false }
+      ];
+
+
+    class XChart extends rxmixin(props$g, LitElement) {
+
+
+        render() {
+            let canvas;
+
+            if (this.test) {
+                canvas = html`<canvas id="myChart"></canvas>`;
+              } else {
+                canvas = html``;
+              }
+
+            return html`
+        <style>
+            .thediv {
+                font-size: var(--parmaco-font-size-m);
+                border: 1px solid var(--whcg-shade-20pct);
+                border-radius: 5px 5px 4px 4px;
+                background-color: var(--whcg-shade-10pct);
+                ;
+                ;
+            }
+        </style>
+        <div class="thediv" style="width: ${this.offsetWidth}px; height: 400px">
+            ${canvas}
+        </div>
+        `;
+        }
+        // static get properties() {
+        //     return {
+                // type: {
+                //     type: String
+                // },
+                // value: {
+                //     type: Object
+                // },
+                // width: {
+                //     type: String
+                // },
+                // height: {
+                //     type: String
+                // },
+                // legendposition: {
+                //     type: String 
+                // },
+
+                // legendfontsize: {
+                //     type: Number
+                // },
+
+                // legendfontfamily: {
+                //     type: String
+                // },
+
+                // stacked: {
+                //     type: Boolean
+                // }
+        //     }
+        // }
+
+
+        constructor() {
+            super();
+            // this.width = '200px';
+            // this.height = '200px';
+            this.legendposition = 'bottom';
+            this.legendfontsize = 14;
+            this.legendfontfamily = 'Arial';
+            this.stacked = false;
+
+        }
+
+        connectedCallback() {
+            super.connectedCallback();
+            window.addEventListener('resize', (event) => {
+                this.shadowRoot.querySelector('.thediv').style.width = `${this.offsetWidth}px`;
+                this.test = [...this.test];
+              });
+        }
+
+        updated(changedProps) {
+            super.updated(changedProps);
+            // if (changedProps.has('value')) {
+            //     //console.log('Chart updated: value!!!!')
+            //     //console.log(this.value)
+            //     this._chartJs(this.value);
+            // }
+            // if (changedProps.has('valuedyn')) {
+            //     //console.log('Chart updated: valuedynam!!!!')
+            //     //console.log(this.valuedyn)
+            //     this._chartJs(this.valuedyn);
+            // }
+            // if (changedProps.has('valueperm')) {
+            //     //console.log('Chart updated: valueperm!!!!')
+            //     //console.log(this.valueperm)
+            //     this._chartJs(this.valueperm);
+            // }
+            if (changedProps.has('props')) {
+                this._chartJs(this.props);
+            }
+
+            if (changedProps.has('value')) {
+                //console.log('Chart updated: valueperm!!!!')
+                //console.log(this.valueperm)
+                this._chartJs(this.value);
+            }
+
+            if (changedProps.has('test')) {
+                let years = this.test[0].json_schema[1].data_schema;
+                let title = this.test[0].json_schema[0].data_schema;
+                let data = [];
+                data = this.test[1].json_schema.map(schema => {
+                    return {data: schema.json_schema[1].data_schema,
+                    label: schema.json_schema[0].data_schema}
+                });
+                this._chartJs({years: years, data: data, title: title});
+            }
+            
+        }
+
+
+
+        _chartJs(data) {
+            var ctx = this.shadowRoot.querySelector('#myChart');
+
+            if (this.thechart != null) {
+                this.thechart.destroy();
+            }
+            if (this.type == 'line') ;
+
+        
+            // let areadata = {
+            //     // labels: this.label,
+            //     labels: ["Passed"],
+            //     datasets: [{
+            //         label: 'Utv av efterfrågan',
+            //         data: this.props[0],
+            //         borderColor: [
+            //             'hsla(360, 100%, 100%, 1)'
+            //         ],
+            //         borderWidth: 2,
+            //         type: 'line',
+            //         fill: false,
+            //         showLine: true,
+            //         spanGaps: false
+            //     },
+            //     {
+            //         label: 'Hyrda lokaler',
+            //         data: this.props[1],
+            //         backgroundColor: 'hsla(75, 30%, 33%, 1)',
+            //         borderColor: 'hsla(360, 100%, 100%, 1)',
+                   
+            //         borderWidth: 1,
+            //         fill: fill
+            //     },
+            //     {
+            //         label: 'Egna lokaler',
+            //         data: this.props[2],
+            //         backgroundColor: 'hsla(275, 30%, 33%, 1)',
+            //         borderColor: 'hsla(360, 100%, 100%, 1)',
+                   
+            //         borderWidth: 1,
+            //         fill: fill
+            //     }
+            //     ]
+            // }
+
+            // let costdata = {
+            //     // labels: this.label,
+            //     labels: ["Passed"],
+            //     datasets: [{
+            //         label: 'Aggregerade diskonterade kostnader för hyrda lokaler',
+            //         data: this.props[0],
+            //         backgroundColor: 'hsla(275, 30%, 33%, 1)',
+            //         borderColor: 'hsla(360, 100%, 100%, 1)',
+            //         borderWidth: 1,
+            //         fill: fill,
+            //         // showLine: true,
+            //         // spanGaps: false
+            //     },
+            //     {
+            //         label: 'Aggregerade diskonterade kostnader för ägda lokaler',
+            //         data: this.props[1],
+            //         backgroundColor: 'hsla(75, 30%, 33%, 1)',
+            //         borderColor: 'hsla(360, 100%, 100%, 1)',
+            //         borderWidth: 1,
+            //         fill: fill
+            //     },
+            //     ]
+            // }
+            
+            this.thechart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.years,
+                    datasets: data.data.map((data, index) => {
+                        return {
+                            label: data.label,
+                            data: data.data,
+                            fill: false,
+                            showLine: true,
+                            spanGaps: false,
+                            backgroundColor: [
+                                `rgba(${255 * 1 / (+index + 1)}, 99, 132, ${0.2 * (+index + 1)})`,
+                                // `rgba(54, 162, 235, ${0.2 * (+index + 1)})`,
+                                // `rgba(255, 206, 86, ${0.2 * (+index + 1)})`,
+                                // `rgba(75, 192, 192, ${0.2 * (+index + 1)})`,
+                                // `rgba(153, 102, 255, ${0.2 * (+index + 1)})`,
+                                // `rgba(255, 159, 64, ${0.2 * (+index + 1)})`
+                            ],
+                            borderColor: [
+                                `rgba(${255}, ${50 * (+index * 2 + 1)}, ${0 * 2 / (+index + 1)}, 1)`,
+                                // `rgba(54, 162, 235, 1)`,
+                                // `rgba(255, 206, 86, 1)`,
+                                // `rgba(75, 192, 192, 1)`,
+                                // `rgba(153, 102, 255, 1)`,
+                                // `rgba(255, 159, 64, 1)`
+                            ],
+                            borderWidth: 2
+                        }
+                    })
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: data.title,
+                        fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                        fontColor: '#FFFFFF',
+                        fontSize: this.offsetWidth / 40,
+                        fontStyle: 'normal',
+                        padding: 30
+                    },
+                    layout: {
+                        padding: {
+                            left: 20,
+                            right: 30,
+                            top: 0,
+                            bottom: 10
+                        },
+                    },
+                    legend: {
+                        position: this.legendposition,
+                        labels: {
+                            fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                            fontColor: '#FFFFFF',
+                            fontSize: this.offsetWidth / 50,
+                            boxWidth: this.offsetWidth / 50
+                        }
+                    },
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [
+                            {
+                                ticks: {
+                                    beginAtZero: true,
+                                    fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                                    fontColor: '#FFFFFF',
+                                    fontSize: this.offsetWidth / 50
+
+
+                                },
+                                gridLines: {
+                                }
+                            }
+                        ],
+                        yAxes: [
+                            {
+                                ticks: {
+                                    beginAtZero: true,
+                                    fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                                    fontColor: '#FFFFFF',
+                                    fontSize: this.offsetWidth / 50
+
+
+                                },
+                                gridLines: {
+                                }
+                            }
+                        ]
+                    }
+                }
+            });
+
+            // this.thechart = new Chart(ctx, {
+            //     type: this.type,
+            //     data: data,
+
+            //     options: {
+            //         legend: {
+            //             position: this.legendposition,
+            //             labels: {
+            //                 fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+            //                 fontColor: '#FFFFFF',
+            //                 fontSize: 14,
+            //                 boxWidth: 14
+            //             }
+            //         },
+            //         scales: {
+            //             yAxes: [{
+            //                 ticks: {
+            //                     beginAtZero:true
+            //                 }
+            //             }],
+            //             yAxes: [{
+            //                 ticks: {
+            //                     fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+            //                     fontColor: '#FFFFFF',
+            //                     fontSize: 14
+            //                 },
+            //                 gridLines: {
+            //                 }
+            //             }],
+            //             xAxes: [{
+            //                 ticks: {
+            //                     fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+            //                     fontColor: '#FFFFFF',
+            //                     fontSize: 14
+            //                 },
+            //                 gridLines: {
+            //                 }
+            //             }]
+            //         },
+            //         responsive: true,
+            //         maintainAspectRatio: false,
+            //         layout: {
+            //             padding: {
+            //                 left: 15,
+            //                 right: 15,
+            //                 top: 50,
+            //                 bottom: 20
+            //             }
+            //         }
+            //     }
+            // });
+
+
+
+        }
+
+
+    }
+
+    window.customElements.define('x-chart', XChart);
+
+    function mergeSchemas$3() {
+      return {
+          ui_schema: {
+              ui_order: [
+                "xmain"
+              ],
+              xmain: {
+                ui_widget: 'x-main',
+                ui_order: [
+                  "subheader",
+                  "header",
+                  "main",
+                ],
+                ui_merged: true,
+                subheader: fourSubheaderSchemas.call(this).ui_schema,
+          header: fourHeaderSchemas.call(this).ui_schema,
+          main: fourMainSchemas.call(this).ui_schema
+              }
+              
+          },
+          json_schema: {
+              type: 'Object',
+              properties: {
+                  xmain: {
+                      type: 'Object',
+                      properties: {
+                        subheader: fourSubheaderSchemas.call(this).json_schema,
+            header: fourHeaderSchemas.call(this).json_schema,
+            main: fourMainSchemas.call(this).json_schema
+                      }
+                  }
+              }
+          },
+          data_schema: {
+            xmain: {
+              subheader: fourSubheaderSchemas.call(this).data_schema,
+          header: fourHeaderSchemas.call(this).data_schema,
+          main: fourMainSchemas.call(this).data_schema
+            }
+            
+          }
+      }
+    }
+
+
+
+    let props$h = () => [
+      { propKey: "comment", propValue: { type: String }, rx: false },
+      {
+        propKey: "startyear",
+        propValue: { type: String },
+        rx: true,
+        path: ["assumptions", "startyear"]
+      },
+      {
+        propKey: "scenario",
+        rx: true,
+        propValue: { type: String }
+      },
+      {
+        propKey: "endyear",
+        propValue: { type: String },
+        rx: true,
+        path: ["assumptions", "scenario" + chosenScenario, "endyear"]
+      },
+      {
+        propKey: "demandrow",
+        propValue: { type: Object },
+        rx: false,
+        path: ["investmentprogram", "demand", "scenario" + chosenScenario]
+      },
+      {
+        propKey: "volumedynamicrow",
+        propValue: { type: Object },
+        rx: false,
+        path: ["investmentprogram", "volumedynamic", "scenario" + chosenScenario]
+      },
+      {
+        propKey: "volumepermanentrow",
+        propValue: { type: Object },
+        rx: false,
+        path: ["investmentprogram", "volumepermanent", "scenario" + chosenScenario]
+      },
+      {
+        propKey: "scenariodynamicrentamounts",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rent", "scenario" + chosenScenario, "amount"]
+      },
+      {
+        propKey: "scenariodynamicrentperiods",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rent", "scenario" + chosenScenario, "period"]
+      },
+      {
+        propKey: "scenarioinvestment",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "investments", "scenario" + chosenScenario, "initial"]
+      },
+      {
+        propKey: "scenarioreinvestment",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "investments", "scenario" + chosenScenario, "future"]
+      },
+      {
+        propKey: "scenarioinflation",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rates", "scenario" + chosenScenario, "inflation"]
+      },
+      {
+        propKey: "scenariodiscountrate",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rates", "scenario" + chosenScenario, "discount"]
+      },
+      {
+        propKey: "scenariorent",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rent", "scenario" + chosenScenario, "amount"]
+      },
+      {
+        propKey: "scenariorentperiod",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "rent", "scenario" + chosenScenario, "period"]
+      },
+      {
+        propKey: "scenariomaintenanceown",
+        propValue: { type: Array },
+        rx: true,
+        path: [
+          "assumptions",
+          "maintenance",
+          "scenario" + chosenScenario,
+          "permanent"
+        ]
+      },
+      {
+        propKey: "scenariomaintenancerent",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "maintenance", "scenario" + chosenScenario, "dynamic"]
+      },
+      {
+        propKey: "scenariomaintenancenotused",
+        propValue: { type: Array },
+        rx: true,
+        path: ["assumptions", "maintenance", "scenario" + chosenScenario, "notused"]
+      },
+      {
+        propKey: "selectedpremises",
+        propValue: { type: String },
+        rx: true,
+        path: ["menu", "selected"]
+      },
+      { propKey: "selected", propValue: { type: Number }, rx: true },
+      { propKey: "renderdata", propValue: { type: Array }, rx: false }
+    ];
+
+
+
+    class XFour extends reduxmixin(props$h, rxmixin(props$h, LitElement)) {
+      constructor() {
+        super();
+        this.renderxmain = false;
+        this.okToRender = false;
+        this.scenario = chosenScenario;
+      }
+
+      firstUpdated() {
+        super.firstUpdated();
+        
+        
+        rx.latestCombiner([
+          this.startyear$,
+          this.endyear$,
+          this.scenario$,
+        ])
+          .pipe(rx.undefinedElementRemover)
+          .subscribe(() => {
+
+              function rangeFromPeriod(period) {
+                  return range$1(0, +period);
+                }
+              
+                let rentRealPriceArray = flatten([
+                  ...this.scenariodynamicrentperiods
+                    .map(rangeFromPeriod)
+                    .map((arr, index) => {
+                      return arr.map(year => {
+                        return this.scenariodynamicrentamounts[index];
+                      });
+                    })
+                ]);
+
+
+              this.dataArray = ["demandrow", "volumedynamicrow", "volumepermanentrow"]
+                .map(item => this[item])
+                .map(item => Object.values(item));
+      
+              this.aggregateDataArr = this.dataArray.map(arrayAggregator);
+            
+              
+
+              this.period = getPeriodArray(this.startyear, this.endyear);
+
+              this.dynamicRentCosts = getRealCostArray.call(this, 
+                  {
+                    name: "dynamicrentcosts",
+                    type: "dynamic",
+                    method: "annual",
+                    space: "volumedynamicrow",
+                    discountRate: "scenariodiscountrate",
+                  }, rentRealPriceArray
+                );
+
+                this.discountedDynamicRentCosts = getDiscountedRealCostArray.call(this, 
+                  {
+                    name: "dynamicrentcosts",
+                    type: "dynamic",
+                    method: "annual",
+                    space: "volumedynamicrow",
+                    discountRate: "scenariodiscountrate",
+                  }, rentRealPriceArray
+                );
+                this.aggregatedDiscountedDynamicRentCosts = arrayAggregator(this.discountedDynamicRentCosts);
+        
+
+
+
+              this.dynamicMaintenanceCosts = createNominalAggregatedCostArray.call(this, 
+                  {
+                    name: "scenariomaintenancerent",
+                    type: "dynamic",
+                    method: "annual",
+                    space: "volumedynamicrow",
+                    growthRate: "scenarioinflation",
+                    discountRate: "scenariodiscountrate",
+                    period: "period"
+                  }
+                );
+
+                this.discountedDynamicMaintenanceCosts = createDiscountedNominalAggregatedCostArray.call(this,
+                  {
+                    name: "scenariomaintenancerent",
+                    type: "dynamic",
+                    method: "annual",
+                    space: "volumedynamicrow",
+                    growthRate: "scenarioinflation",
+                    discountRate: "scenariodiscountrate",
+                    period: "period"
+                  }
+                );
+
+                this.aggregatedDiscountedDynamicMaintenanceCosts = arrayAggregator(this.discountedDynamicMaintenanceCosts);
+
+
+
+
+                this.permanentMaintenanceCosts = createNominalAggregatedCostArray.call(this, 
+                  {
+                    name: "scenariomaintenanceown",
+                    type: "permanent",
+                    method: "annual",
+                    space: "volumepermanentrow",
+                    growthRate: "scenarioinflation",
+                    discountRate: "scenariodiscountrate",
+                    period: "period"
+                  }
+                );
+              this.discountedPermanentMaintenanceCosts = createDiscountedNominalAggregatedCostArray.call(this,
+                {
+                  name: "scenariomaintenanceown",
+                  type: "permanent",
+                  method: "annual",
+                  space: "volumepermanentrow",
+                  growthRate: "scenarioinflation",
+                  discountRate: "scenariodiscountrate",
+                  period: "period"
+                }
+              );
+              this.aggregatedDiscountedPermanentMaintenanceCosts = arrayAggregator(this.discountedPermanentMaintenanceCosts);
+      
+
+
+
+              this.permanentInvestmentCosts = 
+              createPositiveOnlyNominalCostArray.call(this, 
+                {
+                  name: "scenarioinvestment",
+                  type: "permanent",
+                  method: "single",
+                  space: "volumepermanentrow",
+                  growthRate: "scenarioinflation",
+                  discountRate: "scenariodiscountrate",
+                  period: "period"
+                }
+              );
+              this.discountedPermanentInvestmentCosts = createDiscountedPositiveOnlyNominalCostArray.call(this, 
+                {
+                  name: "scenarioinvestment",
+                  type: "permanent",
+                  method: "single",
+                  space: "volumepermanentrow",
+                  growthRate: "scenarioinflation",
+                  discountRate: "scenariodiscountrate",
+                  period: "period"
+                }
+              );
+              this.aggregatedDiscountedPermanentInvestmentCosts = arrayAggregator(this.discountedPermanentInvestmentCosts);
+
+              
+
+
+              this.permanentReinvestmentCosts = 
+              createDepreciationArray.call(this, 
+                {
+                  name: "scenarioreinvestment",
+                  investment: "scenarioinvestment",
+                  type: "permanent",
+                  method: "percentage",
+                  space: "volumepermanentrow",
+                  growthRate: "scenarioinflation",
+                  discountRate: "scenariodiscountrate",
+                  period: "period"
+                }
+              );
+            this.discountedPermanentReinvestmentCosts = createDiscountedDepreciationArray.call(this, 
+              {
+                name: "scenarioreinvestment",
+                investment: "scenarioinvestment",
+                type: "permanent",
+                method: "percentage",
+                space: "volumepermanentrow",
+                growthRate: "scenarioinflation",
+                discountRate: "scenariodiscountrate",
+                period: "period"
+              }
+            );
+            this.aggregatedDiscountedPermanentReinvestmentCosts = arrayAggregator(this.discountedPermanentReinvestmentCosts);
+
+            
+
+            this.sippedpermanentCost = addArraysAndSip(
+              [
+                this.permanentMaintenanceCosts,
+                this.permanentInvestmentCosts,
+                this.permanentReinvestmentCosts
+              ]
+            );
+
+            this.sippeddynamicCost = addArraysAndSip(
+              [
+                this.dynamicMaintenanceCosts,
+                this.dynamicRentCosts
+              ]
+            );
+            
+            this.sippeddiscountedpermanentCost = addArraysAndSip(
+              [
+                this.discountedPermanentMaintenanceCosts,
+                this.discountedPermanentInvestmentCosts,
+                this.discountedPermanentReinvestmentCosts
+              ]
+            );
+
+            this.sippeddiscounteddynamicCost = addArraysAndSip(
+              [
+                this.discountedDynamicMaintenanceCosts,
+                this.discountedDynamicRentCosts
+              ]
+            );
+
+
+            this.sippedaggregateddiscountedpermanentCost = addArraysAndSip(
+              [
+                this.aggregatedDiscountedPermanentMaintenanceCosts,
+                this.aggregatedDiscountedPermanentInvestmentCosts,
+                this.aggregatedDiscountedPermanentReinvestmentCosts
+              ]
+            );
+
+            this.sippedaggregateddiscounteddynamicCost = addArraysAndSip(
+              [
+                this.aggregatedDiscountedDynamicMaintenanceCosts,
+                this.aggregatedDiscountedDynamicRentCosts
+              ]
+            );
+
+            getRenderData.call(this, mergeSchemas$3)
+              .then(renderdata => {
+                renderdata.forEach(prop$$1 => {
+                  if (prop$$1.name == 'xmain') {
+                    this.xmain = prop$$1;
+                  }
+                });
+
+                this.renderxmain = this.xmain;
+
+
+
+                let years = this.period;
+                this.label = years;
+
+                this.chartdemand = this.sippedaggregateddiscounteddynamicCost;
+
+                this.chartvaldynamic = this.sippedaggregateddiscountedpermanentCost;
+
+                this.chartvalpermanent = this.sippeddiscounteddynamicCost;
+
+                this.costChartArrays = [this.sippeddiscountedpermanentCost, this.sippedaggregateddiscountedpermanentCost];
+
+                // this.areaChartArrays = this.aggregateDataArr.map(item => {
+                //     return item.map(item => {
+                //         return item[result[2]]
+                //     })
+                // })
+
+
+                this.testchart = this.chartvalpermanent;
+
+
+
+
+                this.okToRender = true;
+                this.requestUpdate();
+              });
+          });
+    }
+
+    tableChangedHandler(e) {
+        //console.log(e)
+    }
+
+      scenarioChangedHandler(e) {
+        chosenScenario = +e.detail.index + 1;
+        this.scenario = chosenScenario;
+        this.stateChanged(this.storeHolder.store.getState(), props$h);
+      }
+
+      getData(value, index) {
+        return getData.call(this, value, index)
+      }
+
+      render() {
+        return this.okToRender ? html`
+      ${toRender.call(this, prepareRender(this.renderxmain))}
+        ` : html``
+      }
+
+
+    }
+
+    customElements.define("x-four", XFour);
+
+
+
+    // render() {
+    //   return this.okToRender ? html`
+    //        <style>
+        
+    //     .main {
+    //         display: grid;
+    //         grid-template-columns: repeat(12, 1fr);
+    //         grid-template-rows: auto 50px auto;
+    //         grid-column-gap: 20px;
+    //         grid-template-areas: 
+    //             ".      label    label      label    label      label    label      label    label      label    label      . "
+    //             ".      .          .          .         .          .        .          .        .          .        .       ."
+    //             ".      tableone       tableone           tableone       tableone           tableone   tabletwo      tabletwo    tabletwo      tabletwo      tabletwo         ."
+                
+    //             ;
+                
+    //         /* background-color: var(--color-bg); */
+
+    //         height: 100%
+    //     }
+
+    //     .label {
+    //         grid-area: label;
+    //         /* background-color: var(--color-bg); */
+          
+    //         font: var(--font-mainheader);
+    //         color: var(--color-text, white);
+    //         border-bottom: 2px solid #FFFFFF; 
+
+    //         display: flex;
+    //         align-items: center;
+    //         height: 50px;                                                                                        
+    //     } 
+
+    //     .tabletwo {
+    //         grid-area: tabletwo;
+    //         justify-self: end;
+
+    //     }
+
+    //     .tableone {
+    //         grid-area: tableone;
+    //         justify-self: start;
+            
+    //     }
+
+    //     .tablethree {
+    //         grid-area: tablethree;
+    //     }
+
+    //     .comment {
+    //         grid-area: comment;
+    //         justify-self: end;
+    //         align-self: center;
+    //         /* background-color: var(--colro-bg, blue); */
+    //         color: var(--color-text, white);
+    //         font: var(--font-rowcomment);
+    //     }   
+
+
+    // </style>
+    //     <div class="main">
+    //         <div class="label">Result</div>
+            
+    //             <x-chart .props="${this.testchart}" .test=${this.renderxmain} .years=${this.period} type="bar" class="tableone"></x-chart>
+                
+
+    //         <div class="comment">
+    //         </div>
+    //     </div>
+    //       ` : html``
+    // }
+
+    let props$i = () => ([]);
+
+    class XB extends propsmixin(props$i, LitElement) {
         onBeforeEnter(location, commands, router) {
             if (!firebase.auth().currentUser) {
                 return commands.redirect('/')
             }
-            console.log('GOING INTO USERS');
         }
         render() {
            
@@ -15805,14 +19351,13 @@
 
     customElements.define('x-b', XB);
 
-    let props$d = () => ([]);
+    let props$j = () => ([]);
 
-    class XC extends propsmixin(props$d, LitElement) {
+    class XC extends propsmixin(props$j, LitElement) {
         onBeforeEnter(location, commands, router) {
             if (!firebase.auth().currentUser) {
                 return commands.redirect('/')
             }
-            console.log('GOING INTO USERS');
         }
         render() {
            
@@ -15822,9 +19367,9 @@
 
     customElements.define('x-c', XC);
 
-    let props$e = () => ([]);
+    let props$k = () => ([]);
 
-    class XD extends propsmixin(props$e, LitElement) {
+    class XD extends propsmixin(props$k, LitElement) {
         // onBeforeEnter(location, commands, router) {
         //     if (!firebase.auth().currentUser) {
         //         return commands.redirect('/')
@@ -15847,13 +19392,13 @@
 
     customElements.define('x-d', XD);
 
-    let props$f = () => ([
+    let props$l = () => ([
         { propKey: "props", propValue: { type: Object }, rx: false },
         { propKey: "buttons", propValue: { type: Object }, rx: true },
         { propKey: "okToRender", propValue: { type: Boolean }, rx: false },
       ]);
 
-    class XMenuLogin extends rxmixin(props$f, LitElement) {
+    class XMenuLogin extends rxmixin(props$l, LitElement) {
 
         constructor() {
             super();
@@ -15937,9 +19482,9 @@
         } 
     };
 
-    let props$g = () => ([]);
+    let props$m = () => ([]);
 
-    class XLogin extends usermixin(props$g, LitElement) {
+    class XLogin extends usermixin(props$m, LitElement) {
       keyHandler(e) {
         if (e.key === "Enter") {
           e.preventDefault();
@@ -16077,15 +19622,14 @@
 
     customElements.define("x-login", XLogin);
 
-    let props$h = () => ([
+    let props$n = () => ([
         { propKey: "props", propValue: { type: Object }, rx: false },
         { propKey: "value", propValue: { type: String }, rx: false },
       ]);
 
-    class XIcon extends propsmixin(props$h, LitElement) {
+    class XIcon extends propsmixin(props$n, LitElement) {
 
         clickHandler() {
-            console.log('LO');
             let event = new CustomEvent('loggedout');
             this.dispatchEvent(event);
         }
@@ -37917,7 +41461,7 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
 
     };
 
-    let props$i = () => [
+    let props$o = () => [
       {
         propKey: "selectedmenu",
         propValue: { type: String },
@@ -37931,7 +41475,7 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
       }
     ];
 
-    class XApp extends reduxmixin(props$i, rxmixin(props$i, connectmixin(props$i, LitElement))) {
+    class XApp extends reduxmixin(props$o, rxmixin(props$o, connectmixin(props$o, LitElement))) {
       constructor() {
         super();
         this.okToRender = false;
@@ -38034,9 +41578,9 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
               const router = new Router(outlet);
               router.setRoutes([
                 { path: '/antaganden', action: this.antagandenAction.bind(this) },
-                { path: '/investeringsprogram', component: 'x-b' },
-                { path: '/kostnader', component: 'x-c' },
-                { path: '/resultat', component: 'x-d' },
+                { path: '/investeringsprogram', action: this.investeringsprogramAction.bind(this) },
+                { path: '/kostnader', action: this.kostnaderAction.bind(this) },
+                { path: '/resultat', action: this.resultatAction.bind(this) },
                 { path: '(.*)', component: 'x-d' }
               ]);
             }
@@ -38047,13 +41591,30 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
 
       antagandenAction(context, commands) {
         let el = commands.component('x-one');
-      
         el.storeHolder = this;
         el.stateChanged(this.store.getState());
-
-        
-        
         return el;  
+    }
+
+    investeringsprogramAction(context, commands) {
+      let el = commands.component('x-two');
+      el.storeHolder = this;
+      el.stateChanged(this.store.getState());
+      return el;  
+    }
+
+    kostnaderAction(context, commands) {
+      let el = commands.component('x-three');
+      el.storeHolder = this;
+      el.stateChanged(this.store.getState());
+      return el;  
+    }
+
+    resultatAction(context, commands) {
+      let el = commands.component('x-four');
+      el.storeHolder = this;
+      el.stateChanged(this.store.getState());
+      return el;  
     }
 
       render() {

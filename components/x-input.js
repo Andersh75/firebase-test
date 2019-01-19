@@ -67,7 +67,6 @@ export class XInput extends propsmixin(props, LitElement) {
   }
 
   blurHandler(e) {
-    console.log(e)
 
     let value;
     if(e.path) {
