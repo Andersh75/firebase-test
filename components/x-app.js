@@ -6,6 +6,7 @@ import "./x-one";
 import "./x-two";
 import "./x-three";
 import "./x-four";
+import "./x-startpage";
 import { action } from "../redux/actions.js";
 import { loggedinHeaderSchemas } from "../schemas/x-header-schemas.js";
 import { loggedoutHeaderSchemas } from "../schemas/x-header-schemas.js";
@@ -21,6 +22,10 @@ import { connectmixin } from "../mixins/connectmixin.js";
 import { reduxmixin } from "../mixins/reduxmixin.js";
 import { rxmixin } from "../mixins/rxmixin.js";
 import * as R from "ramda/es/index.js";
+import { storeCreator } from '../redux/store.js';
+import { initState } from '../redux/state.js';
+import PouchDB from 'pouchdb/dist/pouchdb.js';
+import Auth from 'pouchdb-authentication/dist/pouchdb.authentication.js';
 
 let props = () => [
   {
@@ -41,18 +46,6 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
   constructor() {
     super();
     this.okToRender = false
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        this.selectedmenu = -1;
-        Router.go("/");
-        this.requestUpdate()
-        
-      } else {
-        this.selectedmenu = -1;
-        Router.go("/"); 
-        this.requestUpdate() 
-      }
-    });
   }
 
   menuchangedHandler(e) {
@@ -104,6 +97,45 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
 
   firstUpdated() {
     super.firstUpdated();
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.storeUnsubscribe()
+
+        let username = firebase.auth().currentUser.email.replace("@", "at");
+        username = username.replace(".", "dot")
+
+        let db = new PouchDB(username);
+
+        db.allDocs({
+          include_docs: true,
+          attachments: true
+        }).then(result => {
+
+          let state;
+          if (result.rows.length) {
+            state = result.rows[0].doc.state
+          } else {
+            state = initState;
+          }
+
+          this.store = storeCreator(username, state, db);
+          this.storeUnsubscribe = this.store.subscribe(() => this.stateChanged(this.store.getState()));
+          this.stateChanged(this.store.getState());
+
+          this.selectedmenu = -1;
+          Router.go("/startpage");
+          this.requestUpdate()
+        }).catch(function (err) {
+          console.log(err);
+        });
+
+      } else {
+        this.selectedmenu = -1;
+        Router.go("/startpage");
+        this.requestUpdate()
+      }
+
+    });
 
     rx.latestCombiner([this.selectedmenu$])
       .pipe(rx.undefinedElementRemover)
@@ -143,12 +175,10 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
             { path: '/investeringsprogram', action: this.investeringsprogramAction.bind(this) },
             { path: '/kostnader', action: this.kostnaderAction.bind(this) },
             { path: '/resultat', action: this.resultatAction.bind(this) },
-            { path: '(.*)', component: 'x-d' }
+            { path: '(.*)', action: this.startpageAction.bind(this) }
           ]);
         }
-
       })
-
   }
 
   antagandenAction(context, commands) {
@@ -176,6 +206,12 @@ resultatAction(context, commands) {
   this.slotted = commands.component('x-four');
   this.slotted.storeHolder = this
   this.slotted.stateChanged(this.store.getState())
+  return this.slotted;  
+}
+
+startpageAction(context, commands) {
+  this.slotted = commands.component('x-startpage');
+  this.slotted.storeHolder = this
   return this.slotted;  
 }
 
@@ -257,7 +293,7 @@ stateChanged(state) {
 
       <div class="container">
         <header>
-          ${this.user.currentUser ? toRender.call(this, prepareRender(this.renderheader)) : toRender.call(this, prepareRender(this.renderloggedoutheader))}
+          ${firebase.auth().currentUser ? toRender.call(this, prepareRender(this.renderheader)) : toRender.call(this, prepareRender(this.renderloggedoutheader))}
         </header>
 
         <!-- <nav></nav> -->

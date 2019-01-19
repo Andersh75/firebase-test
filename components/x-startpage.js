@@ -1,9 +1,9 @@
 import { html, LitElement } from 'lit-element';
-import { propsmixin } from "../mixins/propsmixin.js";
+import { reduxmixin } from "../mixins/reduxmixin.js";
 
 let props = () => ([]);
 
-export class XD extends propsmixin(props, LitElement) {
+export class XStartpage extends reduxmixin(props, LitElement) {
     // onBeforeEnter(location, commands, router) {
     //     if (!firebase.auth().currentUser) {
     //         return commands.redirect('/')
@@ -24,4 +24,4 @@ export class XD extends propsmixin(props, LitElement) {
     }
 }
 
-customElements.define('x-d', XD);
+customElements.define('x-startpage', XStartpage);

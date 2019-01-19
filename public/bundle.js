@@ -19358,13 +19358,38 @@
     //       ` : html``
     // }
 
-    let props$i = () => ([
+    let props$i = () => ([]);
+
+    class XStartpage extends reduxmixin(props$i, LitElement) {
+        // onBeforeEnter(location, commands, router) {
+        //     if (!firebase.auth().currentUser) {
+        //         return commands.redirect('/')
+        //     }
+        //     console.log('GOING INTO USERS')
+        // }
+
+        constructor() {
+            super();
+            firebase.auth().onAuthStateChanged((user) => {
+                this.requestUpdate();
+              });
+        }
+        render() {
+           
+            return html`DDDD
+        ${JSON.stringify(firebase.auth().currentUser)}`;
+        }
+    }
+
+    customElements.define('x-startpage', XStartpage);
+
+    let props$j = () => ([
         { propKey: "props", propValue: { type: Object }, rx: false },
         { propKey: "buttons", propValue: { type: Object }, rx: true },
         { propKey: "okToRender", propValue: { type: Boolean }, rx: false },
       ]);
 
-    class XMenuLogin extends rxmixin(props$i, LitElement) {
+    class XMenuLogin extends rxmixin(props$j, LitElement) {
 
         constructor() {
             super();
@@ -19448,9 +19473,9 @@
         } 
     };
 
-    let props$j = () => ([]);
+    let props$k = () => ([]);
 
-    class XLogin extends usermixin(props$j, LitElement) {
+    class XLogin extends usermixin(props$k, LitElement) {
       keyHandler(e) {
         if (e.key === "Enter") {
           e.preventDefault();
@@ -19588,12 +19613,12 @@
 
     customElements.define("x-login", XLogin);
 
-    let props$k = () => ([
+    let props$l = () => ([
         { propKey: "props", propValue: { type: Object }, rx: false },
         { propKey: "value", propValue: { type: String }, rx: false },
       ]);
 
-    class XIcon extends propsmixin(props$k, LitElement) {
+    class XIcon extends propsmixin(props$l, LitElement) {
 
         logoutHandler() {
             let event = new CustomEvent('loggedout');
@@ -41433,7 +41458,7 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
 
     };
 
-    let props$l = () => [
+    let props$m = () => [
       {
         propKey: "selectedmenu",
         propValue: { type: String },
@@ -41447,23 +41472,11 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
       }
     ];
 
-    class XApp extends reduxmixin(props$l, rxmixin(props$l, connectmixin(props$l, LitElement))) {
+    class XApp extends reduxmixin(props$m, rxmixin(props$m, connectmixin(props$m, LitElement))) {
 
       constructor() {
         super();
         this.okToRender = false;
-        firebase.auth().onAuthStateChanged((user) => {
-          if (user) {
-            this.selectedmenu = -1;
-            Router.go("/");
-            this.requestUpdate();
-            
-          } else {
-            this.selectedmenu = -1;
-            Router.go("/"); 
-            this.requestUpdate(); 
-          }
-        });
       }
 
       menuchangedHandler(e) {
@@ -41515,6 +41528,45 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
 
       firstUpdated() {
         super.firstUpdated();
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            this.storeUnsubscribe();
+
+            let username = firebase.auth().currentUser.email.replace("@", "at");
+            username = username.replace(".", "dot");
+
+            let db = new pouchdb(username);
+
+            db.allDocs({
+              include_docs: true,
+              attachments: true
+            }).then(result => {
+
+              let state;
+              if (result.rows.length) {
+                state = result.rows[0].doc.state;
+              } else {
+                state = initState;
+              }
+
+              this.store = storeCreator(username, state, db);
+              this.storeUnsubscribe = this.store.subscribe(() => this.stateChanged(this.store.getState()));
+              this.stateChanged(this.store.getState());
+
+              this.selectedmenu = -1;
+              Router.go("/startpage");
+              this.requestUpdate();
+            }).catch(function (err) {
+              console.log(err);
+            });
+
+          } else {
+            this.selectedmenu = -1;
+            Router.go("/startpage");
+            this.requestUpdate();
+          }
+
+        });
 
         rx.latestCombiner([this.selectedmenu$])
           .pipe(rx.undefinedElementRemover)
@@ -41554,12 +41606,10 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
                 { path: '/investeringsprogram', action: this.investeringsprogramAction.bind(this) },
                 { path: '/kostnader', action: this.kostnaderAction.bind(this) },
                 { path: '/resultat', action: this.resultatAction.bind(this) },
-                { path: '(.*)', component: 'x-d' }
+                { path: '(.*)', action: this.startpageAction.bind(this) }
               ]);
             }
-
           });
-
       }
 
       antagandenAction(context, commands) {
@@ -41587,6 +41637,12 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
       this.slotted = commands.component('x-four');
       this.slotted.storeHolder = this;
       this.slotted.stateChanged(this.store.getState());
+      return this.slotted;  
+    }
+
+    startpageAction(context, commands) {
+      this.slotted = commands.component('x-startpage');
+      this.slotted.storeHolder = this;
       return this.slotted;  
     }
 
@@ -41668,7 +41724,7 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
 
       <div class="container">
         <header>
-          ${this.user.currentUser ? toRender.call(this, prepareRender(this.renderheader)) : toRender.call(this, prepareRender(this.renderloggedoutheader))}
+          ${firebase.auth().currentUser ? toRender.call(this, prepareRender(this.renderheader)) : toRender.call(this, prepareRender(this.renderloggedoutheader))}
         </header>
 
         <!-- <nav></nav> -->
