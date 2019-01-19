@@ -16,9 +16,9 @@ export const reduxmixin = (props, superClass) => {
         }
 
         stateChanged(state) {
-    
             this.scenario = chosenScenario;
             props().forEach(prop => {
+                console.log('IN STORE UPDATED', prop)
   
                 if (prop.path) {
                    
@@ -45,6 +45,7 @@ export const reduxmixin = (props, superClass) => {
                             return acc[item]
                         }, state)}
                     } else {
+                        
                         if (!R.equals(this[prop.propKey], prop.path.reduce((acc, item) => {
                             return acc[item]
                         }, state))) {

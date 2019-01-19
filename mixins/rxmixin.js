@@ -15,7 +15,7 @@ export const rxmixin = (props, superClass) => {
         updated(changedProps) {
             super.updated(changedProps);
             changedProps.forEach((value, key) => {
-             
+                console.log(key + ' ' + this[key]);
                 if (this[`${key}$`] !== undefined && this[`${key}$`] !== null) {
                     this[`${key}$`].next(this[key])
                 }

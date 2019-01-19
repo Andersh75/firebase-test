@@ -10,6 +10,7 @@ export function reducer(state, action) {
   let tmp7;
   let tmp8;
   let tmp9;
+  let newArr;
 
   switch (action.type) {
     case "KTH_COUNTY":
@@ -119,8 +120,8 @@ export function reducer(state, action) {
 
        return {...state, assumptions: {...state.assumptions, ['scenario' + +action.payload.scenario]: {...state.assumptions['scenario' + +action.payload.scenario], endyear: action.payload.endyear}}, investmentprogram: {...tmp7}}
 
-  case 'ASSUMPTIONS_SCENARIO':
-      return {...state, assumptions: {...state.assumptions, scenario: action.payload}}
+//   case 'ASSUMPTIONS_SCENARIO':
+//       return {...state, assumptions: {...state.assumptions, scenario: action.payload}}
   
 
 

@@ -15,7 +15,7 @@ export const initState = {
         scenario3: {
             endyear: "2028"
         },
-        scenario: "1",
+        // scenario: "1",
         investments: {
             scenario1: {
                 future: "0.02",

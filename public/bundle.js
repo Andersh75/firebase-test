@@ -5130,7 +5130,7 @@
             updated(changedProps) {
                 super.updated(changedProps);
                 changedProps.forEach((value, key) => {
-                 
+                    console.log(key + ' ' + this[key]);
                     if (this[`${key}$`] !== undefined && this[`${key}$`] !== null) {
                         this[`${key}$`].next(this[key]);
                     }
@@ -13774,10 +13774,13 @@
 
     customElements.define('x-main-header', XMainHeader);
 
-    const MENU_SELECTED = 'MENU_SELECTED';
+    // import * as R from "ramda/es/index.js";
+    // const MENU_SELECTED = 'MENU_SELECTED';
+    // const ASSUMPTIONS_SCENARIO = "ASSUMPTIONS_SCENARIO";
+
     const ASSUMPTIONS_STARTYEAR = 'ASSUMPTIONS_STARTYEAR';
     const ASSUMPTIONS_ENDYEAR = 'ASSUMPTIONS_ENDYEAR';
-    const ASSUMPTIONS_SCENARIO = "ASSUMPTIONS_SCENARIO";
+
 
     const ASSUMPTIONS_INVESTMENTS_FUTURE = 'ASSUMPTIONS_INVESTMENTS_FUTURE';
     const ASSUMPTIONS_INVESTMENTS_INITIAL = 'ASSUMPTIONS_INVESTMENTS_INITIAL';
@@ -14043,9 +14046,9 @@
             }
 
             stateChanged(state) {
-        
                 this.scenario = chosenScenario;
                 props$$1().forEach(prop$$1 => {
+                    console.log('IN STORE UPDATED', prop$$1);
       
                     if (prop$$1.path) {
                        
@@ -14072,6 +14075,7 @@
                                 return acc[item]
                             }, state)};
                         } else {
+                            
                             if (!equals(this[prop$$1.propKey], prop$$1.path.reduce((acc, item) => {
                                 return acc[item]
                             }, state))) {
@@ -15939,6 +15943,7 @@
       }
 
       scenarioChangedHandler(e) {
+        console.log(e);
         chosenScenario = +e.detail.index + 1;
         // this.scenario = chosenScenario;
         // console.log(chosenScenario)
@@ -24904,6 +24909,7 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
       let tmp3;
       let tmp6;
       let tmp7;
+      let newArr;
 
       switch (action.type) {
         case "KTH_COUNTY":
@@ -25013,8 +25019,8 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
 
            return {...state, assumptions: {...state.assumptions, ['scenario' + +action.payload.scenario]: {...state.assumptions['scenario' + +action.payload.scenario], endyear: action.payload.endyear}}, investmentprogram: {...tmp7}}
 
-      case 'ASSUMPTIONS_SCENARIO':
-          return {...state, assumptions: {...state.assumptions, scenario: action.payload}}
+    //   case 'ASSUMPTIONS_SCENARIO':
+    //       return {...state, assumptions: {...state.assumptions, scenario: action.payload}}
       
 
 
@@ -25158,7 +25164,7 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
             scenario3: {
                 endyear: "2028"
             },
-            scenario: "1",
+            // scenario: "1",
             investments: {
                 scenario1: {
                     future: "0.02",
@@ -41449,15 +41455,19 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
 
       menuchangedHandler(e) {
         if (e.detail.value == 0) {
+          this.selectedmenu = 0;
           Router.go("/antaganden");
         }
         if (e.detail.value == 1) {
+          this.selectedmenu = 1;
           Router.go("/investeringsprogram");
         }
         if (e.detail.value == 2) {
+          this.selectedmenu = 2;
           Router.go("/kostnader");
         }
         if (e.detail.value == 3) {
+          this.selectedmenu = 3;
           Router.go("/resultat");
         }
       }
@@ -41541,31 +41551,35 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
       }
 
       antagandenAction(context, commands) {
-        let el = commands.component('x-one');
-        el.storeHolder = this;
-        el.stateChanged(this.store.getState());
-        return el;  
+        this.slotted = commands.component('x-one');
+        this.slotted.storeHolder = this;
+        this.slotted.stateChanged(this.store.getState());
+        return this.slotted;  
     }
 
     investeringsprogramAction(context, commands) {
-      let el = commands.component('x-two');
-      el.storeHolder = this;
-      el.stateChanged(this.store.getState());
-      return el;  
+      this.slotted = commands.component('x-two');
+      this.slotted.storeHolder = this;
+      this.slotted.stateChanged(this.store.getState());
+      return this.slotted;  
     }
 
     kostnaderAction(context, commands) {
-      let el = commands.component('x-three');
-      el.storeHolder = this;
-      el.stateChanged(this.store.getState());
-      return el;  
+      this.slotted = commands.component('x-three');
+      this.slotted.storeHolder = this;
+      this.slotted.stateChanged(this.store.getState());
+      return this.slotted;  
     }
 
     resultatAction(context, commands) {
-      let el = commands.component('x-four');
-      el.storeHolder = this;
-      el.stateChanged(this.store.getState());
-      return el;  
+      this.slotted = commands.component('x-four');
+      this.slotted.storeHolder = this;
+      this.slotted.stateChanged(this.store.getState());
+      return this.slotted;  
+    }
+
+    stateChanged(state) {
+      this.slotted.stateChanged(state);
     }
 
       render() {

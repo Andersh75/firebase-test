@@ -57,15 +57,19 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
 
   menuchangedHandler(e) {
     if (e.detail.value == 0) {
+      this.selectedmenu = 0
       Router.go("/antaganden");
     }
     if (e.detail.value == 1) {
+      this.selectedmenu = 1
       Router.go("/investeringsprogram");
     }
     if (e.detail.value == 2) {
+      this.selectedmenu = 2
       Router.go("/kostnader");
     }
     if (e.detail.value == 3) {
+      this.selectedmenu = 3
       Router.go("/resultat");
     }
   }
@@ -149,31 +153,35 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
   }
 
   antagandenAction(context, commands) {
-    let el = commands.component('x-one');
-    el.storeHolder = this
-    el.stateChanged(this.store.getState())
-    return el;  
+    this.slotted = commands.component('x-one');
+    this.slotted.storeHolder = this
+    this.slotted.stateChanged(this.store.getState())
+    return this.slotted;  
 }
 
 investeringsprogramAction(context, commands) {
-  let el = commands.component('x-two');
-  el.storeHolder = this
-  el.stateChanged(this.store.getState())
-  return el;  
+  this.slotted = commands.component('x-two');
+  this.slotted.storeHolder = this
+  this.slotted.stateChanged(this.store.getState())
+  return this.slotted;  
 }
 
 kostnaderAction(context, commands) {
-  let el = commands.component('x-three');
-  el.storeHolder = this
-  el.stateChanged(this.store.getState())
-  return el;  
+  this.slotted = commands.component('x-three');
+  this.slotted.storeHolder = this
+  this.slotted.stateChanged(this.store.getState())
+  return this.slotted;  
 }
 
 resultatAction(context, commands) {
-  let el = commands.component('x-four');
-  el.storeHolder = this
-  el.stateChanged(this.store.getState())
-  return el;  
+  this.slotted = commands.component('x-four');
+  this.slotted.storeHolder = this
+  this.slotted.stateChanged(this.store.getState())
+  return this.slotted;  
+}
+
+stateChanged(state) {
+  this.slotted.stateChanged(state);
 }
 
   render() {
