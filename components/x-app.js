@@ -6,9 +6,6 @@ import "./x-one";
 import "./x-two";
 import "./x-three";
 import "./x-four";
-import "./x-b";
-import "./x-c";
-import "./x-d";
 import { action } from "../redux/actions.js";
 import { loggedinHeaderSchemas } from "../schemas/x-header-schemas.js";
 import { loggedoutHeaderSchemas } from "../schemas/x-header-schemas.js";
@@ -40,6 +37,7 @@ let props = () => [
 ];
 
 class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitElement))) {
+
   constructor() {
     super();
     this.okToRender = false
@@ -50,14 +48,14 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
         this.requestUpdate()
         
       } else {
-        this.requestUpdate()
-        Router.go("/");  
+        this.selectedmenu = -1;
+        Router.go("/"); 
+        this.requestUpdate() 
       }
     });
   }
 
   menuchangedHandler(e) {
-
     if (e.detail.value == 0) {
       Router.go("/antaganden");
     }
@@ -70,13 +68,10 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
     if (e.detail.value == 3) {
       Router.go("/resultat");
     }
-
-    this.store.dispatch(
-      action.menu_selected(e.detail.value)
-    );
   }
 
-  login(e) {
+  loggedinHandler(e) {
+    console.log('click')
     firebase
       .auth()
       .signInWithEmailAndPassword("ahell@kth.se", "111111")
@@ -258,24 +253,17 @@ resultatAction(context, commands) {
           ${this.user.currentUser ? toRender.call(this, prepareRender(this.renderheader)) : toRender.call(this, prepareRender(this.renderloggedoutheader))}
         </header>
 
-        <nav>
-        
-    
-  </nav>
+        <!-- <nav></nav> -->
 
         <main>
           <div id="outlet"></div>
-        
-          
-          <!-- Main content -->
         </main>
 
-        <!-- <aside>
-        
-         
-        </aside> -->
+        <!-- <aside></aside> -->
 
-        <footer><x-footer></x-footer></footer>
+        <footer>
+          <x-footer></x-footer>
+        </footer>
       </div>
     `
       : html``;
@@ -284,4 +272,4 @@ resultatAction(context, commands) {
 
 customElements.define("x-app", XApp);
 
-{/* <button @click=${e => this.login(e)}>LOGIN</button> */}
+{/* <button @click=${e => this.loginHandler(e)}>LOGIN</button> */}

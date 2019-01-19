@@ -27,6 +27,11 @@ export class XHeader extends rxmixin(props, LitElement) {
         let event = new CustomEvent('loggedout');
         this.dispatchEvent(event);  
     }
+
+    loggedinHandler(e) {
+        let event = new CustomEvent('loggedin');
+        this.dispatchEvent(event);  
+    }
     
       firstUpdated() {
         super.firstUpdated();

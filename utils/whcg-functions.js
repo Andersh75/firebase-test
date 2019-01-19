@@ -546,7 +546,7 @@ export function getElement(name, item, index, arr) {
         return html`<x-main .props=${item.json_schema} scenario=${this.scenario} @scenariochanged="${e => this.scenarioChangedHandler(e)}" @tablechanged="${e => this.tableChangedHandler(e)}" @addrowchanged="${e => this.addRowChangedHandler(e)}" @removerowchanged="${e => this.removeRowChangedHandler(e)}" @rowchanged="${e => this.rowChangedHandler(e)}"  @gridchanged="${e => this.gridChangedHandler(e)}""></x-main>
         `
         case 'x-header':
-        return html`<x-header class="header" .props=${item.json_schema} selected=${this.selectedmenu} @menuchanged="${(event) => this.menuchangedHandler(event)}" @loggedout="${(event) => this.loggedoutHandler(event)}"></x-header>
+        return html`<x-header class="header" .props=${item.json_schema} selected=${this.selectedmenu} @menuchanged="${(event) => this.menuchangedHandler(event)}" @loggedout="${(event) => this.loggedoutHandler(event)}" @loggedin="${(event) => this.loggedinHandler(event)}"></x-header>
         `
 
         case 'x-login':
@@ -607,7 +607,7 @@ export function getElement(name, item, index, arr) {
         return html`<x-menu-button class="${item.ui_schema.ui_classnames}" .props=${item} @menuchanged="${() => this.menuchangedHandler(index)}"></x-menu-button>`;
         
         case 'x-icon':
-        return html`<x-icon class="${item.ui_schema.ui_classnames}" .props=${item} @loggedout="${(e) => this.loggedoutHandler(e)}"></x-icon>`;
+        return html`<x-icon class="${item.ui_schema.ui_classnames}" .props=${item} @loggedout="${(e) => this.loggedoutHandler(e)}"  @loggedin="${(e) => this.loggedinHandler(e)}"></x-icon>`;
         
 
     }

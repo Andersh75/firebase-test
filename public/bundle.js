@@ -11620,7 +11620,7 @@
             return html`<x-main .props=${item.json_schema} scenario=${this.scenario} @scenariochanged="${e => this.scenarioChangedHandler(e)}" @tablechanged="${e => this.tableChangedHandler(e)}" @addrowchanged="${e => this.addRowChangedHandler(e)}" @removerowchanged="${e => this.removeRowChangedHandler(e)}" @rowchanged="${e => this.rowChangedHandler(e)}"  @gridchanged="${e => this.gridChangedHandler(e)}""></x-main>
         `
             case 'x-header':
-            return html`<x-header class="header" .props=${item.json_schema} selected=${this.selectedmenu} @menuchanged="${(event) => this.menuchangedHandler(event)}" @loggedout="${(event) => this.loggedoutHandler(event)}"></x-header>
+            return html`<x-header class="header" .props=${item.json_schema} selected=${this.selectedmenu} @menuchanged="${(event) => this.menuchangedHandler(event)}" @loggedout="${(event) => this.loggedoutHandler(event)}" @loggedin="${(event) => this.loggedinHandler(event)}"></x-header>
         `
 
             case 'x-login':
@@ -11681,7 +11681,7 @@
             return html`<x-menu-button class="${item.ui_schema.ui_classnames}" .props=${item} @menuchanged="${() => this.menuchangedHandler(index)}"></x-menu-button>`;
             
             case 'x-icon':
-            return html`<x-icon class="${item.ui_schema.ui_classnames}" .props=${item} @loggedout="${(e) => this.loggedoutHandler(e)}"></x-icon>`;
+            return html`<x-icon class="${item.ui_schema.ui_classnames}" .props=${item} @loggedout="${(e) => this.loggedoutHandler(e)}"  @loggedin="${(e) => this.loggedinHandler(e)}"></x-icon>`;
             
 
         }
@@ -12198,6 +12198,11 @@
 
         loggedoutHandler(e) {
             let event = new CustomEvent('loggedout');
+            this.dispatchEvent(event);  
+        }
+
+        loggedinHandler(e) {
+            let event = new CustomEvent('loggedin');
             this.dispatchEvent(event);  
         }
         
@@ -19335,70 +19340,13 @@
     //       ` : html``
     // }
 
-    let props$i = () => ([]);
-
-    class XB extends propsmixin(props$i, LitElement) {
-        onBeforeEnter(location, commands, router) {
-            if (!firebase.auth().currentUser) {
-                return commands.redirect('/')
-            }
-        }
-        render() {
-           
-            return html`BBBBB`;
-        }
-    }
-
-    customElements.define('x-b', XB);
-
-    let props$j = () => ([]);
-
-    class XC extends propsmixin(props$j, LitElement) {
-        onBeforeEnter(location, commands, router) {
-            if (!firebase.auth().currentUser) {
-                return commands.redirect('/')
-            }
-        }
-        render() {
-           
-            return html`CCCC`;
-        }
-    }
-
-    customElements.define('x-c', XC);
-
-    let props$k = () => ([]);
-
-    class XD extends propsmixin(props$k, LitElement) {
-        // onBeforeEnter(location, commands, router) {
-        //     if (!firebase.auth().currentUser) {
-        //         return commands.redirect('/')
-        //     }
-        //     console.log('GOING INTO USERS')
-        // }
-
-        constructor() {
-            super();
-            firebase.auth().onAuthStateChanged((user) => {
-                this.requestUpdate();
-              });
-        }
-        render() {
-           
-            return html`DDDD
-        ${JSON.stringify(firebase.auth().currentUser)}`;
-        }
-    }
-
-    customElements.define('x-d', XD);
-
-    let props$l = () => ([
+    let props$i = () => ([
         { propKey: "props", propValue: { type: Object }, rx: false },
         { propKey: "buttons", propValue: { type: Object }, rx: true },
         { propKey: "okToRender", propValue: { type: Boolean }, rx: false },
       ]);
 
-    class XMenuLogin extends rxmixin(props$l, LitElement) {
+    class XMenuLogin extends rxmixin(props$i, LitElement) {
 
         constructor() {
             super();
@@ -19482,9 +19430,9 @@
         } 
     };
 
-    let props$m = () => ([]);
+    let props$j = () => ([]);
 
-    class XLogin extends usermixin(props$m, LitElement) {
+    class XLogin extends usermixin(props$j, LitElement) {
       keyHandler(e) {
         if (e.key === "Enter") {
           e.preventDefault();
@@ -19622,15 +19570,20 @@
 
     customElements.define("x-login", XLogin);
 
-    let props$n = () => ([
+    let props$k = () => ([
         { propKey: "props", propValue: { type: Object }, rx: false },
         { propKey: "value", propValue: { type: String }, rx: false },
       ]);
 
-    class XIcon extends propsmixin(props$n, LitElement) {
+    class XIcon extends propsmixin(props$k, LitElement) {
 
-        clickHandler() {
+        logoutHandler() {
             let event = new CustomEvent('loggedout');
+            this.dispatchEvent(event);
+        }
+
+        loginHandler() {
+            let event = new CustomEvent('loggedin');
             this.dispatchEvent(event);
         }
 
@@ -19676,8 +19629,8 @@
             }
 
             </style>
-            <div @click="${e => this.clickHandler(e)}">
-${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="512px" height="512px" viewBox="0 0 311.541 311.541" style="enable-background:new 0 0 311.541 311.541;" xml:space="preserve">
+            
+${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg class="in" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="512px" height="512px" viewBox="0 0 311.541 311.541" style="enable-background:new 0 0 311.541 311.541;" xml:space="preserve">
 <g>
 <g>
 <path d="M155.771,26.331C69.74,26.331,0,96.071,0,182.102c0,37.488,13.25,71.883,35.314,98.761    c3.404-27.256,30.627-50.308,68.8-61.225c13.946,12.994,31.96,20.878,51.656,20.878c19.233,0,36.894-7.487,50.698-19.936    c38.503,11.871,65.141,36.27,66.017,64.63c24.284-27.472,39.056-63.555,39.056-103.108    C311.541,96.071,241.801,26.331,155.771,26.331z M155.771,222.069c-9.944,0-19.314-2.732-27.634-7.464    c-20.05-11.409-33.855-34.756-33.855-61.711c0-38.143,27.583-69.176,61.489-69.176c33.909,0,61.489,31.033,61.489,69.176    c0,27.369-14.237,51.004-34.786,62.215C174.379,219.523,165.346,222.069,155.771,222.069z" fill="#FFFFFF"/>
@@ -19713,7 +19666,7 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
 </g>
 <g>
 </g>
-</svg>` : html`<svg class="out" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="512px" height="512px" viewBox="0 0 95.667 95.667" style="enable-background:new 0 0 95.667 95.667;" xml:space="preserve">
+</svg></div>` : html`<div @click="${e => this.loginHandler(e)}"><svg class="out" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="512px" height="512px" viewBox="0 0 95.667 95.667" style="enable-background:new 0 0 95.667 95.667;" xml:space="preserve">
 <g>
 <g>
 <path d="M39.173,72.344l39.447-22.777c0.619-0.356,1-1.018,1-1.731s-0.381-1.375-1-1.732L39.173,23.324    c-0.619-0.357-1.381-0.357-2,0c-0.619,0.357-1,1.018-1,1.732v10.605H2.121c-1.104,0-2,0.896-2,2v20.344c0,1.104,0.896,2,2,2    h34.053v10.604c0,0.716,0.381,1.375,1,1.732c0.31,0.18,0.655,0.268,1,0.268C38.519,72.609,38.864,72.521,39.173,72.344z" fill="#FFFFFF"/>
@@ -19750,9 +19703,9 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
 </g>
 <g>
 </g>
-</svg>`}
+</svg></div>`}
 
-</div>
+
            
 
           
@@ -41412,7 +41365,7 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
 
         
           let db = new pouchdb(username);
-          // let couchDB = new PouchDB(`http://plex:1111111111@127.0.0.1:5984/${username}`);
+          // let couchDB = new PouchDB(`https://whcg:1111111111@whcg.se/couchdb/${username}`);
           
           // db
           // .replicate
@@ -41461,7 +41414,7 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
 
     };
 
-    let props$o = () => [
+    let props$l = () => [
       {
         propKey: "selectedmenu",
         propValue: { type: String },
@@ -41475,7 +41428,8 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
       }
     ];
 
-    class XApp extends reduxmixin(props$o, rxmixin(props$o, connectmixin(props$o, LitElement))) {
+    class XApp extends reduxmixin(props$l, rxmixin(props$l, connectmixin(props$l, LitElement))) {
+
       constructor() {
         super();
         this.okToRender = false;
@@ -41486,14 +41440,14 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
             this.requestUpdate();
             
           } else {
-            this.requestUpdate();
-            Router.go("/");  
+            this.selectedmenu = -1;
+            Router.go("/"); 
+            this.requestUpdate(); 
           }
         });
       }
 
       menuchangedHandler(e) {
-
         if (e.detail.value == 0) {
           Router.go("/antaganden");
         }
@@ -41506,13 +41460,10 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
         if (e.detail.value == 3) {
           Router.go("/resultat");
         }
-
-        this.store.dispatch(
-          action.menu_selected(e.detail.value)
-        );
       }
 
-      login(e) {
+      loggedinHandler(e) {
+        console.log('click');
         firebase
           .auth()
           .signInWithEmailAndPassword("ahell@kth.se", "111111")
@@ -41694,24 +41645,17 @@ ${this.value == 'in' ? html`<svg class="in" xmlns="http://www.w3.org/2000/svg" x
           ${this.user.currentUser ? toRender.call(this, prepareRender(this.renderheader)) : toRender.call(this, prepareRender(this.renderloggedoutheader))}
         </header>
 
-        <nav>
-        
-    
-  </nav>
+        <!-- <nav></nav> -->
 
         <main>
           <div id="outlet"></div>
-        
-          
-          <!-- Main content -->
         </main>
 
-        <!-- <aside>
-        
-         
-        </aside> -->
+        <!-- <aside></aside> -->
 
-        <footer><x-footer></x-footer></footer>
+        <footer>
+          <x-footer></x-footer>
+        </footer>
       </div>
     `
           : html``;

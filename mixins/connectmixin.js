@@ -46,7 +46,7 @@ export const connectmixin = (props) => {
 
     
       let db = new PouchDB(username);
-      // let couchDB = new PouchDB(`http://plex:1111111111@127.0.0.1:5984/${username}`);
+      // let couchDB = new PouchDB(`https://whcg:1111111111@whcg.se/couchdb/${username}`);
       
       // db
       // .replicate
