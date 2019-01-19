@@ -72,7 +72,7 @@ export class XLogin extends usermixin(props, LitElement) {
     changedProperties.forEach((oldValue, propName) => {
       
       if (propName === "props") {
-        console.log('THEPROPS', this.props)
+        // console.log('THEPROPS', this.props)
         this.hidden = this.props.ui_schema.ui_options.hidden
       }
     });

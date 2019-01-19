@@ -25,7 +25,7 @@ export class XIcon extends propsmixin(props, LitElement) {
     }
 
     hoverHandler() {
-        console.log('hover');
+        // console.log('hover');
         this.menuhidden = !this.menuhidden
     }
 

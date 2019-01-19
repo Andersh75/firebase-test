@@ -191,7 +191,7 @@ export class XInput extends propsmixin(props, LitElement) {
         if (this.amount) {
           if (this.amount == 'tkr') {
             celltext = +celltext / 1000
-            console.log('AMOUNT', celltext)
+            // console.log('AMOUNT', celltext)
           }
         }
 
