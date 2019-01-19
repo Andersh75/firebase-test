@@ -49,8 +49,8 @@ export class XIcon extends propsmixin(props, LitElement) {
                 /* font: var(--font-menu);
                 color: var(--color-menu);  */
                 border-bottom: 2px solid var(--color-transparent);
-                max-height: 40px;
-                max-width: 40px;
+                max-height: 2.5em;
+                max-width: 2.5em;
                 fill: var(--color-menu);
             }
 
@@ -61,8 +61,8 @@ export class XIcon extends propsmixin(props, LitElement) {
                 /* font: var(--font-menu);
                 color: var(--color-menu);  */
                 border-bottom: 2px solid var(--color-transparent);
-                max-height: 30px;
-                max-width: 30px;
+                max-height: 1.6em;
+                max-width: 1.6em;
                 fill: var(--color-menu);
             }
 

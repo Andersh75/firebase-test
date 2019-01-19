@@ -271,8 +271,10 @@ stateChanged(state) {
           grid-gap: 10px;
 
           /* height: 100vh; */
-          margin-left: 150px;
-          margin-right: 150px;
+          /* margin-left: 150px;
+          margin-right: 150px; */
+          margin-left: 7vw;
+          margin-right: 7vw;
         }
 
         .container2 {
@@ -288,8 +290,8 @@ stateChanged(state) {
           grid-gap: 10px;
 
           /* height: 100vh; */
-          margin-left: 150px;
-          margin-right: 150px;
+          margin-left: 7vw;
+          margin-right: 7vw;
         }
 
         header {
@@ -319,7 +321,7 @@ stateChanged(state) {
           grid-area: footer;
         }
 
-        @media (max-width: 768px) {
+        /* @media (max-width: 768px) {
           .container {
             grid-template-areas:
               "header"
@@ -330,18 +332,18 @@ stateChanged(state) {
 
             grid-template-columns: 1fr;
             grid-template-rows:
-              auto /* Header */
-              minmax(75px, auto) /* Nav */
-              1fr /* Content */
-              minmax(75px, auto) /* Sidebar */
-              auto; /* Footer */
+              auto
+              minmax(75px, auto)
+              1fr
+              minmax(75px, auto)
+              auto;
           }
 
           nav,
           aside {
             margin: 0;
           }
-        }
+        } */
       </style>
       <div class="container">
         <header>
