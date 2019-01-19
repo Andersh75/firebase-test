@@ -15956,7 +15956,7 @@
       scenarioChangedHandler(e) {
         console.log(e);
         chosenScenario = +e.detail.index + 1;
-        // this.scenario = chosenScenario;
+        this.scenario = chosenScenario;
         // console.log(chosenScenario)
         this.stateChanged(this.storeHolder.store.getState(), props$b);
       }
@@ -16657,7 +16657,7 @@
         propKey: "renderdata", 
         propValue: { type: Array }, 
         rx: false 
-      }
+      },
     ];
 
 
@@ -16728,10 +16728,24 @@
           this.volumepermanentrow$,
           this.volumedynamicrow$,
           this.scenario$,
+          // this.rentperiod$
         ])
           .pipe(rx.undefinedElementRemover)
           .subscribe(() => {
             this.period = getPeriodArray(this.startyear, this.endyear);
+            // this.period = this.rentperiod
+
+            // this.storeHolder.store.dispatch(
+            //   action.assumptions_endyear({
+            //     endyear: (
+            //       arrayAdder(this.rentperiod) +
+            //       +this.startyear -
+            //       1
+            //     ).toString(),
+            //     startyear: this.startyear,
+            //     scenario: chosenScenario
+            //   })
+            // );
 
             this.dataArray = ["demandrow", "volumedynamicrow", "volumepermanentrow"]
               .map(item => this[item])
@@ -25276,7 +25290,6 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
                     "2026": "0",
                     "2027": "0",
                     "2028": "0",
-                    "2029": "0",
                 },
                 scenario2: {
                     "2019": "0",
@@ -25289,7 +25302,6 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
                     "2026": "0",
                     "2027": "0",
                     "2028": "0",
-                    "2029": "0",
                 },
                 scenario3: {
                     "2019": "0",
@@ -25302,7 +25314,6 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
                     "2026": "0",
                     "2027": "0",
                     "2028": "0",
-                    "2029": "0",
                 }
             },
             volumedynamic: {
@@ -25317,7 +25328,6 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
                     "2026": "0",
                     "2027": "0",
                     "2028": "0",
-                    "2029": "0",
                 },
                 scenario2: {
                     "2019": "0",
@@ -25330,7 +25340,6 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
                     "2026": "0",
                     "2027": "0",
                     "2028": "0",
-                    "2029": "0",
                 },
                 scenario3: {
                     "2019": "0",
@@ -25343,7 +25352,6 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
                     "2026": "0",
                     "2027": "0",
                     "2028": "0",
-                    "2029": "0",
                 }
 
             },
@@ -25359,7 +25367,6 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
                     "2026": "0",
                     "2027": "0",
                     "2028": "0",
-                    "2029": "0",
                 },
                 scenario2: {
                     "2019": "0",
@@ -25372,7 +25379,6 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
                     "2026": "0",
                     "2027": "0",
                     "2028": "0",
-                    "2029": "0",
                 },
                 scenario3: {
                     "2019": "0",
@@ -25385,7 +25391,6 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
                     "2026": "0",
                     "2027": "0",
                     "2028": "0",
-                    "2029": "0",
                 }
 
             }

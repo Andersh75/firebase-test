@@ -8,7 +8,8 @@ import {
   arrayAggregator,
   getData,
   toRender,
-  prepareRender
+  prepareRender,
+  arrayAdder
 } from "../utils/whcg-functions.js";
 import { rxmixin } from "../mixins/rxmixin.js";
 import { reduxmixin } from "../mixins/reduxmixin.js";
@@ -108,7 +109,7 @@ let props = () => [
     propKey: "renderdata", 
     propValue: { type: Array }, 
     rx: false 
-  }
+  },
 ];
 
 
@@ -179,10 +180,24 @@ export class XTwo extends reduxmixin(props, rxmixin(props, LitElement)) {
       this.volumepermanentrow$,
       this.volumedynamicrow$,
       this.scenario$,
+      // this.rentperiod$
     ])
       .pipe(rx.undefinedElementRemover)
       .subscribe(() => {
         this.period = getPeriodArray(this.startyear, this.endyear)
+        // this.period = this.rentperiod
+
+        // this.storeHolder.store.dispatch(
+        //   action.assumptions_endyear({
+        //     endyear: (
+        //       arrayAdder(this.rentperiod) +
+        //       +this.startyear -
+        //       1
+        //     ).toString(),
+        //     startyear: this.startyear,
+        //     scenario: chosenScenario
+        //   })
+        // );
 
         this.dataArray = ["demandrow", "volumedynamicrow", "volumepermanentrow"]
           .map(item => this[item])
