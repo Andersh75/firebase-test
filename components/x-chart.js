@@ -256,7 +256,7 @@ export class XChart extends rxmixin(props, LitElement) {
                     text: data.title,
                     fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
                     fontColor: '#FFFFFF',
-                    fontSize: this.offsetWidth / 40,
+                    fontSize: this.offsetWidth / 45,
                     fontStyle: 'normal',
                     padding: 30
                 },
@@ -273,7 +273,7 @@ export class XChart extends rxmixin(props, LitElement) {
                     labels: {
                         fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
                         fontColor: '#FFFFFF',
-                        fontSize: this.offsetWidth / 50,
+                        fontSize: this.offsetWidth / 60,
                         boxWidth: this.offsetWidth / 50
                     }
                 },
@@ -285,9 +285,7 @@ export class XChart extends rxmixin(props, LitElement) {
                                 beginAtZero: true,
                                 fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
                                 fontColor: '#FFFFFF',
-                                fontSize: this.offsetWidth / 50
-
-
+                                fontSize: this.offsetWidth / 60
                             },
                             gridLines: {
                             }
@@ -299,9 +297,7 @@ export class XChart extends rxmixin(props, LitElement) {
                                 beginAtZero: true,
                                 fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
                                 fontColor: '#FFFFFF',
-                                fontSize: this.offsetWidth / 50
-
-
+                                fontSize: this.offsetWidth / 60,
                             },
                             gridLines: {
                             }
