@@ -75,7 +75,6 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
   }
 
   loggedinHandler(e) {
-    console.log('click')
     firebase
       .auth()
       .signInWithEmailAndPassword("ahell@kth.se", "111111")

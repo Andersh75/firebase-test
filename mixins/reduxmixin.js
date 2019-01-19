@@ -18,8 +18,6 @@ export const reduxmixin = (props, superClass) => {
         stateChanged(state) {
             this.scenario = chosenScenario;
             props().forEach(prop => {
-                console.log('IN STORE UPDATED', prop)
-  
                 if (prop.path) {
                    
                     if(R.is(Array, prop.path.reduce((acc, item) => {

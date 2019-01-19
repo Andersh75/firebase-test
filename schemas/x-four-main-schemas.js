@@ -213,11 +213,11 @@ export function fourMainSchemas() {
                     },
                     rows: [
                         {
-                            label: "Permanenta lokaler",
+                            label: "Permanenta lokaler (kr)",
                             data: this.sippedaggregateddiscountedpermanentCost
                         },
                         {
-                            label: "Dynamiska lokaler",
+                            label: "Dynamiska lokaler (kr)",
                             data: this.sippedaggregateddiscounteddynamicCost
                         },
                     ],
@@ -232,15 +232,15 @@ export function fourMainSchemas() {
                     },
                     rows: [
                         {
-                            label: "Efterfrågan av lokaler",
+                            label: "Efterfrågan av lokaler (kvm)",
                             data: this.aggregateDataArr[0]
                         },
                         {
-                            label: "Dynamiska lokaler",
+                            label: "Volym av dynamiska lokaler (kvm)",
                             data: this.aggregateDataArr[1]
                         },
                         {
-                            label: "Permanenta lokaler",
+                            label: "Volym av permanenta lokaler (kvm)",
                             data: this.aggregateDataArr[2]
                         }
                     ],

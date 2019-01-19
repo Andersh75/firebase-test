@@ -55,7 +55,7 @@ export function twoMainHeaderSchemas() {
         ...schemaTemplate, 
         data_schema: {
             header: {
-                label: "Tabeller",
+                label: "Antal kvadratmeter",
                 data: "",
                 comment: "",
             }
@@ -68,7 +68,7 @@ export function threeHeaderSchemas() {
         ...schemaTemplate, 
         data_schema: {
             header: {
-                label: "Tabeller",
+                label: "Antal tkr",
                 data: "",
                 comment: "",
             }

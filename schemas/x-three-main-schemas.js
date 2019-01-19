@@ -51,6 +51,7 @@ let ui_ref_rows = {
             format: true,
             readonly: true,
             nottabable: true,
+            amount: 'tkr',
             color: 'attention'
         },
     }
@@ -79,6 +80,7 @@ let ui_ref_sumrow = {
             readonly: true,
             nottabable: true,
             color: 'attention',
+            amount: 'tkr',
             type: 'sum',
         },
     }
@@ -160,7 +162,7 @@ export function threeMainSchemas() {
                             data: this.permanentMaintenanceCosts
                         },
                         {
-                            label: "Minskning av tekniskt värde",
+                            label: "Reservation för kommande renoveringar",
                             data: this.permanentReinvestmentCosts
                         },
                     ],
@@ -179,12 +181,12 @@ export function threeMainSchemas() {
                     },
                     rows: [
                         {
-                            label: "Underhålls av dynamiska lokaler",
-                            data: this.dynamicMaintenanceCosts
-                        },
-                        {
                             label: "Hyra av dynamiska lokaler",
                             data: this.dynamicRentCosts
+                        },
+                        {
+                            label: "Underhåll av dynamiska lokaler",
+                            data: this.dynamicMaintenanceCosts
                         },
                     ],
                     sumrow: {
@@ -210,7 +212,7 @@ export function threeMainSchemas() {
                             data: this.discountedPermanentMaintenanceCosts
                         },
                         {
-                            label: "Minskning av tekniskt värde",
+                            label: "Reservation för kommande renoveringar",
                             data: this.discountedPermanentReinvestmentCosts
                         },
                     ],
@@ -229,12 +231,12 @@ export function threeMainSchemas() {
                     },
                     rows: [
                         {
-                            label: "Underhålls av dynamiska lokaler",
-                            data: this.discountedDynamicMaintenanceCosts
-                        },
-                        {
                             label: "Hyra av dynamiska lokaler",
                             data: this.discountedDynamicRentCosts
+                        },
+                        {
+                            label: "Underhåll av dynamiska lokaler",
+                            data: this.discountedDynamicMaintenanceCosts
                         },
                     ],
                     sumrow: {
@@ -260,7 +262,7 @@ export function threeMainSchemas() {
                             data: this.aggregatedDiscountedPermanentMaintenanceCosts
                         },
                         {
-                            label: "Minskning av tekniskt värde",
+                            label: "Reservation för kommande renoveringar",
                             data: this.aggregatedDiscountedPermanentReinvestmentCosts
                         },
                     ],
@@ -279,12 +281,12 @@ export function threeMainSchemas() {
                     },
                     rows: [
                         {
-                            label: "Underhåll av dynamiska lokaler",
-                            data: this.aggregatedDiscountedDynamicMaintenanceCosts
-                        },
-                        {
                             label: "Hyra av dynamiska lokaler",
                             data: this.aggregatedDiscountedDynamicRentCosts
+                        },
+                        {
+                            label: "Underhåll av dynamiska lokaler",
+                            data: this.aggregatedDiscountedDynamicMaintenanceCosts
                         },
                     ],
                     sumrow: {

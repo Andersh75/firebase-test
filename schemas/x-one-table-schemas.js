@@ -425,7 +425,7 @@ export function oneMainTablesschemas() {
                     data: this['investment'],
                     button: false,
                     comment:
-                        "Pris per kvadratmeter av nya permanenta lokaler. Pris inkluderar en byggnad med samma funktionella och tekniska egenskaper som en dynamisk lokal. Investeringskostnader skal meddelas på prisnivå av startår."
+                        "Pris per kvadratmeter av nya permanenta lokaler. Pris inkluderar en byggnad med samma funktionella och tekniska egenskaper som en dynamisk lokal. Investeringskostnader ska meddelas på prisnivå av startår."
                 },
                 label: {
                     label: "Reservation av kommande renoveringar samt investeringar",

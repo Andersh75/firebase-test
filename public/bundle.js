@@ -5130,7 +5130,6 @@
             updated(changedProps) {
                 super.updated(changedProps);
                 changedProps.forEach((value, key) => {
-                    console.log(key + ' ' + this[key]);
                     if (this[`${key}$`] !== undefined && this[`${key}$`] !== null) {
                         this[`${key}$`].next(this[key]);
                     }
@@ -14048,8 +14047,6 @@
             stateChanged(state) {
                 this.scenario = chosenScenario;
                 props$$1().forEach(prop$$1 => {
-                    console.log('IN STORE UPDATED', prop$$1);
-      
                     if (prop$$1.path) {
                        
                         if(is(Array, prop$$1.path.reduce((acc, item) => {
@@ -14428,6 +14425,7 @@
       { propKey: "celltext", propValue: { type: String }, rx: false },
       { propKey: "color", propValue: { type: String }, rx: false },
       { propKey: "type", propValue: { type: String }, rx: false },
+      { propKey: "amount", propValue: { type: String }, rx: false },
       { propKey: "readonly", propValue: { type: Boolean }, rx: false },
       { propKey: "format", propValue: { type: Boolean }, rx: false },
       { propKey: "changeevent", propValue: { type: Object }, rx: false },
@@ -14440,6 +14438,7 @@
         this.readonly = false;
         this.format = false;
         this.changeevent = true;
+        this.amount = 'kr';
       }
 
       blurHandler(e) {
@@ -14559,18 +14558,27 @@
         super.updated(changedProperties);
         changedProperties.forEach((oldValue, propName) => {
           if (propName == "celltext") {
+            let celltext = this.celltext;
+
+            if (this.amount) {
+              if (this.amount == 'tkr') {
+                celltext = +celltext / 1000;
+                console.log('AMOUNT', celltext);
+              }
+            }
+
             if (this.format) {
               if (this.type !== "percent") {
                 this.shadowRoot.querySelector(
                   "#edcell"
-                ).value = decimalFormat.format(this.celltext);
+                ).value = decimalFormat.format(celltext);
               } else {
                 this.shadowRoot.querySelector(
                   "#edcell"
-                ).value = percentFormat.format(this.celltext);
+                ).value = percentFormat.format(celltext);
               }
             } else {
-              this.shadowRoot.querySelector("#edcell").value = this.celltext;
+              this.shadowRoot.querySelector("#edcell").value = celltext;
             }
           }
           
@@ -14580,12 +14588,15 @@
             // console.log('PROPS IN INPUT', this.props)
             if (this.props.ui_schema.ui_options) {
               this.color = this.props.ui_schema.ui_options.color;
-              this.type = this.props.ui_schema.ui_options.type;
+              // this.type = this.props.ui_schema.ui_options.type;
               this.readonly = this.props.ui_schema.ui_options.readonly;
               this.format = this.props.ui_schema.ui_options.format;
               this.type = this.props.ui_schema.ui_options.type
                 ? this.props.ui_schema.ui_options.type
                 : this.type;
+              this.amount = this.props.ui_schema.ui_options.amount
+                ? this.props.ui_schema.ui_options.amount
+                : this.amount;
             }
 
             if (this.props.ui_schema.ui_actions) {
@@ -15100,7 +15111,7 @@
                         data: this['investment'],
                         button: false,
                         comment:
-                            "Pris per kvadratmeter av nya permanenta lokaler. Pris inkluderar en byggnad med samma funktionella och tekniska egenskaper som en dynamisk lokal. Investeringskostnader skal meddelas på prisnivå av startår."
+                            "Pris per kvadratmeter av nya permanenta lokaler. Pris inkluderar en byggnad med samma funktionella och tekniska egenskaper som en dynamisk lokal. Investeringskostnader ska meddelas på prisnivå av startår."
                     },
                     label: {
                         label: "Reservation av kommande renoveringar samt investeringar",
@@ -15174,7 +15185,7 @@
             ...schemaTemplate, 
             data_schema: {
                 header: {
-                    label: "Tabeller",
+                    label: "Antal kvadratmeter",
                     data: "",
                     comment: "",
                 }
@@ -15187,7 +15198,7 @@
             ...schemaTemplate, 
             data_schema: {
                 header: {
-                    label: "Tabeller",
+                    label: "Antal tkr",
                     data: "",
                     comment: "",
                 }
@@ -16520,11 +16531,11 @@
                             data: this.dataArray[0]  
                         },
                         {
-                            label: "Dynamiska lokaler",
+                            label: "Volym av dynamiska lokaler",
                             data: this.dataArray[1]
                         },
                         {
-                            label: "Permanenta lokaler",
+                            label: "Volym av permanenta lokaler",
                             data: this.dataArray[2]
                         }
                     ]
@@ -16543,11 +16554,11 @@
                             data: this.aggregateDataArr[0]
                         },
                         {
-                            label: "Dynamiska lokaler",
+                            label: "Volym av dynamiska lokaler",
                             data: this.aggregateDataArr[1]
                         },
                         {
-                            label: "Permanenta lokaler",
+                            label: "Volym av permanenta lokaler",
                             data: this.aggregateDataArr[2]
                         }
                     ]
@@ -16800,6 +16811,7 @@
                 format: true,
                 readonly: true,
                 nottabable: true,
+                amount: 'tkr',
                 color: 'attention'
             },
         }
@@ -16828,6 +16840,7 @@
                 readonly: true,
                 nottabable: true,
                 color: 'attention',
+                amount: 'tkr',
                 type: 'sum',
             },
         }
@@ -16909,7 +16922,7 @@
                                 data: this.permanentMaintenanceCosts
                             },
                             {
-                                label: "Minskning av tekniskt värde",
+                                label: "Reservation för kommande renoveringar",
                                 data: this.permanentReinvestmentCosts
                             },
                         ],
@@ -16928,12 +16941,12 @@
                         },
                         rows: [
                             {
-                                label: "Underhålls av dynamiska lokaler",
-                                data: this.dynamicMaintenanceCosts
-                            },
-                            {
                                 label: "Hyra av dynamiska lokaler",
                                 data: this.dynamicRentCosts
+                            },
+                            {
+                                label: "Underhåll av dynamiska lokaler",
+                                data: this.dynamicMaintenanceCosts
                             },
                         ],
                         sumrow: {
@@ -16959,7 +16972,7 @@
                                 data: this.discountedPermanentMaintenanceCosts
                             },
                             {
-                                label: "Minskning av tekniskt värde",
+                                label: "Reservation för kommande renoveringar",
                                 data: this.discountedPermanentReinvestmentCosts
                             },
                         ],
@@ -16978,12 +16991,12 @@
                         },
                         rows: [
                             {
-                                label: "Underhålls av dynamiska lokaler",
-                                data: this.discountedDynamicMaintenanceCosts
-                            },
-                            {
                                 label: "Hyra av dynamiska lokaler",
                                 data: this.discountedDynamicRentCosts
+                            },
+                            {
+                                label: "Underhåll av dynamiska lokaler",
+                                data: this.discountedDynamicMaintenanceCosts
                             },
                         ],
                         sumrow: {
@@ -17009,7 +17022,7 @@
                                 data: this.aggregatedDiscountedPermanentMaintenanceCosts
                             },
                             {
-                                label: "Minskning av tekniskt värde",
+                                label: "Reservation för kommande renoveringar",
                                 data: this.aggregatedDiscountedPermanentReinvestmentCosts
                             },
                         ],
@@ -17028,12 +17041,12 @@
                         },
                         rows: [
                             {
-                                label: "Underhåll av dynamiska lokaler",
-                                data: this.aggregatedDiscountedDynamicMaintenanceCosts
-                            },
-                            {
                                 label: "Hyra av dynamiska lokaler",
                                 data: this.aggregatedDiscountedDynamicRentCosts
+                            },
+                            {
+                                label: "Underhåll av dynamiska lokaler",
+                                data: this.aggregatedDiscountedDynamicMaintenanceCosts
                             },
                         ],
                         sumrow: {
@@ -18045,11 +18058,11 @@
                         },
                         rows: [
                             {
-                                label: "Permanenta lokaler",
+                                label: "Permanenta lokaler (kr)",
                                 data: this.sippedaggregateddiscountedpermanentCost
                             },
                             {
-                                label: "Dynamiska lokaler",
+                                label: "Dynamiska lokaler (kr)",
                                 data: this.sippedaggregateddiscounteddynamicCost
                             },
                         ],
@@ -18064,15 +18077,15 @@
                         },
                         rows: [
                             {
-                                label: "Efterfrågan av lokaler",
+                                label: "Efterfrågan av lokaler (kvm)",
                                 data: this.aggregateDataArr[0]
                             },
                             {
-                                label: "Dynamiska lokaler",
+                                label: "Volym av dynamiska lokaler (kvm)",
                                 data: this.aggregateDataArr[1]
                             },
                             {
-                                label: "Permanenta lokaler",
+                                label: "Volym av permanenta lokaler (kvm)",
                                 data: this.aggregateDataArr[2]
                             }
                         ],
@@ -41473,7 +41486,6 @@ ${this.value == 'in' ? html`<div @click="${e => this.logoutHandler(e)}"><svg cla
       }
 
       loggedinHandler(e) {
-        console.log('click');
         firebase
           .auth()
           .signInWithEmailAndPassword("ahell@kth.se", "111111")

@@ -52,6 +52,7 @@ let props = () => [
   { propKey: "celltext", propValue: { type: String }, rx: false },
   { propKey: "color", propValue: { type: String }, rx: false },
   { propKey: "type", propValue: { type: String }, rx: false },
+  { propKey: "amount", propValue: { type: String }, rx: false },
   { propKey: "readonly", propValue: { type: Boolean }, rx: false },
   { propKey: "format", propValue: { type: Boolean }, rx: false },
   { propKey: "changeevent", propValue: { type: Object }, rx: false },
@@ -64,6 +65,7 @@ export class XInput extends propsmixin(props, LitElement) {
     this.readonly = false;
     this.format = false;
     this.changeevent = true;
+    this.amount = 'kr'
   }
 
   blurHandler(e) {
@@ -184,18 +186,27 @@ export class XInput extends propsmixin(props, LitElement) {
     super.updated(changedProperties);
     changedProperties.forEach((oldValue, propName) => {
       if (propName == "celltext") {
+        let celltext = this.celltext
+
+        if (this.amount) {
+          if (this.amount == 'tkr') {
+            celltext = +celltext / 1000
+            console.log('AMOUNT', celltext)
+          }
+        }
+
         if (this.format) {
           if (this.type !== "percent") {
             this.shadowRoot.querySelector(
               "#edcell"
-            ).value = decimalFormat.format(this.celltext);
+            ).value = decimalFormat.format(celltext);
           } else {
             this.shadowRoot.querySelector(
               "#edcell"
-            ).value = percentFormat.format(this.celltext);
+            ).value = percentFormat.format(celltext);
           }
         } else {
-          this.shadowRoot.querySelector("#edcell").value = this.celltext;
+          this.shadowRoot.querySelector("#edcell").value = celltext;
         }
       }
       
@@ -205,12 +216,15 @@ export class XInput extends propsmixin(props, LitElement) {
         // console.log('PROPS IN INPUT', this.props)
         if (this.props.ui_schema.ui_options) {
           this.color = this.props.ui_schema.ui_options.color;
-          this.type = this.props.ui_schema.ui_options.type;
+          // this.type = this.props.ui_schema.ui_options.type;
           this.readonly = this.props.ui_schema.ui_options.readonly;
           this.format = this.props.ui_schema.ui_options.format;
           this.type = this.props.ui_schema.ui_options.type
             ? this.props.ui_schema.ui_options.type
             : this.type;
+          this.amount = this.props.ui_schema.ui_options.amount
+            ? this.props.ui_schema.ui_options.amount
+            : this.amount;
         }
 
         if (this.props.ui_schema.ui_actions) {

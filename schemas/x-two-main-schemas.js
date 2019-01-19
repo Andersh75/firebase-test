@@ -171,11 +171,11 @@ export function twoMainTablesSchemas() {
                         data: this.dataArray[0]  
                     },
                     {
-                        label: "Dynamiska lokaler",
+                        label: "Volym av dynamiska lokaler",
                         data: this.dataArray[1]
                     },
                     {
-                        label: "Permanenta lokaler",
+                        label: "Volym av permanenta lokaler",
                         data: this.dataArray[2]
                     }
                 ]
@@ -194,11 +194,11 @@ export function twoMainTablesSchemas() {
                         data: this.aggregateDataArr[0]
                     },
                     {
-                        label: "Dynamiska lokaler",
+                        label: "Volym av dynamiska lokaler",
                         data: this.aggregateDataArr[1]
                     },
                     {
-                        label: "Permanenta lokaler",
+                        label: "Volym av permanenta lokaler",
                         data: this.aggregateDataArr[2]
                     }
                 ]
