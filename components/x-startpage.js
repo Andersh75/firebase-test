@@ -55,8 +55,7 @@ export class XStartpage extends reduxmixin(props, LitElement) {
                 visibility: ${this.amHidden};
             }
         </style>
-        <button class="my-button" @mouseover="${e => this.clicked(e)}"  @mouseout="${e => this.clicked2(e)}">reference</button>
-        <button class="my-popper">popper</button>
+
         <div>
         ${firebase.auth().currentUser ? 'PLACEHOLDER TEXT - STARTSIDA INLOGGAD. HÄR LÄGGER VI IN BILDER OCH TEXT OM KALKYLKODELLEN FÖR DEN SOM LOGGAT IN' : 'PLACEHOLDER TEXT - STARTSIDA EJ INLOGGAD. HÄR LÄGGER VI IN BILDER OCH TEXT OM KALKYLKODELLEN FÖR DEN SOM INTE ÄNNU LOGGAT IN'}
             
@@ -65,6 +64,7 @@ export class XStartpage extends reduxmixin(props, LitElement) {
 }
 
 customElements.define('x-startpage', XStartpage);
-
+{/* <button class="my-button" @mouseover="${e => this.clicked(e)}"  @mouseout="${e => this.clicked2(e)}">reference</button>
+<button class="my-popper">popper</button> */}
 
 // ${JSON.stringify(firebase.auth().currentUser)}

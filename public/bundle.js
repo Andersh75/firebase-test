@@ -11400,7 +11400,7 @@
             return html`<x-chart .test=${item.json_schema} type="bar" class="${item.ui_schema.ui_classnames}-${index % 2}"></x-chart>`
 
             case 'x-main':
-            return html`<x-main .props=${item.json_schema} scenario=${this.scenario} @scenariochanged="${e => this.scenarioChangedHandler(e)}" @tablechanged="${e => this.tableChangedHandler(e)}" @addrowchanged="${e => this.addRowChangedHandler(e)}" @removerowchanged="${e => this.removeRowChangedHandler(e)}" @rowchanged="${e => this.rowChangedHandler(e)}"  @gridchanged="${e => this.gridChangedHandler(e)}""></x-main>
+            return html`<x-main .props=${item.json_schema} scenario=${this.scenario} @scenariochanged="${e => this.scenarioChangedHandler(e)}" @tablechanged="${e => this.tableChangedHandler(e)}" @addrowchanged="${e => this.addRowChangedHandler(e)}" @removerowchanged="${e => this.removeRowChangedHandler(e)}" @rowchanged="${e => this.rowChangedHandler(e)}"  @gridchanged="${e => this.gridChangedHandler(e)}" @tablepagingchanged="${e => this.tablePagingChangedHandler(e)}"></x-main>
         `
             case 'x-header':
             return html`<x-header class="header" .props=${item.json_schema} selected=${this.selectedmenu} @menuchanged="${(event) => this.menuchangedHandler(event)}" @loggedout="${(event) => this.loggedoutHandler(event)}" @loggedin="${(event) => this.loggedinHandler(event)}"></x-header>
@@ -11442,7 +11442,7 @@
 
 
             case 'x-main-header':
-            return html`<x-main-header class="${item.ui_schema.ui_classnames}" .props=${item.json_schema}></x-main-header>`;
+            return html`<x-main-header class="${item.ui_schema.ui_classnames}" .props=${item.json_schema} @tablepagingchanged="${(e) => this.tablePagingChangedHandler(e)}"></x-main-header>`;
 
             case 'x-rowsandlabel':
             return html`<x-rowsandlabel class="${item.ui_schema.ui_classnames}" .props=${item.json_schema} selected=${this.selectedscenario} @rowchanged="${(event) => this.rowChangedHandler(event, index)}" @addrowchanged="${(event) => this.addRowChangedHandler(event, index)}" @removerowchanged="${(event) => this.removeRowChangedHandler(event, index)}"></x-rowsandlabel>`;
@@ -11476,6 +11476,8 @@
         switch(value) {
             case 'color':
             return +this.scenario - 1 == index ? 'grey' : 'none'
+            case 'page':
+            return +this.page
             case 'selected':
             return +this.scenario - 1 == index ? true : false
             case 'selectedmenu':
@@ -15078,6 +15080,12 @@
                     color: var(--color-text);
                 }
 
+                .transparent {
+                    background-color: var(--color-grey); 
+                    border: 0px solid var(--color-text);
+                    color: var(--color-text);
+                }
+
                 .grey.selected{
                     transition: background-color 0.1s ease-in;
                     background-color: var(--color-grey); 
@@ -15189,9 +15197,7 @@
                     "firstbox";                    
                     grid-area: boxes;
                     align-self: center;
-                    justify-self: end;
-               
-                    
+                    justify-self: end;  
                 }
 
                 .data {
@@ -15430,6 +15436,12 @@
         this.okToRender = false;
         this.scenario = chosenScenario;
         // this.hidesubheader = false
+      }
+
+      tablePagingChangedHandler(e) {
+        let event = new CustomEvent('tablepagingchanged', { detail: {index: e.detail.index} });
+        this.dispatchEvent(event);
+        // console.log(e)
       }
 
       scenarioChangedHandler(e) {
@@ -16059,9 +16071,12 @@
             super.firstUpdated();
             rx.latestCombiner([this.data$, this.label$])
             .pipe(rx.undefinedElementRemover)
-            .subscribe(() => {
+            .subscribe(async () => {
                 this.renderdata = this.data;
                 this.renderlabel = this.label;
+                // console.log('DATA', this.renderdata)
+
+               //this.renderdata = {...this.renderdata, json_schema: [...R.slice(0, 4, await this.renderdata.json_schema)], data_schema: [...R.slice(0, 4, await this.renderdata.data_schema)]}
 
                 if (this.renderdata && this.renderlabel) {
                     this.okToRender = true;
@@ -19183,22 +19198,56 @@
             firebase.auth().onAuthStateChanged((user) => {
                 this.requestUpdate();
               });
+            this.amHidden = 'hidden';
+        }
+
+        firstUpdated() {
+            super.firstUpdated();
+            // console.log(Popper)
+        }
+
+        clicked(e) {
+            // console.log(e)
+            var reference = this.shadowRoot.querySelector('.my-button');
+            var popper = this.shadowRoot.querySelector('.my-popper');
+            // console.log(reference)
+
+            this.amHidden = 'visible';
+            var popperInstance = new Popper(reference, popper, {
+                placement: 'right'
+            });
+            this.requestUpdate();
+        }
+
+        clicked2(e) {
+            this.amHidden = 'hidden';
+            this.requestUpdate();
         }
         render() {
            
-            return html`STARTSIDA
+            return html`
         <style>
             div {
                 min-height: 60vh;
+                color: var(--color-text);
+                font: var(--font-table-rowheader);
+            }
+
+            .my-popper {
+                visibility: ${this.amHidden};
             }
         </style>
+
         <div>
-            ${JSON.stringify(firebase.auth().currentUser)}
+        ${firebase.auth().currentUser ? 'PLACEHOLDER TEXT - STARTSIDA INLOGGAD. HÄR LÄGGER VI IN BILDER OCH TEXT OM KALKYLKODELLEN FÖR DEN SOM LOGGAT IN' : 'PLACEHOLDER TEXT - STARTSIDA EJ INLOGGAD. HÄR LÄGGER VI IN BILDER OCH TEXT OM KALKYLKODELLEN FÖR DEN SOM INTE ÄNNU LOGGAT IN'}
+            
         </div>`;
         }
     }
 
     customElements.define('x-startpage', XStartpage);
+
+    // ${JSON.stringify(firebase.auth().currentUser)}
 
     let props$j = () => ([
         { propKey: "props", propValue: { type: Object }, rx: false },
