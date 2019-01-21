@@ -103,9 +103,7 @@ export class XSubheader extends rxmixin(props, LitElement) {
                     "firstbox";                    
                     grid-area: boxes;
                     align-self: center;
-                    justify-self: end;
-               
-                    
+                    justify-self: end;  
                 }
 
                 .data {

@@ -57,6 +57,12 @@ export class XMain extends rxmixin(props, LitElement) {
     // this.hidesubheader = false
   }
 
+  tablePagingChangedHandler(e) {
+    let event = new CustomEvent('tablepagingchanged', { detail: {index: e.detail.index} });
+    this.dispatchEvent(event);
+    // console.log(e)
+  }
+
   scenarioChangedHandler(e) {
     let event = new CustomEvent('scenariochanged', { detail: {index: e.detail.index} });
     this.dispatchEvent(event);

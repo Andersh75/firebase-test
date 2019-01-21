@@ -65,6 +65,12 @@ export class XButton extends propsmixin(props, LitElement) {
                     color: var(--color-text);
                 }
 
+                .transparent {
+                    background-color: var(--color-grey); 
+                    border: 0px solid var(--color-text);
+                    color: var(--color-text);
+                }
+
                 .grey.selected{
                     transition: background-color 0.1s ease-in;
                     background-color: var(--color-grey); 

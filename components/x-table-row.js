@@ -39,9 +39,12 @@ export class XTableRow extends rxmixin(props, LitElement) {
         super.firstUpdated();
         rx.latestCombiner([this.data$, this.label$])
         .pipe(rx.undefinedElementRemover)
-        .subscribe(() => {
+        .subscribe(async () => {
             this.renderdata = this.data;
             this.renderlabel = this.label;
+            // console.log('DATA', this.renderdata)
+
+           //this.renderdata = {...this.renderdata, json_schema: [...R.slice(0, 4, await this.renderdata.json_schema)], data_schema: [...R.slice(0, 4, await this.renderdata.data_schema)]}
 
             if (this.renderdata && this.renderlabel) {
                 this.okToRender = true;
