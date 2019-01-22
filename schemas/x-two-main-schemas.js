@@ -2,6 +2,7 @@ import "../components/x-table.js"
 import "../components/x-table-row.js"
 import "../components/x-input.js"
 import * as R from "ramda/es/index.js";
+import { html } from "lit-element";
 
 let ui_ref_header = {
     ui_widget: "x-table-row",
@@ -167,15 +168,15 @@ export function twoMainTablesSchemas() {
                 },
                 rows: [
                     {
-                        label: "Efterfrågan av lokaler",
+                        label: "Förändrad efterfrågan av lokalyta",
                         data: this.dataArray[0]  
                     },
                     {
-                        label: "Volym av dynamiska lokaler",
+                        label: "Förändrad lokalyta, dynamiska lokaler",
                         data: this.dataArray[1]
                     },
                     {
-                        label: "Volym av permanenta lokaler",
+                        label: "Förändrad lokalyta, permanenta lokaler",
                         data: this.dataArray[2]
                     }
                 ]
@@ -190,15 +191,15 @@ export function twoMainTablesSchemas() {
                 },
                 rows: [
                     {
-                        label: "Efterfrågan av lokaler",
+                        label: "Aggregerad efterfrågan av lokalyta",
                         data: this.aggregateDataArr[0]
                     },
                     {
-                        label: "Volym av dynamiska lokaler",
+                        label: "Aggregerad lokalyta, dynamiska lokaler",
                         data: this.aggregateDataArr[1]
                     },
                     {
-                        label: "Volym av permanenta lokaler",
+                        label: "Aggregerad lokalyta, permanenta lokaler",
                         data: this.aggregateDataArr[2]
                     }
                 ]

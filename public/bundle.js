@@ -16618,15 +16618,15 @@
                     },
                     rows: [
                         {
-                            label: "Efterfrågan av lokaler",
+                            label: "Förändrad efterfrågan av lokalyta",
                             data: this.dataArray[0]  
                         },
                         {
-                            label: "Volym av dynamiska lokaler",
+                            label: "Förändrad lokalyta, dynamiska lokaler",
                             data: this.dataArray[1]
                         },
                         {
-                            label: "Volym av permanenta lokaler",
+                            label: "Förändrad lokalyta, permanenta lokaler",
                             data: this.dataArray[2]
                         }
                     ]
@@ -16641,15 +16641,15 @@
                     },
                     rows: [
                         {
-                            label: "Efterfrågan av lokaler",
+                            label: "Aggregerad efterfrågan av lokalyta",
                             data: this.aggregateDataArr[0]
                         },
                         {
-                            label: "Volym av dynamiska lokaler",
+                            label: "Aggregerad lokalyta, dynamiska lokaler",
                             data: this.aggregateDataArr[1]
                         },
                         {
-                            label: "Volym av permanenta lokaler",
+                            label: "Aggregerad lokalyta, permanenta lokaler",
                             data: this.aggregateDataArr[2]
                         }
                     ]
