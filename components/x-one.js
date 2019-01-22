@@ -291,7 +291,7 @@ export class XOne extends reduxmixin(props, rxmixin(props, LitElement)) {
 
         this.periods = this.rentperiod.map(item => {
           return {
-            label: "Kontraktslängd, antal år",
+            label: "Avtalslängd, antal år",
             data: item,
             button: false,
             comment: ""

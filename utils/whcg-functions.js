@@ -540,7 +540,7 @@ export function getElement(name, item, index, arr) {
 
 
         case 'x-chart':
-        return html`<x-chart .test=${item.json_schema} type="bar" class="${item.ui_schema.ui_classnames}-${index % 2}"></x-chart>`
+        return html`<x-chart .props=${item.json_schema} type="bar" class="${item.ui_schema.ui_classnames}-${index % 2}"></x-chart>`
 
         case 'x-main':
         return html`<x-main .props=${item.json_schema} scenario=${this.scenario} @scenariochanged="${e => this.scenarioChangedHandler(e)}" @tablechanged="${(e) => this.tableChangedHandler(e)}" @addrowchanged="${e => this.addRowChangedHandler(e)}" @removerowchanged="${e => this.removeRowChangedHandler(e)}" @rowchanged="${e => this.rowChangedHandler(e)}"  @gridchanged="${e => this.gridChangedHandler(e)}" @tablepagingchanged="${e => this.tablePagingChangedHandler(e)}"></x-main>
