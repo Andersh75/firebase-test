@@ -26,6 +26,7 @@ export class XTable extends rxmixin(props, LitElement) {
       }
 
     rowChangedHandler(e, index) {
+        console.log('RCH: ', e, index)
         let event = new CustomEvent('tablechanged', { detail: {row: index, column: e.detail.column, value: e.detail.value}}); 
         this.dispatchEvent(event);
     }

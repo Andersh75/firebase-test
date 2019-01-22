@@ -187,7 +187,12 @@ let props = () => [
     path: ["menu", "selected"]
   },
   { propKey: "selected", propValue: { type: Number }, rx: true },
-  { propKey: "renderdata", propValue: { type: Array }, rx: false }
+  { propKey: "renderdata", propValue: { type: Array }, rx: false },
+  { 
+    propKey: "newtable", 
+    propValue: { type: Boolean }, 
+    rx: true 
+  },
 ];
 
 
@@ -198,6 +203,12 @@ export class XThree extends reduxmixin(props, rxmixin(props, LitElement)) {
     this.renderxmain = false
     this.okToRender = false;
     this.scenario = chosenScenario;
+    this.newtable = true;
+  }
+
+  tablePagingChangedHandler() {
+    console.log('HERE')
+    this.newtable = !this.newtable
   }
 
   firstUpdated() {
@@ -208,6 +219,7 @@ export class XThree extends reduxmixin(props, rxmixin(props, LitElement)) {
       this.startyear$,
       this.endyear$,
       this.scenario$,
+      this.newtable$
     ])
       .pipe(rx.undefinedElementRemover)
       .subscribe(() => {

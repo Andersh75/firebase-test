@@ -21,6 +21,25 @@ export class XMainHeader extends rxmixin(props, LitElement) {
         this.okToRender = false;
     }
 
+    leftHandler(e) {
+        console.log(e)
+        if(page > 0) {
+            page = +page - 1
+        }
+
+        let event = new CustomEvent('tablepagingchanged');
+        this.dispatchEvent(event);
+        
+    }
+
+    rightHandler(e) {
+        console.log(e)
+        page = +page + 1
+
+        let event = new CustomEvent('tablepagingchanged');
+        this.dispatchEvent(event);
+    }
+
     firstUpdated() {
         super.firstUpdated();
         rx.latestCombiner([this.data$, this.comment$, this.label$])
@@ -63,7 +82,7 @@ export class XMainHeader extends rxmixin(props, LitElement) {
                 grid-template-columns: repeat(10, 1fr);
                 grid-column-gap: 20px;
                 grid-template-areas: 
-                    "label      label       label    .        data        comment         comment         comment         select         select";
+                    "label      label       label    .        data        comment         comment         comment         left         right";
                 border-bottom: 2px solid var(--color-text);
                 align-items: center;
                 font: var(--font-main-header);
@@ -82,11 +101,21 @@ export class XMainHeader extends rxmixin(props, LitElement) {
             .comment {
                 grid-area: comment;
             }
+
+            .left {
+                grid-area: left;
+            }
+
+            .right {
+                grid-area: right;
+            }
     </style>
     <div class="row">
         <div class="label">${toRender.call(this, prepareRender(this.renderlabel))}</div>
         <div class="data">${toRender.call(this, prepareRender(this.renderdata))}</div>
         <div class="comment">${toRender.call(this, prepareRender(this.rendercomment))}</div>
+        <div class="left" @click="${e => this.leftHandler(e)}">Tidigare</div>
+        <div class="right" @click="${e => this.rightHandler(e)}">Nästa</div>
     </div>
         ` : html``
     }

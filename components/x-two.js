@@ -110,6 +110,11 @@ let props = () => [
     propValue: { type: Array }, 
     rx: false 
   },
+  { 
+    propKey: "newtable", 
+    propValue: { type: Boolean }, 
+    rx: true 
+  },
 ];
 
 
@@ -120,6 +125,7 @@ export class XTwo extends reduxmixin(props, rxmixin(props, LitElement)) {
     this.renderxmain = false
     this.okToRender = false;
     this.scenario = chosenScenario;
+    this.newtable = true
   }
 
   getData(value, index) {
@@ -130,6 +136,11 @@ export class XTwo extends reduxmixin(props, rxmixin(props, LitElement)) {
     chosenScenario = +e.detail.index + 1;
     this.scenario = chosenScenario;
     this.stateChanged(this.storeHolder.store.getState(), props);
+  }
+
+  tablePagingChangedHandler() {
+    console.log('HERE')
+    this.newtable = !this.newtable
   }
 
 
@@ -180,6 +191,7 @@ export class XTwo extends reduxmixin(props, rxmixin(props, LitElement)) {
       this.volumepermanentrow$,
       this.volumedynamicrow$,
       this.scenario$,
+      this.newtable$
       // this.rentperiod$
     ])
       .pipe(rx.undefinedElementRemover)

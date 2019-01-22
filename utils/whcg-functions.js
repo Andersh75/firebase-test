@@ -543,7 +543,7 @@ export function getElement(name, item, index, arr) {
         return html`<x-chart .test=${item.json_schema} type="bar" class="${item.ui_schema.ui_classnames}-${index % 2}"></x-chart>`
 
         case 'x-main':
-        return html`<x-main .props=${item.json_schema} scenario=${this.scenario} @scenariochanged="${e => this.scenarioChangedHandler(e)}" @tablechanged="${e => this.tableChangedHandler(e)}" @addrowchanged="${e => this.addRowChangedHandler(e)}" @removerowchanged="${e => this.removeRowChangedHandler(e)}" @rowchanged="${e => this.rowChangedHandler(e)}"  @gridchanged="${e => this.gridChangedHandler(e)}" @tablepagingchanged="${e => this.tablePagingChangedHandler(e)}"></x-main>
+        return html`<x-main .props=${item.json_schema} scenario=${this.scenario} @scenariochanged="${e => this.scenarioChangedHandler(e)}" @tablechanged="${(e) => this.tableChangedHandler(e)}" @addrowchanged="${e => this.addRowChangedHandler(e)}" @removerowchanged="${e => this.removeRowChangedHandler(e)}" @rowchanged="${e => this.rowChangedHandler(e)}"  @gridchanged="${e => this.gridChangedHandler(e)}" @tablepagingchanged="${e => this.tablePagingChangedHandler(e)}"></x-main>
         `
         case 'x-header':
         return html`<x-header class="header" .props=${item.json_schema} selected=${this.selectedmenu} @menuchanged="${(event) => this.menuchangedHandler(event)}" @loggedout="${(event) => this.loggedoutHandler(event)}" @loggedin="${(event) => this.loggedinHandler(event)}"></x-header>
@@ -585,7 +585,7 @@ export function getElement(name, item, index, arr) {
 
 
         case 'x-main-header':
-        return html`<x-main-header class="${item.ui_schema.ui_classnames}" .props=${item.json_schema} @tablepagingchanged="${(e) => this.tablePagingChangedHandler(e)}"></x-main-header>`;
+        return html`<x-main-header class="${item.ui_schema.ui_classnames}" .props=${item.json_schema} @tablepagingchanged="${() => this.tablePagingChangedHandler()}"></x-main-header>`;
 
         case 'x-rowsandlabel':
         return html`<x-rowsandlabel class="${item.ui_schema.ui_classnames}" .props=${item.json_schema} selected=${this.selectedscenario} @rowchanged="${(event) => this.rowChangedHandler(event, index)}" @addrowchanged="${(event) => this.addRowChangedHandler(event, index)}" @removerowchanged="${(event) => this.removeRowChangedHandler(event, index)}"></x-rowsandlabel>`;

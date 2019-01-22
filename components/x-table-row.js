@@ -30,7 +30,6 @@ export class XTableRow extends rxmixin(props, LitElement) {
 
 
     cellChangedHandler(e, index) {
-      
         let event = new CustomEvent('rowchanged', { detail: {column: index, value: e.detail.value }}); 
         this.dispatchEvent(event);
     }
@@ -42,10 +41,7 @@ export class XTableRow extends rxmixin(props, LitElement) {
         .subscribe(async () => {
             this.renderdata = this.data;
             this.renderlabel = this.label;
-            // console.log('DATA', this.renderdata)
-
-           //this.renderdata = {...this.renderdata, json_schema: [...R.slice(0, 4, await this.renderdata.json_schema)], data_schema: [...R.slice(0, 4, await this.renderdata.data_schema)]}
-
+           
             if (this.renderdata && this.renderlabel) {
                 this.okToRender = true;
                 this.requestUpdate();
@@ -146,3 +142,12 @@ export class XTableRow extends rxmixin(props, LitElement) {
 }
 
 customElements.define('x-table-row', XTableRow);
+
+
+
+
+
+
+ // console.log('DATA', this.renderdata)
+
+           //this.renderdata = {...this.renderdata, json_schema: [...R.slice(0 + 10 * page, 10 + 10 * page, await this.renderdata.json_schema)], data_schema: [...R.slice(0 + 10 * page, 10 + 10 * page, await this.renderdata.data_schema)]}
