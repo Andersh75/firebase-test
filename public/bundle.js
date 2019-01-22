@@ -11613,7 +11613,7 @@
 
 
             case 'x-chart':
-            return html`<x-chart .test=${item.json_schema} type="bar" class="${item.ui_schema.ui_classnames}-${index % 2}"></x-chart>`
+            return html`<x-chart .props=${item.json_schema} type="bar" class="${item.ui_schema.ui_classnames}-${index % 2}"></x-chart>`
 
             case 'x-main':
             return html`<x-main .props=${item.json_schema} scenario=${this.scenario} @scenariochanged="${e => this.scenarioChangedHandler(e)}" @tablechanged="${(e) => this.tableChangedHandler(e)}" @addrowchanged="${e => this.addRowChangedHandler(e)}" @removerowchanged="${e => this.removeRowChangedHandler(e)}" @rowchanged="${e => this.rowChangedHandler(e)}"  @gridchanged="${e => this.gridChangedHandler(e)}" @tablepagingchanged="${e => this.tablePagingChangedHandler(e)}"></x-main>
@@ -15831,6 +15831,30 @@
 
         }
 
+        .tableone {
+          grid-column-start: 1;
+          grid-column-end: 13;
+          padding-bottom: 50px;
+        }
+
+        .tabletwo {
+          grid-column-start: 1;
+          grid-column-end: 13;
+          padding-bottom: 50px;
+        }
+
+        /* .tablechartone-0 {
+          grid-column-start: 1;
+          grid-column-end: 7;
+          padding-bottom: 50px;
+        }
+
+        .tabletchartwo-0 {
+          grid-column-start: 7;
+          grid-column-end: 13;
+          padding-bottom: 50px;
+        } */
+
         .table-1 {
           grid-column-start: 7;
           grid-column-end: 13;
@@ -16156,7 +16180,7 @@
 
             this.periods = this.rentperiod.map(item => {
               return {
-                label: "Kontraktslängd, antal år",
+                label: "Avtalslängd, antal år",
                 data: item,
                 button: false,
                 comment: ""
@@ -17979,8 +18003,7 @@
         }
     };
 
-
-    let ui_ref_rows$2 = {
+    let ui_ref_tableone_rows = {
         ui_widget: "x-table-row",
         ui_order: [
             "label",
@@ -18001,6 +18024,86 @@
                 format: true,
                 readonly: true,
                 nottabable: true,
+                color: 'attention'
+            },
+        }
+    };
+
+    let ui_ref_tabletwo_rows = {
+        ui_widget: "x-table-row",
+        ui_order: [
+            "label",
+            "data"
+        ],
+        label: {
+            // ui_widget: "x-table-row-label",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                color: 'white',
+            },
+        },
+        data: {
+            ui_widget: "x-input",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                amount: 'tkr',
+                color: 'attention'
+            },
+        }
+    };
+
+    let ui_ref_tablechartone_rows = {
+        ui_widget: "x-table-row",
+        ui_order: [
+            "label",
+            "data"
+        ],
+        label: {
+            // ui_widget: "x-table-row-label",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                color: 'white',
+            },
+        },
+        data: {
+            ui_widget: "x-input",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                color: 'attention'
+            },
+        }
+    };
+
+    let ui_ref_tablecharttwo_rows = {
+        ui_widget: "x-table-row",
+        ui_order: [
+            "label",
+            "data"
+        ],
+        label: {
+            // ui_widget: "x-table-row-label",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                color: 'white',
+            },
+        },
+        data: {
+            ui_widget: "x-input",
+            ui_options:  {
+                format: true,
+                readonly: true,
+                nottabable: true,
+                amount: 'tkr',
                 color: 'attention'
             },
         }
@@ -18049,27 +18152,17 @@
         },
     };
 
-    let json_ref_table__sum$1 = {
-        type: 'Object',
-        properties: {
-            header: json_ref_row$1,
-            rows: {
-                type: 'Array',
-                items: json_ref_row$1
-            },
-            sumrow: json_ref_row$1,
-        }
-    };
-
     function fourMainSchemas() {
 
         return {
             ui_schema: {
                 ui_order: [
-                    "tablechart",
-                    "table",
+                    "tablechartone",
+                    "tablecharttwo",
+                    "tableone",
+                    "tabletwo",
                 ],
-                tablechart: {
+                tablechartone: {
                     ui_widget: "x-chart",
                     ui_classnames: "table",
                     ui_order: [
@@ -18078,11 +18171,11 @@
                         // "sumrow",
                     ],
                     header: ui_ref_header$2,
-                    rows: ui_ref_rows$2,
+                    rows: ui_ref_tablechartone_rows,
                     sumrow: ui_ref_sumrow$1,
                 },
-                table: {
-                    ui_widget: "x-table",
+                tablecharttwo: {
+                    ui_widget: "x-chart",
                     ui_classnames: "table",
                     ui_order: [
                         "header",
@@ -18090,118 +18183,179 @@
                         // "sumrow",
                     ],
                     header: ui_ref_header$2,
-                    rows: ui_ref_rows$2,
+                    rows: ui_ref_tablecharttwo_rows,
+                    sumrow: ui_ref_sumrow$1,
+                },
+                tableone: {
+                    ui_widget: "x-table",
+                    ui_classnames: "tableone",
+                    ui_order: [
+                        "header",
+                        "rows",
+                        // "sumrow",
+                    ],
+                    header: ui_ref_header$2,
+                    rows: ui_ref_tableone_rows,
+                    sumrow: ui_ref_sumrow$1,
+                },
+                tabletwo: {
+                    ui_widget: "x-table",
+                    ui_classnames: "tabletwo",
+                    ui_order: [
+                        "header",
+                        "rows",
+                        "sumrow",
+                    ],
+                    header: ui_ref_header$2,
+                    rows: ui_ref_tabletwo_rows,
                     sumrow: ui_ref_sumrow$1,
                 },
             },
             json_schema: {
                 type: 'Object',
                 properties: {
-                    table: {
-                        type: 'Array',
-                        items: json_ref_table__sum$1
+                    tableone: {
+                        type: 'Object',
+                        properties: {
+                            header: json_ref_row$1,
+                            rows: {
+                                type: 'Array',
+                                items: json_ref_row$1
+                            },
+                            sumrow: json_ref_row$1,
+                        }
                     },
-                    tablechart: {
-                        type: 'Array',
-                        items: json_ref_table__sum$1
-                    }
+                    tabletwo: {
+                        type: 'Object',
+                        properties: {
+                            header: json_ref_row$1,
+                            rows: {
+                                type: 'Array',
+                                items: json_ref_row$1
+                            },
+                            sumrow: json_ref_row$1,
+                        }
+                    },
+                    tablechartone: {
+                        type: 'Object',
+                        properties: {
+                            header: json_ref_row$1,
+                            rows: {
+                                type: 'Array',
+                                items: json_ref_row$1
+                            },
+                            sumrow: json_ref_row$1,
+                        }
+                    },
+                    tablecharttwo: {
+                        type: 'Object',
+                        properties: {
+                            header: json_ref_row$1,
+                            rows: {
+                                type: 'Array',
+                                items: json_ref_row$1
+                            },
+                            sumrow: json_ref_row$1,
+                        }
+                    },
+                    // tablechart: {
+                    //     type: 'Array',
+                    //     items: json_ref_table__sum
+                    // }
                 }
             },
             data_schema: {
-                tablechart: [
-                    {
-                        header: {
-                            label: "Aggregerade diskonterade kostnader",
-                            data: {
-                                fn: 'getData',
-                                parameter: 'identity'
-                            }
-                        },
-                        rows: [
-                            {
-                                label: "Permanenta lokaler",
-                                data: this.sippedaggregateddiscountedpermanentCost
-                            },
-                            {
-                                label: "Dynamiska lokaler",
-                                data: this.sippedaggregateddiscounteddynamicCost
-                            },
-                        ],
+                tablechartone: {
+                    header: {
+                        label: "Aggregerad efterfrågan och volym av lokaler (kvm)",
+                        data: {
+                            fn: 'getData',
+                            parameter: 'identity'
+                        }
                     },
-                    {
-                        header: {
-                            label: "Aggregerad efterfrågan och volym av lokaler",
-                            data: {
-                                fn: 'getData',
-                                parameter: 'identity'
-                            }
+                    rows: [
+                        {
+                            label: "Permanenta lokaler",
+                            data: this.aggregateDataArr[2]
                         },
-                        rows: [
-                            {
-                                label: "Efterfrågan av lokaler",
-                                data: this.aggregateDataArr[0]
-                            },
-                            {
-                                label: "Dynamiska lokaler",
-                                data: this.aggregateDataArr[1]
-                            },
-                            {
-                                label: "Permanenta lokaler",
-                                data: this.aggregateDataArr[2]
-                            }
-                        ],
-                    },
-                ],
-                table: [
-                    {
-                        header: {
-                            label: "Aggregerade diskonterade kostnader",
-                            data: {
-                                fn: 'getData',
-                                parameter: 'identity'
-                            }
+                        {
+                            label: "Dynamiska lokaler",
+                            data: this.aggregateDataArr[1]
                         },
-                        rows: [
-                            {
-                                label: "Permanenta lokaler (kr)",
-                                data: this.sippedaggregateddiscountedpermanentCost
-                            },
-                            {
-                                label: "Dynamiska lokaler (kr)",
-                                data: this.sippedaggregateddiscounteddynamicCost
-                            },
-                        ],
-                    },
-                    {
-                        header: {
-                            label: "Aggregerad efterfrågan och volym av lokaler",
-                            data: {
-                                fn: 'getData',
-                                parameter: 'identity'
-                            }
+                        {
+                            label: "Efterfrågan av lokaler",
+                            data: this.aggregateDataArr[0]
                         },
-                        rows: [
-                            {
-                                label: "Efterfrågan av lokaler (kvm)",
-                                data: this.aggregateDataArr[0]
-                            },
-                            {
-                                label: "Volym av dynamiska lokaler (kvm)",
-                                data: this.aggregateDataArr[1]
-                            },
-                            {
-                                label: "Volym av permanenta lokaler (kvm)",
-                                data: this.aggregateDataArr[2]
-                            }
-                        ],
+                    ],
+                },
+                tablecharttwo: {
+                    header: {
+                        label: "Aggregerade diskonterade kostnader (tkr)",
+                        data: {
+                            fn: 'getData',
+                            parameter: 'identity'
+                        }
                     },
-                ]
+                    rows: [
+                        {
+                            label: "Permanenta lokaler",
+                            data: this.sippedaggregateddiscountedpermanentCost
+                        },
+                        {
+                            label: "Dynamiska lokaler",
+                            data: this.sippedaggregateddiscounteddynamicCost
+                        },
+                    ],
+                }, 
+                tableone: {
+                    header: {
+                        label: "Aggregerad efterfrågan och volym av lokaler (kvm)",
+                        data: {
+                            fn: 'getData',
+                            parameter: 'identity'
+                        }
+                    },
+                    rows: [
+                        {
+                            label: "Efterfrågan av lokaler",
+                            data: this.aggregateDataArr[0]
+                        },
+                        {
+                            label: "Volym av dynamiska lokaler",
+                            data: this.aggregateDataArr[1]
+                        },
+                        {
+                            label: "Volym av permanenta lokaler",
+                            data: this.aggregateDataArr[2]
+                        }
+                    ],
+                },
+                tabletwo: {
+                    header: {
+                        label: "Aggregerade diskonterade kostnader (tkr)",
+                        data: {
+                            fn: 'getData',
+                            parameter: 'identity'
+                        }
+                    },
+                    rows: [
+                        {
+                            label: "Permanenta lokaler",
+                            data: this.sippedaggregateddiscountedpermanentCost
+                        },
+                        {
+                            label: "Dynamiska lokaler",
+                            data: this.sippedaggregateddiscounteddynamicCost
+                        },
+                    ],
+                    sumrow: {
+                        label: "Besparingspotential",
+                        data: this.sippedaggregateddiscountedDiffCost
+                    }
+                },
             }
         }
     }
-
-
-
 
 
 
@@ -18215,6 +18369,7 @@
     //         "data"
     //     ],
     //     label: {
+    //         // ui_widget: "x-table-row-label",
     //         ui_options:  {
     //             format: false,
     //             readonly: true,
@@ -18241,6 +18396,7 @@
     //         "data"
     //     ],
     //     label: {
+    //         // ui_widget: "x-table-row-label",
     //         ui_options:  {
     //             format: true,
     //             readonly: true,
@@ -18259,6 +18415,59 @@
     //     }
     // }
 
+    // let ui_ref_tableone_rows = {
+    //     ui_widget: "x-table-row",
+    //     ui_order: [
+    //         "label",
+    //         "data"
+    //     ],
+    //     label: {
+    //         // ui_widget: "x-table-row-label",
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'white',
+    //         },
+    //     },
+    //     data: {
+    //         ui_widget: "x-input",
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'attention'
+    //         },
+    //     }
+    // }
+
+    // let ui_ref_tabletwo_rows = {
+    //     ui_widget: "x-table-row",
+    //     ui_order: [
+    //         "label",
+    //         "data"
+    //     ],
+    //     label: {
+    //         // ui_widget: "x-table-row-label",
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: true,
+    //             nottabable: true,
+    //             color: 'white',
+    //         },
+    //     },
+    //     data: {
+    //         ui_widget: "x-input",
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: true,
+    //             nottabable: true,
+    //             amount: 'tkr',
+    //             color: 'attention'
+    //         },
+    //     }
+    // }
+
     // let ui_ref_sumrow = {
     //     ui_widget: "x-table-row",
     //     ui_order: [
@@ -18266,6 +18475,7 @@
     //         "data"
     //     ],
     //     label: {
+    //         // ui_widget: "x-table-row-label",
     //         ui_options:  {
     //             format: true,
     //             readonly: true,
@@ -18313,252 +18523,169 @@
     //     }
     // }
 
-    // export function schemas() {
+    // export function fourMainSchemas() {
 
     //     return {
     //         ui_schema: {
     //             ui_order: [
+    //                 "tablechart",
     //                 "tableone",
     //                 "tabletwo",
-    //                 "tablethree",
-    //                 "tablefour",
-    //                 "tablefive",
-    //                 "tablesix",
     //             ],
-    //             tableone: {
-    //                 ui_widget: "x-table",
+    //             tablechart: {
+    //                 ui_widget: "x-chart",
     //                 ui_classnames: "table",
     //                 ui_order: [
     //                     "header",
     //                     "rows",
-    //                     "sumrow",
+    //                     // "sumrow",
     //                 ],
     //                 header: ui_ref_header,
     //                 rows: ui_ref_rows,
+    //                 sumrow: ui_ref_sumrow,
+    //             },
+    //             tableone: {
+    //                 ui_widget: "x-table",
+    //                 ui_classnames: "tableone",
+    //                 ui_order: [
+    //                     "header",
+    //                     "rows",
+    //                     // "sumrow",
+    //                 ],
+    //                 header: ui_ref_header,
+    //                 rows: ui_ref_tableone_rows,
     //                 sumrow: ui_ref_sumrow,
     //             },
     //             tabletwo: {
     //                 ui_widget: "x-table",
-    //                 ui_classnames: "table",
+    //                 ui_classnames: "tabletwo",
     //                 ui_order: [
     //                     "header",
     //                     "rows",
-    //                     "sumrow",
+    //                     // "sumrow",
     //                 ],
     //                 header: ui_ref_header,
-    //                 rows: ui_ref_rows,
-    //                 sumrow: ui_ref_sumrow,
-    //             },
-    //             tablethree: {
-    //                 ui_widget: "x-table",
-    //                 ui_classnames: "table",
-    //                 ui_order: [
-    //                     "header",
-    //                     "rows",
-    //                     "sumrow",
-    //                 ],
-    //                 header: ui_ref_header,
-    //                 rows: ui_ref_rows,
-    //                 sumrow: ui_ref_sumrow,
-    //             },
-    //             tablefour: {
-    //                 ui_widget: "x-table",
-    //                 ui_classnames: "table",
-    //                 ui_order: [
-    //                     "header",
-    //                     "rows",
-    //                     "sumrow",
-    //                 ],
-    //                 header: ui_ref_header,
-    //                 rows: ui_ref_rows,
-    //                 sumrow: ui_ref_sumrow,
-    //             },
-    //             tablefive: {
-    //                 ui_widget: "x-table",
-    //                 ui_classnames: "table",
-    //                 ui_order: [
-    //                     "header",
-    //                     "rows",
-    //                     "sumrow",
-    //                 ],
-    //                 header: ui_ref_header,
-    //                 rows: ui_ref_rows,
-    //                 sumrow: ui_ref_sumrow,
-    //             },
-    //             tablesix: {
-    //                 ui_widget: "x-table",
-    //                 ui_classnames: "table",
-    //                 ui_order: [
-    //                     "header",
-    //                     "rows",
-    //                     "sumrow",
-    //                 ],
-    //                 header: ui_ref_header,
-    //                 rows: ui_ref_rows,
+    //                 rows: ui_ref_tabletwo_rows,
     //                 sumrow: ui_ref_sumrow,
     //             },
     //         },
     //         json_schema: {
     //             type: 'Object',
     //             properties: {
-    //                 tableone: json_ref_table__sum,
-    //                 tabletwo: json_ref_table__sum,
-    //                 tablethree: json_ref_table__sum,
-    //                 tablefour: json_ref_table__sum,
-    //                 tablefive: json_ref_table__sum,
-    //                 tablesix: json_ref_table__sum,
+    //                 tableone: {
+    //                     type: 'Object',
+    //                     properties: {
+    //                         header: json_ref_row,
+    //                         rows: {
+    //                             type: 'Array',
+    //                             items: json_ref_row
+    //                         },
+    //                         sumrow: json_ref_row,
+    //                     }
+    //                 },
+    //                 tabletwo: {
+    //                     type: 'Object',
+    //                     properties: {
+    //                         header: json_ref_row,
+    //                         rows: {
+    //                             type: 'Array',
+    //                             items: json_ref_row
+    //                         },
+    //                         sumrow: json_ref_row,
+    //                     }
+    //                 },
+    //                 tablechart: {
+    //                     type: 'Array',
+    //                     items: json_ref_table__sum
+    //                 }
     //             }
     //         },
     //         data_schema: {
+    //             tablechart: [
+    //                 {
+    //                     header: {
+    //                         label: "Aggregerade diskonterade kostnader (tkr)",
+    //                         data: {
+    //                             fn: 'getData',
+    //                             parameter: 'identity'
+    //                         }
+    //                     },
+    //                     rows: [
+    //                         {
+    //                             label: "Permanenta lokaler",
+    //                             data: this.sippedaggregateddiscountedpermanentCost
+    //                         },
+    //                         {
+    //                             label: "Dynamiska lokaler",
+    //                             data: this.sippedaggregateddiscounteddynamicCost
+    //                         },
+    //                     ],
+    //                 },
+    //                 {
+    //                     header: {
+    //                         label: "Aggregerad efterfrågan och volym av lokaler (kvm)",
+    //                         data: {
+    //                             fn: 'getData',
+    //                             parameter: 'identity'
+    //                         }
+    //                     },
+    //                     rows: [
+    //                         {
+    //                             label: "Permanenta lokaler",
+    //                             data: this.aggregateDataArr[2]
+    //                         },
+    //                         {
+    //                             label: "Dynamiska lokaler",
+    //                             data: this.aggregateDataArr[1]
+    //                         },
+    //                         {
+    //                             label: "Efterfrågan av lokaler",
+    //                             data: this.aggregateDataArr[0]
+    //                         },
+    //                     ],
+    //                 },
+    //             ],
     //             tableone: {
     //                 header: {
-    //                     label: "Kostnader av permanenta lokaler",
+    //                     label: "Aggregerad efterfrågan och volym av lokaler (kvm)",
     //                     data: {
-    //                       fn: 'getData',
-    //                       parameter: 'identity'
-    //                   }
+    //                         fn: 'getData',
+    //                         parameter: 'identity'
+    //                     }
     //                 },
     //                 rows: [
     //                     {
-    //                         label: "Investering i nya lokaler",
-    //                         data: this.permanentSingleCost[0]
+    //                         label: "Efterfrågan av lokaler",
+    //                         data: this.aggregateDataArr[0]
     //                     },
     //                     {
-    //                         label: "Underhållskostnad av egna lokaler",
-    //                         data: this.permanentAnnualCost[0]
+    //                         label: "Volym av dynamiska lokaler",
+    //                         data: this.aggregateDataArr[1]
     //                     },
     //                     {
-    //                         label: "Minskning av tekniskt värde",
-    //                         data: this.permanentPercentageCost[0]
-    //                     },
+    //                         label: "Volym av permanenta lokaler",
+    //                         data: this.aggregateDataArr[2]
+    //                     }
     //                 ],
-    //                 sumrow: {
-    //                     label: "Summa kostander permanenta lokaler",
-    //                     data: this.sippedpermanentCost
-    //                 },
     //             },
     //             tabletwo: {
     //                 header: {
-    //                     label: "Kostnader av dynamiska lokaler",
+    //                     label: "Aggregerade diskonterade kostnader (tkr)",
     //                     data: {
-    //                       fn: 'getData',
-    //                       parameter: 'identity'
-    //                   }
+    //                         fn: 'getData',
+    //                         parameter: 'identity'
+    //                     }
     //                 },
     //                 rows: [
     //                     {
-    //                         label: "Underhållskostnad av dynamiska lokaler",
-    //                         data: this.dynamicAnnualCost[0]
+    //                         label: "Permanenta lokaler",
+    //                         data: this.sippedaggregateddiscountedpermanentCost
     //                     },
     //                     {
-    //                         label: "Hyreskostnader av dynamiska lokaler",
-    //                         data: this.dynamicAnnualCost[1]
+    //                         label: "Dynamiska lokaler",
+    //                         data: this.sippedaggregateddiscounteddynamicCost
     //                     },
     //                 ],
-    //                 sumrow: {
-    //                     label: "Summa kostander dynamiska lokaler",
-    //                     data: this.sippeddynamicCost
-    //                 }
-    //             },
-    //             tablethree: {
-    //                 header: {
-    //                     label: "Diskonterade kostnader av permanenta lokaler",
-    //                     data: {
-    //                       fn: 'getData',
-    //                       parameter: 'identity'
-    //                   }
-    //                 },
-    //                 rows: [
-    //                     {
-    //                         label: "Investering i nya lokaler",
-    //                         data: this.discountedpermanentSingleCost[0]
-    //                     },
-    //                     {
-    //                         label: "Underhållskostnad av egna lokaler",
-    //                         data: this.discountedpermanentAnnualCost[0]
-    //                     },
-    //                     {
-    //                         label: "Minskning av tekniskt värde",
-    //                         data: this.discountedpermanentPercentageCost[0]
-    //                     },
-    //                 ],
-    //                 sumrow: {
-    //                     label: "Summa kostander permanenta lokaler",
-    //                     data: this.sippeddiscountedpermanentCost
-    //                 },
-    //             },
-    //             tablefour: {
-    //                 header: {
-    //                     label: "Diskonterade kostnader av dynamiska lokaler",
-    //                     data: {
-    //                       fn: 'getData',
-    //                       parameter: 'identity'
-    //                   }
-    //                 },
-    //                 rows: [
-    //                     {
-    //                         label: "Underhållskostnad av dynamiska lokaler",
-    //                         data: this.discounteddynamicAnnualCost[0]
-    //                     },
-    //                     {
-    //                         label: "Hyreskostnader av dynamiska lokaler",
-    //                         data: this.discounteddynamicAnnualCost[1]
-    //                     },
-    //                 ],
-    //                 sumrow: {
-    //                     label: "Summa kostander dynamiska lokaler",
-    //                     data: this.sippeddiscounteddynamicCost
-    //                 }
-    //             },
-    //             tablefive: {
-    //                 header: {
-    //                     label: "Aggregerade diskonterade kostnader av permanenta lokaler",
-    //                     data: {
-    //                       fn: 'getData',
-    //                       parameter: 'identity'
-    //                   }
-    //                 },
-    //                 rows: [
-    //                     {
-    //                         label: "Investering i nya lokaler",
-    //                         data: this.aggregateddiscountedpermanentSingleCost[0]
-    //                     },
-    //                     {
-    //                         label: "Underhållskostnad av egna lokaler",
-    //                         data: this.aggregateddiscountedpermanentAnnualCost[0]
-    //                     },
-    //                     {
-    //                         label: "Minskning av tekniskt värde",
-    //                         data: this.aggregateddiscountedpermanentPercentageCost[0]
-    //                     },
-    //                 ],
-    //                 sumrow: {
-    //                     label: "Summa kostander permanenta lokaler",
-    //                     data: this.sippedaggregateddiscountedpermanentCost
-    //                 },
-    //             },
-    //             tablesix: {
-    //                 header: {
-    //                     label: "Aggregerade diskonterade kostnader av dynamiska lokaler",
-    //                     data: {
-    //                       fn: 'getData',
-    //                       parameter: 'identity'
-    //                   }
-    //                 },
-    //                 rows: [
-    //                     {
-    //                         label: "Underhållskostnad av dynamiska lokaler",
-    //                         data: this.aggregateddiscounteddynamicAnnualCost[0]
-    //                     },
-    //                     {
-    //                         label: "Hyreskostnader av dynamiska lokaler",
-    //                         data: this.aggregateddiscounteddynamicAnnualCost[1]
-    //                     },
-    //                 ],
-    //                 sumrow: {
-    //                     label: "Summa kostander dynamiska lokaler",
-    //                     data: this.sippedaggregateddiscounteddynamicCost
-    //                 }
     //             },
     //         }
     //     }
@@ -18573,14 +18700,6 @@
         { propKey: "props", propValue: { type: Array }, rx: false },
         { propKey: "test", propValue: { type: Array }, rx: false },
         { propKey: "years", propValue: { type: Array }, rx: false }
-        
-        // { propKey: "selected", propValue: { type: String }, rx: false },
-        // { propKey: "label", propValue: { type: Array }, rx: false },
-        // { propKey: "data", propValue: { type: String }, rx: false },
-        // { propKey: "type", propValue: { type: String }, rx: false },
-        // { propKey: "format", propValue: { type: Boolean }, rx: false },
-        // { propKey: "readonly", propValue: { type: Boolean }, rx: false },
-        // { propKey: "props", propValue: { type: Object }, rx: false }
       ];
 
 
@@ -18590,7 +18709,7 @@
         render() {
             let canvas;
 
-            if (this.test) {
+            if (this.props) {
                 canvas = html`<canvas id="myChart"></canvas>`;
               } else {
                 canvas = html``;
@@ -18612,37 +18731,6 @@
         </div>
         `;
         }
-        // static get properties() {
-        //     return {
-                // type: {
-                //     type: String
-                // },
-                // value: {
-                //     type: Object
-                // },
-                // width: {
-                //     type: String
-                // },
-                // height: {
-                //     type: String
-                // },
-                // legendposition: {
-                //     type: String 
-                // },
-
-                // legendfontsize: {
-                //     type: Number
-                // },
-
-                // legendfontfamily: {
-                //     type: String
-                // },
-
-                // stacked: {
-                //     type: Boolean
-                // }
-        //     }
-        // }
 
 
         constructor() {
@@ -18660,43 +18748,22 @@
             super.connectedCallback();
             window.addEventListener('resize', (event) => {
                 this.shadowRoot.querySelector('.thediv').style.width = `${this.offsetWidth}px`;
-                this.test = [...this.test];
+                this.props = [...this.props];
               });
         }
 
         updated(changedProps) {
             super.updated(changedProps);
-            // if (changedProps.has('value')) {
-            //     //console.log('Chart updated: value!!!!')
-            //     //console.log(this.value)
-            //     this._chartJs(this.value);
-            // }
-            // if (changedProps.has('valuedyn')) {
-            //     //console.log('Chart updated: valuedynam!!!!')
-            //     //console.log(this.valuedyn)
-            //     this._chartJs(this.valuedyn);
-            // }
-            // if (changedProps.has('valueperm')) {
-            //     //console.log('Chart updated: valueperm!!!!')
-            //     //console.log(this.valueperm)
-            //     this._chartJs(this.valueperm);
-            // }
+
+
             if (changedProps.has('props')) {
-                this._chartJs(this.props);
-            }
-
-            if (changedProps.has('value')) {
-                //console.log('Chart updated: valueperm!!!!')
-                //console.log(this.valueperm)
-                this._chartJs(this.value);
-            }
-
-            if (changedProps.has('test')) {
-                let years = this.test[0].json_schema[1].data_schema;
-                let title = this.test[0].json_schema[0].data_schema;
+                let years = this.props[0].json_schema[1].data_schema;
+                let title = this.props[0].json_schema[0].data_schema;
                 let data = [];
-                data = this.test[1].json_schema.map(schema => {
-                    return {data: schema.json_schema[1].data_schema,
+
+                console.log('TP', this.props);
+                data = this.props[1].json_schema.map(schema => {
+                    return {data: schema.ui_schema.data.ui_options && schema.ui_schema.data.ui_options.amount == 'tkr' ? schema.json_schema[1].data_schema.map(item => +item / 1000) : schema.json_schema[1].data_schema,
                     label: schema.json_schema[0].data_schema}
                 });
                 this._chartJs({years: years, data: data, title: title});
@@ -18715,7 +18782,107 @@
             if (this.type == 'line') ;
 
         
-            // let areadata = {
+
+            
+            this.thechart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.years,
+                    datasets: data.data.map((dataItem, index) => {
+                        return {
+                            label: dataItem.label,
+                            data: dataItem.data,
+                            fill: false,
+                            showLine: true,
+                            spanGaps: false,
+                            backgroundColor: [
+                                `rgba(${255 * 1 / (+index + 1)}, 99, 132, ${0.2 * (+index + 1)})`,
+                                // `rgba(54, 162, 235, ${0.2 * (+index + 1)})`,
+                                // `rgba(255, 206, 86, ${0.2 * (+index + 1)})`,
+                                // `rgba(75, 192, 192, ${0.2 * (+index + 1)})`,
+                                // `rgba(153, 102, 255, ${0.2 * (+index + 1)})`,
+                                // `rgba(255, 159, 64, ${0.2 * (+index + 1)})`
+                            ],
+                            borderColor: [
+                                `rgba(${255}, ${50 * (+index * 2 + 1)}, ${0 * 2 / (+index + 1)}, 1)`,
+                                // `rgba(54, 162, 235, 1)`,
+                                // `rgba(255, 206, 86, 1)`,
+                                // `rgba(75, 192, 192, 1)`,
+                                // `rgba(153, 102, 255, 1)`,
+                                // `rgba(255, 159, 64, 1)`
+                            ],
+                            // borderWidth: index == 2 && data.data.length == 3 ? 4 : index == 1 && data.data.length == 2 ? 4 : 2,
+                            // borderDash: index == 0 && data.data.length == 3 ? [10, 5] : []
+                            borderWidth: 2,
+                            borderDash: index == 0 ? [16, 12] : index == 1 ? [16, 12] : [],
+                            borderDashOffset: index == 1 ? 6 : 0, 
+                            // borderDash: index == 0 ? [16, 12] : index == 1 ? [19, 14] : []
+                        }
+                    })
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: data.title,
+                        fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                        fontColor: '#FFFFFF',
+                        fontSize: this.offsetWidth / 45,
+                        fontStyle: 'normal',
+                        padding: 30
+                    },
+                    layout: {
+                        padding: {
+                            left: 20,
+                            right: 30,
+                            top: 0,
+                            bottom: 10
+                        },
+                    },
+                    legend: {
+                        position: this.legendposition,
+                        labels: {
+                            fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                            fontColor: '#FFFFFF',
+                            fontSize: this.offsetWidth / 60,
+                            boxWidth: this.offsetWidth / 50
+                        }
+                    },
+                    // scaleLabel,
+                    
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [
+                            {
+                                ticks: {
+                                    beginAtZero: true,
+                                    fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                                    fontColor: '#FFFFFF',
+                                    fontSize: this.offsetWidth / 60
+                                },
+                                gridLines: {
+                                }
+                            }
+                        ],
+                        yAxes: [
+                            {
+                                ticks: {
+                                    beginAtZero: true,
+                                    fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                                    fontColor: '#FFFFFF',
+                                    fontSize: this.offsetWidth / 60,
+                                    callback: function(value) {
+                                        return  value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+                                    }
+                                },
+                                gridLines: {
+                                }
+                            }
+                        ]
+                    }
+                }
+            });
+
+                    // let areadata = {
             //     // labels: this.label,
             //     labels: ["Passed"],
             //     datasets: [{
@@ -18774,94 +18941,6 @@
             //     },
             //     ]
             // }
-            
-            this.thechart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.years,
-                    datasets: data.data.map((data, index) => {
-                        return {
-                            label: data.label,
-                            data: data.data,
-                            fill: false,
-                            showLine: true,
-                            spanGaps: false,
-                            backgroundColor: [
-                                `rgba(${255 * 1 / (+index + 1)}, 99, 132, ${0.2 * (+index + 1)})`,
-                                // `rgba(54, 162, 235, ${0.2 * (+index + 1)})`,
-                                // `rgba(255, 206, 86, ${0.2 * (+index + 1)})`,
-                                // `rgba(75, 192, 192, ${0.2 * (+index + 1)})`,
-                                // `rgba(153, 102, 255, ${0.2 * (+index + 1)})`,
-                                // `rgba(255, 159, 64, ${0.2 * (+index + 1)})`
-                            ],
-                            borderColor: [
-                                `rgba(${255}, ${50 * (+index * 2 + 1)}, ${0 * 2 / (+index + 1)}, 1)`,
-                                // `rgba(54, 162, 235, 1)`,
-                                // `rgba(255, 206, 86, 1)`,
-                                // `rgba(75, 192, 192, 1)`,
-                                // `rgba(153, 102, 255, 1)`,
-                                // `rgba(255, 159, 64, 1)`
-                            ],
-                            borderWidth: 2
-                        }
-                    })
-                },
-                options: {
-                    title: {
-                        display: true,
-                        text: data.title,
-                        fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
-                        fontColor: '#FFFFFF',
-                        fontSize: this.offsetWidth / 45,
-                        fontStyle: 'normal',
-                        padding: 30
-                    },
-                    layout: {
-                        padding: {
-                            left: 20,
-                            right: 30,
-                            top: 0,
-                            bottom: 10
-                        },
-                    },
-                    legend: {
-                        position: this.legendposition,
-                        labels: {
-                            fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
-                            fontColor: '#FFFFFF',
-                            fontSize: this.offsetWidth / 60,
-                            boxWidth: this.offsetWidth / 50
-                        }
-                    },
-                    maintainAspectRatio: false,
-                    scales: {
-                        xAxes: [
-                            {
-                                ticks: {
-                                    beginAtZero: true,
-                                    fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
-                                    fontColor: '#FFFFFF',
-                                    fontSize: this.offsetWidth / 60
-                                },
-                                gridLines: {
-                                }
-                            }
-                        ],
-                        yAxes: [
-                            {
-                                ticks: {
-                                    beginAtZero: true,
-                                    fontFamily: "'Exo 2', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
-                                    fontColor: '#FFFFFF',
-                                    fontSize: this.offsetWidth / 60,
-                                },
-                                gridLines: {
-                                }
-                            }
-                        ]
-                    }
-                }
-            });
 
             // this.thechart = new Chart(ctx, {
             //     type: this.type,
@@ -18923,6 +19002,40 @@
     }
 
     window.customElements.define('x-chart', XChart);
+
+
+
+        // static get properties() {
+        //     return {
+                // type: {
+                //     type: String
+                // },
+                // value: {
+                //     type: Object
+                // },
+                // width: {
+                //     type: String
+                // },
+                // height: {
+                //     type: String
+                // },
+                // legendposition: {
+                //     type: String 
+                // },
+
+                // legendfontsize: {
+                //     type: Number
+                // },
+
+                // legendfontfamily: {
+                //     type: String
+                // },
+
+                // stacked: {
+                //     type: Boolean
+                // }
+        //     }
+        // }
 
     function mergeSchemas$3() {
       return {
@@ -19322,13 +19435,19 @@
                 this.aggregatedDiscountedPermanentReinvestmentCosts
               ]
             );
+            
 
             this.sippedaggregateddiscounteddynamicCost = addArraysAndSip(
               [
                 this.aggregatedDiscountedDynamicMaintenanceCosts,
-                this.aggregatedDiscountedDynamicRentCosts
+                this.aggregatedDiscountedDynamicRentCosts,
               ]
             );
+
+
+            this.sippedaggregateddiscountedDiffCost = zip$2(this.sippedaggregateddiscountedpermanentCost, this.sippedaggregateddiscounteddynamicCost).map(item => {
+              return +item[0] - +item[1]
+            });
 
             getRenderData.call(this, mergeSchemas$3)
               .then(renderdata => {
@@ -42001,5 +42120,7 @@ ${this.value == 'in' ? html`<div @click="${e => this.hoverHandler(e)}"><svg clas
     }
 
     customElements.define("x-app", XApp);
+
+    //HEJ
 
 }());

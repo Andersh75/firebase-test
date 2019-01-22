@@ -426,13 +426,19 @@ export class XFour extends reduxmixin(props, rxmixin(props, LitElement)) {
             this.aggregatedDiscountedPermanentReinvestmentCosts
           ]
         );
+        
 
         this.sippedaggregateddiscounteddynamicCost = addArraysAndSip(
           [
             this.aggregatedDiscountedDynamicMaintenanceCosts,
-            this.aggregatedDiscountedDynamicRentCosts
+            this.aggregatedDiscountedDynamicRentCosts,
           ]
         );
+
+
+        this.sippedaggregateddiscountedDiffCost = R.zip(this.sippedaggregateddiscountedpermanentCost, this.sippedaggregateddiscounteddynamicCost).map(item => {
+          return +item[0] - +item[1]
+        })
 
         getRenderData.call(this, mergeSchemas)
           .then(renderdata => {

@@ -206,6 +206,30 @@ export class XMain extends rxmixin(props, LitElement) {
 
         }
 
+        .tableone {
+          grid-column-start: 1;
+          grid-column-end: 13;
+          padding-bottom: 50px;
+        }
+
+        .tabletwo {
+          grid-column-start: 1;
+          grid-column-end: 13;
+          padding-bottom: 50px;
+        }
+
+        /* .tablechartone-0 {
+          grid-column-start: 1;
+          grid-column-end: 7;
+          padding-bottom: 50px;
+        }
+
+        .tabletchartwo-0 {
+          grid-column-start: 7;
+          grid-column-end: 13;
+          padding-bottom: 50px;
+        } */
+
         .table-1 {
           grid-column-start: 7;
           grid-column-end: 13;
