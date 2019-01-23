@@ -6,6 +6,7 @@ import "./x-one";
 import "./x-two";
 import "./x-three";
 import "./x-four";
+import "./x-five";
 import "./x-startpage";
 import { action } from "../redux/actions.js";
 import { loggedinHeaderSchemas } from "../schemas/x-header-schemas.js";
@@ -71,6 +72,10 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
     if (e.detail.value == 3) {
       this.selectedmenu = 3
       Router.go("/resultat");
+    }
+    if (e.detail.value == 4) {
+      this.selectedmenu = 4
+      Router.go("/kth");
     }
   }
 
@@ -206,6 +211,7 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
             { path: '/investeringsprogram', action: this.investeringsprogramAction.bind(this) },
             { path: '/kostnader', action: this.kostnaderAction.bind(this) },
             { path: '/resultat', action: this.resultatAction.bind(this) },
+            { path: '/kth', action: this.kthAction.bind(this) },
             { path: '(.*)', action: this.startpageAction.bind(this) }
           ]);
         }
@@ -235,6 +241,13 @@ kostnaderAction(context, commands) {
 
 resultatAction(context, commands) {
   this.slotted = commands.component('x-four');
+  this.slotted.storeHolder = this
+  this.slotted.stateChanged(this.store.getState())
+  return this.slotted;  
+}
+
+kthAction(context, commands) {
+  this.slotted = commands.component('x-five');
   this.slotted.storeHolder = this
   this.slotted.stateChanged(this.store.getState())
   return this.slotted;  

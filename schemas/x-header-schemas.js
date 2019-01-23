@@ -96,6 +96,9 @@ export function loggedinHeaderSchemas() {
                         {
                             value: "RESULTAT",
                         },
+                        {
+                            value: "KTH",
+                        },
                     ],
                 },
                 icon: {
