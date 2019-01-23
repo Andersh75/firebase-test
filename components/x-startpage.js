@@ -58,7 +58,7 @@ export class XStartpage extends reduxmixin(props, LitElement) {
                 "nine ten eleven twelve"; */
                 /* grid-template-rows: 72px auto 42px auto auto 42px auto; */
                 grid-template-rows: 72px auto auto auto auto auto;
-                min-height: 70vh;
+                min-height: 80vh;
                 color: var(--color-text);
                 font: var(--font-table-rowheader); 
             
