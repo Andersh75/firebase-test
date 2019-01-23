@@ -383,12 +383,12 @@ export function oneMainTablesschemas() {
                     button: false,
                     comment: ""
                 }, 
-                3: {
-                    label: "Kostnad för underhåll, oanvända lokaler",
-                    data: this['maintenancenotused'],
-                    button: false,
-                    comment: ""
-                },
+                // 3: {
+                //     label: "Kostnad för underhåll, oanvända lokaler",
+                //     data: this['maintenancenotused'],
+                //     button: false,
+                //     comment: ""
+                // },
                 label: {
                     label: "Kostnad för underhåll SEK / kvm",
                 },
