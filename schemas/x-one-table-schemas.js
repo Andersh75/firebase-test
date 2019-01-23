@@ -78,23 +78,23 @@ let json_ref_obj = {
                 }
             }
         },
-        3: {
-            type: 'Object',
-            properties: {
-                label: {
-                    type: 'String',
-                },
-                data: {
-                    type: 'String',
-                },
-                comment: {
-                    type: 'String',
-                },
-                button: {
-                    type: 'Boolean',
-                }
-            }
-        },
+        // 3: {
+        //     type: 'Object',
+        //     properties: {
+        //         label: {
+        //             type: 'String',
+        //         },
+        //         data: {
+        //             type: 'String',
+        //         },
+        //         comment: {
+        //             type: 'String',
+        //         },
+        //         button: {
+        //             type: 'Boolean',
+        //         }
+        //     }
+        // },
         label: {
             type: 'Object',
             properties: {
@@ -244,7 +244,7 @@ let ui_ref_maint = {
     ui_order: [
         "1",
         "2",
-        "3",
+        // "3",
         "label",
         "button"
     ],
@@ -276,20 +276,20 @@ let ui_ref_maint = {
             }
         }
     },
-    3: {
-        ...ui_ref__obj[1], data: {
-            ui_widget: "x-input",
-            ui_options:  {
-                format: true,
-                readonly: false,
-                color: 'white',
-                type: 'decimal'
-            },
-            ui_actions: {
-                changeevent: true,
-            }
-        }
-    },
+    // 3: {
+    //     ...ui_ref__obj[1], data: {
+    //         ui_widget: "x-input",
+    //         ui_options:  {
+    //             format: true,
+    //             readonly: false,
+    //             color: 'white',
+    //             type: 'decimal'
+    //         },
+    //         ui_actions: {
+    //             changeevent: true,
+    //         }
+    //     }
+    // },
 }
 
 
