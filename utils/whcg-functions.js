@@ -585,7 +585,7 @@ export function getElement(name, item, index, arr) {
 
 
         case 'x-main-header':
-        return html`<x-main-header class="${item.ui_schema.ui_classnames}" .props=${item.json_schema} @tablepagingchanged="${() => this.tablePagingChangedHandler()}"></x-main-header>`;
+        return html`<x-main-header class="${item.ui_schema.ui_classnames}" .props=${item.json_schema} ?page=${item.ui_schema.ui_options.page} @tablepagingchanged="${() => this.tablePagingChangedHandler()}"></x-main-header>`;
 
         case 'x-rowsandlabel':
         return html`<x-rowsandlabel class="${item.ui_schema.ui_classnames}" .props=${item.json_schema} selected=${this.selectedscenario} @rowchanged="${(event) => this.rowChangedHandler(event, index)}" @addrowchanged="${(event) => this.addRowChangedHandler(event, index)}" @removerowchanged="${(event) => this.removeRowChangedHandler(event, index)}"></x-rowsandlabel>`;

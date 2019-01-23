@@ -134,12 +134,13 @@ export class XTwo extends reduxmixin(props, rxmixin(props, LitElement)) {
 
   scenarioChangedHandler(e) {
     chosenScenario = +e.detail.index + 1;
+    page = 0
     this.scenario = chosenScenario;
     this.stateChanged(this.storeHolder.store.getState(), props);
   }
 
   tablePagingChangedHandler() {
-    console.log('HERE')
+    //console.log('HERE')
     this.newtable = !this.newtable
   }
 

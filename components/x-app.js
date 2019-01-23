@@ -52,6 +52,7 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
     super();
     this.okToRender = false
     this.loginhidden = true
+    
   }
 
   menuchangedHandler(e) {
@@ -148,8 +149,8 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
           this.storeUnsubscribe = this.store.subscribe(() => this.stateChanged(this.store.getState()));
           this.stateChanged(this.store.getState());
 
-          this.selectedmenu = -1;
-          Router.go("/startpage");
+          this.selectedmenu = 0;
+          Router.go("/antaganden");
           this.requestUpdate()
         }).catch(function (err) {
           console.log(err);
@@ -253,12 +254,23 @@ stateChanged(state) {
     return this.okToRender
       ? html`
       <style>
+
+
+
+
+        
         .container {
           display: grid;
           position: -webkit-sticky; /* Safari */
           position: sticky;
           top: 0;
-          background-color: var(--color-bg);
+          /* background-color: var(--color-attention); */
+          
+
+
+  
+        
+
 
 
           grid-template-areas:
@@ -273,8 +285,7 @@ stateChanged(state) {
           /* height: 100vh; */
           /* margin-left: 150px;
           margin-right: 150px; */
-          margin-left: 7vw;
-          margin-right: 7vw;
+
         }
 
         .container2 {
@@ -296,15 +307,18 @@ stateChanged(state) {
 
         header {
           grid-area: header;
+          background-color: var(--color-bg);
           /* position: sticky; */
           /* margin-left: 1rem;
           margin-right: 0.5rem; */
+          padding-left: 7vw;
+          padding-right: 7vw;
         }
 
         nav {
           grid-area: nav;
           /* margin-left: 0.1rem; */
-          background-color: firebrick;
+          /* background-color: firebrick; */
         }
 
         main {
@@ -314,7 +328,7 @@ stateChanged(state) {
         aside {
           grid-area: side;
           margin-right: 0.5rem;
-          background-color: saddlebrown;
+          /* background-color: saddlebrown; */
         }
 
         footer {
@@ -356,7 +370,7 @@ stateChanged(state) {
 
         <!-- <nav></nav> -->
 
-        <main>
+        <main class="containerbg">
           <div id="outlet"></div>
         </main>
 

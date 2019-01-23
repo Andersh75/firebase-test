@@ -74,7 +74,7 @@ export class XMain extends rxmixin(props, LitElement) {
   }
 
   tableChangedHandler(e, index) {
-    console.log('TCH: ', e, index)
+    //console.log('TCH: ', e, index)
     let event = new CustomEvent('tablechanged', { detail: {...e.detail, table: index} });
     this.dispatchEvent(event);
   }

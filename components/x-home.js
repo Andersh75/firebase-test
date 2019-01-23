@@ -79,18 +79,18 @@ class XHome extends reduxmixin(
             nav {
               grid-area: nav;
               margin-left: 0.5rem;
-              background-color: firebrick;
+              /* background-color: firebrick; */
             }
 
             main {
               grid-area: content;
-              background-color: darkblue;
+              /* background-color: darkblue; */
             }
 
             aside {
               grid-area: side;
               margin-right: 0.5rem;
-              background-color: saddlebrown;
+              /* background-color: saddlebrown; */
             }
 
             footer {

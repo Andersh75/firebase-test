@@ -446,6 +446,7 @@ tableChangedHandler(e) {
 
   scenarioChangedHandler(e) {
     chosenScenario = +e.detail.index + 1;
+    page = 0
     this.scenario = chosenScenario;
     this.stateChanged(this.storeHolder.store.getState(), props);
   }

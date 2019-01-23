@@ -185,6 +185,7 @@ let ui_ref_sumrow = {
             readonly: true,
             nottabable: true,
             color: 'attention',
+            amount: 'tkr',
             type: 'sum',
         },
     }

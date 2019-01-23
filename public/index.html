@@ -32,6 +32,8 @@
       var chosenScenario = 1;
       var page = 0;
 
+      var rowlength = 0
+
 
   </script>
     <script defer src="./bundle.js"></script>
@@ -112,13 +114,14 @@
         --font-8: normal 600 0.7em/1.0em 'Exo 2', sans-serif;
         --font-9: normal 600 0.8em/1.1em 'Exo 2', sans-serif;
         --font-10: normal 400 0.8em/1.4em 'Exo 2', sans-serif;
-        --font-11: normal 500 2.7em 'Exo 2', sans-serif;
+        --font-11: normal 500 2.0em 'Exo 2', sans-serif;
         --font-12: normal 600 0.9em/1.5em 'Exo 2', sans-serif;
 
         --font-menu: var(--font-2);
 
         --font-scenario-button: var(--font-3);
         --font-subheader: var(--font-4);
+        --font-subsubheader: var(--font-11);
 
         --font-main-header: var(--font-5);
 
@@ -203,11 +206,13 @@ var isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.r
 var isBlink = (isChrome || isOpera) && !!window.CSS;
 
 if(true || isFirefox || isChrome || isSafari) {
+    // if(false) {
   document.body.appendChild(document.createElement('x-app'));
 } else {
   let div = document.createElement('div');
   div.textContent = "Använd Chrome, Firefox eller Safari"
   document.body.appendChild(div);
+
   
 }
     </script>

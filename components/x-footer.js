@@ -89,11 +89,10 @@ class XFooter extends rxmixin(props, LitElement) {
                         </div>
                         <div class="footer-body-section">
                             <div class="footer-subhedline">
-                                Webbsupport
+                                
                             </div>
                             <div class="footer-subexplain">
-                                073-312 69 89
-                                info@sitemakr.se
+                               
                             </div>
                         </div>
                     </div>
@@ -101,16 +100,17 @@ class XFooter extends rxmixin(props, LitElement) {
                 <div class="col10span3 grid-3 footer-rows">
 
                         <div class="col1span3 footer-headline">
-                                TA DEL AV VÅRAT NYHETSBREV
+                                
                         </div>
 
                         <div class="col1span3 footer-body">
                             <div class="footer-body-section">
                                 <div class="footer-subhedline">
-                                    Information
+                                    Webbsupport
                                 </div>
                                 <div class="footer-subexplain">
-                                    Få den senaste informationen om utvecklingen på marknaden för hyrda skollokaler
+                                073-312 69 89
+                                info@sitemakr.se
                                 </div>
                             </div>
                             <div class="footer-body-section">

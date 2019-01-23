@@ -76,7 +76,7 @@ export class XIcon extends propsmixin(props, LitElement) {
                 padding-right: 20px;
                 position: absolute;
                 top: 80px;
-                right: -32px;
+                right: 104px;
                 /* z-index: 1000; */
             }
 

@@ -13,7 +13,49 @@ let schemaTemplate = {
                 "label",
                 "data",
                 "comment",
-            ]
+            ],
+            ui_options: {
+                page: true
+            }
+        },
+    },
+    json_schema: {
+        type: 'Object',
+        properties: {
+            header: {
+                type: 'Object',
+                properties: {
+                    label: {
+                        type: 'String',
+                    },
+                    data: {
+                        type: 'String',
+                    },
+                    comment: {
+                        type: 'String',
+                    },
+                },
+            },
+        }
+    },
+}
+
+let schemaTemplateOne = {
+    ui_schema: {
+        ui_order: [
+            "header",
+        ],
+        header: {
+            ui_widget: "x-main-header",
+            ui_classnames: "header",
+            ui_order: [
+                "label",
+                "data",
+                "comment",
+            ],
+            ui_options: {
+                page: false
+            }
         },
     },
     json_schema: {
@@ -39,7 +81,7 @@ let schemaTemplate = {
 
 export function oneMainHeaderSchemas() {
     return {
-        ...schemaTemplate, 
+        ...schemaTemplateOne, 
         data_schema: {
             header: {
                 label: "Kostnadsslag",

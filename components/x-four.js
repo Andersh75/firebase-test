@@ -209,7 +209,7 @@ export class XFour extends reduxmixin(props, rxmixin(props, LitElement)) {
   }
 
   tablePagingChangedHandler() {
-    console.log('HERE')
+    // console.log('HERE')
     this.newtable = !this.newtable
   }
 
@@ -487,6 +487,7 @@ tableChangedHandler(e) {
 
   scenarioChangedHandler(e) {
     chosenScenario = +e.detail.index + 1;
+    page = 0
     this.scenario = chosenScenario;
     this.stateChanged(this.storeHolder.store.getState(), props);
   }

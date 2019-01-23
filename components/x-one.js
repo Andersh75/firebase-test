@@ -149,6 +149,7 @@ export class XOne extends reduxmixin(props, rxmixin(props, LitElement)) {
   scenarioChangedHandler(e) {
     // console.log(e)
     chosenScenario = +e.detail.index + 1;
+    page = 0
     this.scenario = chosenScenario;
     // console.log(chosenScenario)
     this.stateChanged(this.storeHolder.store.getState(), props);
