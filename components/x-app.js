@@ -333,6 +333,7 @@ stateChanged(state) {
 
         footer {
           grid-area: footer;
+          padding-bottom: 40px;
         }
 
         /* @media (max-width: 768px) {
