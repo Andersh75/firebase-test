@@ -132,7 +132,7 @@ export class XChart extends rxmixin(props, LitElement) {
                         // borderDash: index == 0 && data.data.length == 3 ? [10, 5] : []
                         borderWidth: 2,
                         borderDash: index == 0 ? [16, 12] : index == 1 ? [16, 12] : [],
-                        borderDashOffset: index == 1 ? 6 : 0, 
+                        borderDashOffset: index == 0 ? 8 : 0, 
                         // borderDash: index == 0 ? [16, 12] : index == 1 ? [19, 14] : []
                     }
                 })
