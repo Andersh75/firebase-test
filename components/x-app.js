@@ -119,24 +119,24 @@ class XApp extends reduxmixin(props, rxmixin(props, connectmixin(props, LitEleme
         username = username.replace(".", "dot")
 
         let db = new PouchDB(username);
-        // let couchDB = new PouchDB(`http://plex:1111111111@localhost:5984/${username}`);
+        let couchDB = new PouchDB(`http://plex:1111111111@couchdb.sitemakr.se:5984/${username}`);
 
-        // db
-        //   .replicate
-        //   .from(couchDB)
-        //   .on('complete', (info) => {
-        //     db.sync(couchDB, { live: true, retry: true })
-        //     console.log('info');
-        //     console.log(info);
-        //   })
-        //   .on('error', (info) => {
-        //     console.log('error');
-        //     console.log(info);
-        //   })
-        //   .on('change', (info) => {
-        //     console.log('change');
-        //     console.log(info);
-        //   });
+        db
+          .replicate
+          .from(couchDB)
+          .on('complete', (info) => {
+            db.sync(couchDB, { live: true, retry: true })
+            console.log('info');
+            console.log(info);
+          })
+          .on('error', (info) => {
+            console.log('error');
+            console.log(info);
+          })
+          .on('change', (info) => {
+            console.log('change');
+            console.log(info);
+          });
 
         db.allDocs({
           include_docs: true,

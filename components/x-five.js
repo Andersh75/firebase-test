@@ -30,6 +30,8 @@ import '../components/x-chart.js';
 import '@vaadin/vaadin-select';
 import PouchDB from 'pouchdb/dist/pouchdb.js';
 import Auth from 'pouchdb-authentication/dist/pouchdb.authentication.js';
+import '@vaadin/vaadin-button';
+import * as d3 from "d3"
 
 
 function mergeSchemas() {
@@ -200,6 +202,7 @@ let props = () => [
     rx: true 
   },
   { propKey: "county", propValue: { type: Array }, rx: true, path: ["kth", "county"] },
+  { propKey: "date", propValue: { type: Array }, rx: true, path: ["kth", "date"] },
   { propKey: "runrx", propValue: { type: Boolean }, rx: true },
 
 ];
@@ -214,6 +217,7 @@ export class XFive extends reduxmixin(props, rxmixin(props, LitElement)) {
     this.scenario = chosenScenario;
     this.newtable = true;
     this.county = [];
+    this.date = [];
     this.runrx = true;
     this.testdb = new PouchDB('http://plex:1111111111@localhost:5984/sample');
   }
@@ -223,10 +227,30 @@ export class XFive extends reduxmixin(props, rxmixin(props, LitElement)) {
     this.newtable = !this.newtable
   }
 
-  getCounty() {
+  gridChangedHandler(e) {
+    console.log(e)
+    if (e.detail.table == 0) {
+      this.storeHolder.store.dispatch(
+        action.kth_county_selected(e.detail.selected)
+      );
+    }
 
-    console.log('IM CALLED')
-    return !R.isEmpty(this.county) ? this.county : this.testdb.query('my_index/by_municipality', {
+    if (e.detail.table == 1) {
+      this.storeHolder.store.dispatch(
+        action.kth_municipality_selected(e.detail.selected)
+      );
+    }
+
+    if (e.detail.table == 2) {
+      this.storeHolder.store.dispatch(
+        action.kth_lkf_selected(e.detail.selected)
+      );
+    }
+
+  }
+
+  getCounty() {
+    return !R.isEmpty(this.county) ? this.county : this.testdb.query('my_index3/by_county_count', {
       startkey: 'A',
       group_level: 1,
     }).then(res => {
@@ -239,8 +263,6 @@ export class XFive extends reduxmixin(props, rxmixin(props, LitElement)) {
         county: item[0],
       header: item[0]}
       })
-
-      console.log('Res: ', this.storeHolder.store)
       this.storeHolder.store.dispatch(
         action.kth_county(result)
       );
@@ -250,6 +272,10 @@ export class XFive extends reduxmixin(props, rxmixin(props, LitElement)) {
     }).catch(function (err) {
       console.log(err)
     })
+  }
+
+  getDate() {
+    return this.date
   }
 
   firstUpdated() {
@@ -280,6 +306,103 @@ export class XFive extends reduxmixin(props, rxmixin(props, LitElement)) {
 
 }
 
+searchHandler(e) {
+  console.log(e);
+  let dateids;
+  let countyids;
+  this.testdb.query('my_index4/by_county_year', {
+      // keys: ['BLEKINGE', 'GOTLAND'],
+      key: ['GOTLAND', '2016'],
+      // endkey: ['STOCKHOLM', '2017', {}],
+      // include_docs: true,
+      limit: 1000000,
+      // group_level: 2,
+  }).then(res => {
+    dateids = res.rows.map(row => {
+      return {id: row.id, rev: row.value}
+    })
+    console.log('DID', res.rows)
+
+    this.testdb.bulkGet({
+      docs: res.rows.map(item => {
+          return {id: item.id, rev: item.value}
+      }).filter((item, index) => {
+          return index <= 60000
+      })
+  }).then(function (result) {
+      // result.results.forEach(item => {
+      //     console.log(item.docs)
+      // })
+
+      console.log()
+      // console.log(result)
+
+
+      let newres = result.results.map(item => {
+        return item.docs[0].ok
+      })
+
+      let conv = d3.csvFormat(newres)
+
+      console.log('conv', conv)
+      var hiddenElement = document.createElement('a');
+      hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(conv);
+      hiddenElement.target = '_blank';
+      hiddenElement.download = 'data.csv';
+      hiddenElement.click();
+
+  
+    }).catch(function (err) {
+      console.log(err);
+    });
+
+  //   this.testdb.query('my_index/by_municipality', {
+  //     // keys: ['BLEKINGE', 'GOTLAND'],
+  //     startkey: ['STOCKHOLM'],
+  //     endkey: ['STOCKHOLM', {}],
+  //     // include_docs: true,
+  //     limit: 1000000,
+  //     // group_level: 2,
+  // }).then(res => {
+  //   countyids = res.rows.map(row => {
+  //     return {id: row.id, rev: row.value}
+  //   })
+
+  //   console.log('CID', countyids)
+  //   // console.log('IID', R.intersection(dateids.map(item => item.id), countyids.map(item => item.id)))
+  // })
+
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+    // let result = items.map((item, index) => {
+    //   return { data: item[0], id:  index,
+    //     selected: false,
+    //   county: item[0],
+    // header: item[0]}
+    // })
+    // this.storeHolder.store.dispatch(
+    //   action.kth_county(result)
+    // );
+
+    // return result
+   
+
+  }).catch(function (err) {
+    console.log(err)
+  })
+}
+
 tableChangedHandler(e) {
     //console.log(e)
 }
@@ -298,6 +421,7 @@ tableChangedHandler(e) {
   render() {
     return this.okToRender ? html`
       ${toRender.call(this, prepareRender(this.renderxmain))}
+      <vaadin-button @click="${e => this.searchHandler(e)}">SÖK</vaadin-button>
         ` : html``
   }
 

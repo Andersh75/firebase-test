@@ -1,27 +1,25 @@
-import {html, LitElement} from 'lit-element';
-import { rxmixin } from "../mixins/rxmixin.js";
-import '@vaadin/vaadin-grid/vaadin-grid.js';
+import { html, LitElement } from 'lit-element'
+import { rxmixin } from '../mixins/rxmixin.js'
+import '@vaadin/vaadin-grid/vaadin-grid.js'
 import '@vaadin/vaadin-grid/vaadin-grid-selection-column.js'
 
-
 let props = () => [
-    { propKey: "value", propValue: { type: Array }, rx: false },
-    { propKey: "valuedyn", propValue: { type: Array }, rx: false },
-    { propKey: "valueperm", propValue: { type: Array }, rx: false },
-    { propKey: "type", propValue: { type: String }, rx: false },
-    { propKey: "label", propValue: { type: Array }, rx: false },
-    { propKey: "props", propValue: { type: Array }, rx: false },
-    { propKey: "test", propValue: { type: Array }, rx: false },
-    { propKey: "years", propValue: { type: Array }, rx: false }
-  ];
+  { propKey: 'value', propValue: { type: Array }, rx: false },
+  { propKey: 'valuedyn', propValue: { type: Array }, rx: false },
+  { propKey: 'valueperm', propValue: { type: Array }, rx: false },
+  { propKey: 'type', propValue: { type: String }, rx: false },
+  { propKey: 'label', propValue: { type: Array }, rx: false },
+  { propKey: 'props', propValue: { type: Array }, rx: false },
+  { propKey: 'test', propValue: { type: Array }, rx: false },
+  { propKey: 'years', propValue: { type: Array }, rx: false }
+]
 
 export class XGrid extends rxmixin(props, LitElement) {
-    valuechangedHandler(e) {
-        console.log(this.shadowRoot.querySelector('.thediv').selectedItems);
-        let event = new CustomEvent('gridchanged', { detail: {selected: this.shadowRoot.querySelector('.thediv').selectedItems} });
-        this.dispatchEvent(event);
-
-    }
+  valuechangedHandler (e) {
+    console.log(this.shadowRoot.querySelector('.thediv').selectedItems)
+    let event = new CustomEvent('gridchanged', { detail: { selected: this.shadowRoot.querySelector('.thediv').selectedItems } })
+    this.dispatchEvent(event)
+  }
 
     clickHandler(e) {
         console.log(e)
@@ -67,7 +65,7 @@ export class XGrid extends rxmixin(props, LitElement) {
 
         if (changedProps.has('props')) {
             let data = [];
-            
+
             data = this.props[0].json_schema.map(schema => {
                 return {data: schema.json_schema[0].data_schema,
                     id: schema.json_schema[1].data_schema,
@@ -79,23 +77,23 @@ export class XGrid extends rxmixin(props, LitElement) {
             }).map(item => {
                 return {id: item.id}
             })
-            
+
 
             const grid = this.shadowRoot.querySelector('vaadin-grid');
             grid.items = data;
             grid.itemIdPath="id"
 
-            
+
             if(data.length < 8) {
                 console.log(data.length)
                 grid.heightByRows = true
-            } 
-            
-        
+            }
+
+
             const columns = this.shadowRoot.querySelectorAll('vaadin-grid-column');
-            
+
             columns[0].renderer = function (root, column, rowData) {
-                
+
                 root.textContent = rowData.item.data;
             };
             columns[0].headerRenderer = function (root, column) {
@@ -109,9 +107,9 @@ export class XGrid extends rxmixin(props, LitElement) {
                 root.textContent = '';
             };
 
-            grid.selectedItems = selectedIds;            
+            grid.selectedItems = selectedIds;
         }
-        
+
     }
 }
 
